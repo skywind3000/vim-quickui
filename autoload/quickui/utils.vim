@@ -114,23 +114,6 @@ function! quickui#utils#context_align(item, left_size, right_size)
 endfunc
 
 
-
-"----------------------------------------------------------------------
-" highlighting
-"----------------------------------------------------------------------
-function! s:hilink(name, target)
-	if !hlexists(a:name)
-		exec 'hi! link ' . a:name . ' ' . a:target
-	endif
-endfunc
-
-call s:hilink('QuickBG', 'Pmenu')
-call s:hilink('QuickKey', 'Keyword')
-call s:hilink('QuickOff', 'Comment')
-call s:hilink('QuickSel', 'PmenuSel')
-call s:hilink('QuickHelp', 'Title')
-
-
 "----------------------------------------------------------------------
 " style: default
 "----------------------------------------------------------------------

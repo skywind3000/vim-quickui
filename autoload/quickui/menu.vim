@@ -331,7 +331,10 @@ endfunc
 " moving 
 "----------------------------------------------------------------------
 function! s:movement(key)
-	if a:key == 'LEFT' || a:key == 'RIGHT'
+	if a:key == 'ESC'
+		call popup_close(a:winid, -1)
+		return 1
+	elseif a:key == 'LEFT' || a:key == 'RIGHT'
 		let index = s:cmenu.index
 		if index < 0
 			let index = 0

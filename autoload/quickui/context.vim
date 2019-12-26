@@ -272,7 +272,10 @@ function! quickui#context#filter(winid, key)
 		endif
 	elseif has_key(hwnd.keymap, a:key)
 		let key = hwnd.keymap[a:key]
-		if key == 'UP'
+		if key == 'ESC'
+			call popup_close(a:winid, -1)
+			return 1
+		elseif key == 'UP'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
 		elseif key == 'DOWN'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
