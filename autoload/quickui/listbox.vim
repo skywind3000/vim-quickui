@@ -22,7 +22,7 @@ function! quickui#listbox#parse(lines)
 	let spliter = '  '
 	for line in a:lines
 		let line = quickui#core#expand_text(line)
-		let obj = quickui#utils#single_parse(line)
+		let obj = quickui#core#single_parse(line)
 		let objects += [obj]
 		if obj.key_pos > 0
 			let items.keymap[tolower(obj.key_char)] = items.nrows
@@ -161,7 +161,7 @@ function! quickui#listbox#create(textlist, opts)
 		let opts.col = (&columns - w) / 2
 	endif
 	call popup_move(winid, opts)
-	call setwinvar(winid, '&wincolor', get(a:opts, 'color', 'TVisionBG'))
+	call setwinvar(winid, '&wincolor', get(a:opts, 'color', 'QuickBG'))
 	if get(a:opts, 'index', 0) >= 0
 		let moveto = get(a:opts, 'index', 0) + 1
 		call popup_show(winid)
@@ -171,15 +171,12 @@ function! quickui#listbox#create(textlist, opts)
 		call win_execute(winid, ':' . moveto)
 		call win_execute(winid, 'call quickui#listbox#reposition()')
 	endif
-	call s:highlight_keys(winid, items)
 	let border = get(a:opts, 'border', 1)
-	let opts = {}
+	let opts = {'cursorline':1, 'drag':1, 'mapping':0}
 	if get(a:opts, 'manual', 0) == 0
 		let opts.filter = 'quickui#listbox#filter'
 		let opts.callback = 'quickui#listbox#callback'
 	endif
-	let opts.cursorline = 1
-	let opts.drag = 1
 	let opts.border = [0,0,0,0,0,0,0,0,0]
 	if border > 0
 		let opts.borderchars = quickui#core#border_vim(border)
@@ -187,9 +184,6 @@ function! quickui#listbox#create(textlist, opts)
 	endif
 	let opts.title = has_key(a:opts, 'title')? ' ' . a:opts.title . ' ' : ''
 	let opts.padding = [0,1,0,1]
-	let opts.cursorline = 1
-	let opts.mapping = 0
-	let opts.drag = 1
 	if has_key(a:opts, 'close')
 		let opts.close = a:opts.close
 	endif
@@ -204,8 +198,19 @@ function! quickui#listbox#create(textlist, opts)
 		let keymap["h"] = 'HALFUP'
 		let keymap["l"] = 'HALFDOWN'
 	endif
+	if has_key(a:opts, 'keymap')
+		for key in keys(a:opts.keymap)
+			let keymap[key] = a:opts.keymap[key]
+		endfor
+	endif
 	let hwnd.state = 1
 	let hwnd.code = 0
+	let hwnd.input = ''
+	if has_key(a:opts, 'syntax')
+		call win_execute(winid, 'set ft=' . fnameescape(a:opts.syntax))
+	endif
+	call s:highlight_keys(winid, items)
+	call popup_show(winid)
 	return hwnd
 endfunc
 
@@ -239,7 +244,8 @@ function! quickui#listbox#callback(winid, code)
 	call quickui#core#popup_clear(a:winid)
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
-		call F(hwnd.context, code)
+		let g:quickui#listbox#current = hwnd
+		call F(code)
 	endif
 endfunc
 
@@ -256,15 +262,33 @@ function! quickui#listbox#filter(winid, key)
 		return 1
 	elseif a:key == "\<CR>" || a:key == "\<SPACE>"
 		return popup_filter_menu(a:winid, "\<CR>")
+	elseif a:key == "\<LeftMouse>"
+		let pos = getmousepos()
+		if pos.winid == a:winid
+			if pos.line > 0
+				call win_execute(a:winid, ':' . pos.line)
+				call popup_setoptions(a:winid, {})
+				redraw
+				return popup_filter_menu(a:winid, "\<CR>")
+			endif
+		endif
 	elseif has_key(hwnd.hotkey, a:key)
 		let index = hwnd.hotkey[a:key]
 		call popup_close(a:winid, index + 1)
 		return 1
 	elseif has_key(keymap, a:key)
 		let key = keymap[a:key]
-		let cmd = 'quickui#listbox#cursor_movement("' . key . '")'
-		call win_execute(a:winid, 'call ' . cmd)
-		return 1
+		if strpart(key, 0, 6) == 'INPUT-'
+			let hwnd.input = strpart(key, 6)
+			return popup_filter_menu(a:winid, "\<CR>")
+		elseif key == 'ESC'
+			call popup_close(a:winid, -1)
+			return 1
+		else
+			let cmd = 'quickui#listbox#cursor_movement("' . key . '")'
+			call win_execute(a:winid, 'call ' . cmd)
+			return 1
+		endif
 	endif
 	return popup_filter_menu(a:winid, a:key)
 endfunc
@@ -312,6 +336,9 @@ function! quickui#listbox#inputlist(textlist, opts)
 	if has_key(opts, 'callback')
 		call remove(opts, 'callback')
 	endif
+	if len(a:textlist) == 0
+		return -1000
+	endif
 	let hwnd = quickui#listbox#create(a:textlist, opts)
 	let winid = hwnd.winid
 	let hr = -1
@@ -332,6 +359,17 @@ function! quickui#listbox#inputlist(textlist, opts)
 			call win_execute(winid, cmd)
 			let hr = g:quickui#listbox#index - 1
 			break
+		elseif ch == "\<LeftMouse>"
+			let pos = getmousepos()
+			if pos.winid == winid
+				if pos.line > 0
+					call win_execute(winid, ':' . pos.line)
+					call popup_setoptions(winid, {})
+					redraw
+					let hr = pos.line - 1
+					break
+				endif
+			endif
 		elseif has_key(hwnd.hotkey, ch)
 			let hr = hwnd.hotkey[ch]
 			if hr >= 0
@@ -354,10 +392,12 @@ endfunc
 "----------------------------------------------------------------------
 " any callback
 "----------------------------------------------------------------------
-function! quickui#listbox#execute(context, code)
+function! quickui#listbox#execute(code)
+	let hwnd = g:quickui#listbox#current
+	let context = hwnd.context
 	if a:code >= 0
-		if a:code < len(a:context)
-			exec a:context[a:code]
+		if a:code < len(context)
+			exec context[a:code]
 		endif
 	endif
 endfunc
@@ -381,51 +421,11 @@ function! quickui#listbox#any(content, opts)
 		endif
 	endfor
 	let opts.context = cmdlist
-	call quickui#listbox#create(textlist, opts)
-endfunc
-
-
-"----------------------------------------------------------------------
-" testing suit
-"----------------------------------------------------------------------
-if 0
-	let lines = [
-				\ "[1]\tOpen &File\t(F3)",
-				\ "[2]\tChange &Directory\t(F2)",
-				\ "[3]\tHelp",
-				\ "",
-				\ "[4]\tE&xit",
-				\ ]
-	for ix in range(1000)
-		let lines += ['line: ' . ix]
-	endfor
-	function! MyCallback(context, code)
-		echo "exit: ". a:code . ' context: '. a:context . ' bufid: '. bufnr()
-	endfunc
-	let opts = {'title':'Select', 'border':1, 'index':400, 'close':'button'}
-	let opts.context = 'asdfasdf'
-	let opts.callback = 'MyCallback'
-	if 1
-		let inst = quickui#listbox#create(lines, opts)
-		call popup_show(inst.winid)
-	else
-		let code = quickui#listbox#inputlist(lines, opts)
-		echo "code: " . code
+	if len(textlist) == 0
+		return -1000
 	endif
-endif
-
-if 0
-	let content = [
-				\ [ 'echo 1', 'echo 100' ],
-				\ [ 'echo 2', 'echo 200' ],
-				\ [ 'echo 3', 'echo 300' ],
-				\ [ 'echo 4' ],
-				\ [],
-				\ [ 'echo 5', 'echo 500' ],
-				\]
-	let opts = {'title': 'select'}
-	call quickui#listbox#any(content, opts)
-endif
-
+	call quickui#listbox#create(textlist, opts)
+	return 0
+endfunc
 
 

@@ -9,61 +9,6 @@
 
 " vim: set noet fenc=utf-8 ff=unix sts=4 sw=4 ts=4 :
 
-"----------------------------------------------------------------------
-" escape key character (starts by &) from string
-"----------------------------------------------------------------------
-function! quickui#utils#escape(text)
-	let text = a:text
-	let rest = ''
-	let start = 0
-	let obj = ['', '', -1, -1, -1]
-	while 1
-		let pos = stridx(text, '&', start)
-		if pos < 0
-			let rest .= strpart(text, start)
-			break
-		end
-		let rest .= strpart(text, start, pos - start)
-		let key = strpart(text, pos + 1, 1)
-		let start = pos + 2
-		if key == '&'
-			let rest .= '&'
-		elseif key == '~'
-			let rest .= '~'
-		else
-			let obj[1] = key
-			let obj[2] = strlen(rest)
-			let obj[3] = strchars(rest)
-			let obj[4] = strdisplaywidth(rest)
-			let rest .= key
-		endif
-	endwhile
-	let obj[0] = rest
-	return obj
-endfunc
-
-
-"----------------------------------------------------------------------
-" list parse
-"----------------------------------------------------------------------
-function! quickui#utils#single_parse(description)
-	let item = { 'part': [], 'size': 0 }
-	let item.key_char = ''
-	let item.key_pos = -1
-	let item.key_idx = -1
-	for text in split(a:description, "\t")
-		let obj = quickui#utils#escape(text)
-		let item.part += [obj[0]]
-		if obj[2] >= 0 && item.key_idx < 0
-			let item.key_char = obj[1]
-			let item.key_pos = obj[3]
-			let item.key_idx = item.size
-		endif
-		let item.size += 1
-	endfor
-	return item
-endfunc
-
 
 "----------------------------------------------------------------------
 " parse description into item object
@@ -80,8 +25,8 @@ function! quickui#utils#item_parse(description)
 	elseif type(a:description) == v:t_list
 		let size = len(a:description)
 		let text = (size >= 1)? a:description[0] : ''
-		let obj.help = (size >= 2)? a:description[1] : ''
-		let obj.cmd = (size >= 3)? a:description[2] : ''
+		let obj.cmd = (size >= 2)? a:description[1] : ''
+		let obj.help = (size >= 3)? a:description[2] : ''
 		let obj.info = deepcopy(a:description)
 	endif
 	if text =~ '^-\+$'
@@ -125,7 +70,7 @@ function! quickui#utils#item_parse(description)
 				let rest .= '~'
 			else
 				let obj.key_char = key
-				let obj.key_pos = strlen(rest)
+				let obj.key_pos = strwidth(rest)
 				let rest .= key
 			endif
 		endwhile
@@ -138,7 +83,7 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" adjust size
+" alignment
 "----------------------------------------------------------------------
 function! quickui#utils#context_align(item, left_size, right_size)
 	let obj = a:item

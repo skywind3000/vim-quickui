@@ -10,17 +10,22 @@
 " vim: set noet fenc=utf-8 ff=unix sts=4 sw=4 ts=4 :
 
 
-"----------------------------------------------------------------------
+"======================================================================
 " core routines
-"----------------------------------------------------------------------
+"======================================================================
 
+"----------------------------------------------------------------------
 " replace string
+"----------------------------------------------------------------------
 function! quickui#core#string_replace(text, old, new)
 	let l:data = split(a:text, a:old, 1)
 	return join(l:data, a:new)
 endfunc
 
+
+"----------------------------------------------------------------------
 " eval & expand: '%{script}' in string
+"----------------------------------------------------------------------
 function! quickui#core#expand_text(string) abort
 	let partial = []
 	let index = 0
@@ -48,6 +53,62 @@ function! quickui#core#expand_text(string) abort
 		endif
 	endwhile
 	return join(partial, '')
+endfunc
+
+
+"----------------------------------------------------------------------
+" escape key character (starts by &) from string
+"----------------------------------------------------------------------
+function! quickui#core#escape(text)
+	let text = a:text
+	let rest = ''
+	let start = 0
+	let obj = ['', '', -1, -1, -1]
+	while 1
+		let pos = stridx(text, '&', start)
+		if pos < 0
+			let rest .= strpart(text, start)
+			break
+		end
+		let rest .= strpart(text, start, pos - start)
+		let key = strpart(text, pos + 1, 1)
+		let start = pos + 2
+		if key == '&'
+			let rest .= '&'
+		elseif key == '~'
+			let rest .= '~'
+		else
+			let obj[1] = key
+			let obj[2] = strlen(rest)
+			let obj[3] = strchars(rest)
+			let obj[4] = strdisplaywidth(rest)
+			let rest .= key
+		endif
+	endwhile
+	let obj[0] = rest
+	return obj
+endfunc
+
+
+"----------------------------------------------------------------------
+" list parse
+"----------------------------------------------------------------------
+function! quickui#core#single_parse(description)
+	let item = { 'part': [], 'size': 0 }
+	let item.key_char = ''
+	let item.key_pos = -1
+	let item.key_idx = -1
+	for text in split(a:description, "\t")
+		let obj = quickui#core#escape(text)
+		let item.part += [obj[0]]
+		if obj[2] >= 0 && item.key_idx < 0
+			let item.key_char = obj[1]
+			let item.key_pos = obj[4]
+			let item.key_idx = item.size
+		endif
+		let item.size += 1
+	endfor
+	return item
 endfunc
 
 
@@ -198,5 +259,75 @@ function! quickui#core#border_vim(name)
 	let border = quickui#core#border_get(a:name)
 	return quickui#core#border_convert(border)
 endfunc
+
+
+"----------------------------------------------------------------------
+" returns cursor position for screen coordination
+"----------------------------------------------------------------------
+function! quickui#core#cursor_pos()
+	let pos = win_screenpos('.')
+	return [pos[0] + winline() - 1, pos[1] + wincol() - 1]
+endfunc
+
+
+"----------------------------------------------------------------------
+" screen boundary check, returns 1 for in screen, 0 for exceeding
+"----------------------------------------------------------------------
+function! quickui#core#in_screen(line, column, width, height)
+	let x = a:column - 1
+	let y = a:line - 1
+	let w = a:width
+	let h = a:height
+	let screenw = &columns
+	let screenh = &lines
+	return (x >= 0 && y >= 0 && x + w <= screenw && y + h <= screenh)? 1 : 0
+endfunc
+
+
+"----------------------------------------------------------------------
+" window fit screen
+"----------------------------------------------------------------------
+function! quickui#core#screen_fit(line, column, width, height)
+	let x = a:column - 1
+	let y = a:line - 1
+	let w = a:width
+	let h = a:height
+	let screenw = &columns
+	let screenh = &lines
+	let x = (x + w > screenw)? screenw - w : x
+	let y = (y + h > screenh)? screenh - h : y
+	let x = (x < 0)? 0 : x
+	let y = (y < 0)? 0 : y
+	return [y + 1, x + 1]
+endfunc
+
+
+"----------------------------------------------------------------------
+" fit screen
+"----------------------------------------------------------------------
+function! quickui#core#around_cursor(width, height)
+	let cursor_pos = quickui#core#cursor_pos()
+	let row = cursor_pos[0] + 1
+	let col = cursor_pos[1] + 1
+	if quickui#core#in_screen(row, col, a:width, a:height)
+		return [row, col]
+	endif
+	if col + a:width - 1 > &columns
+		let col = col - (1 + a:width)
+		if quickui#core#in_screen(row, col, a:width, a:height)
+			return [row, col]
+		endif
+	endif
+	if row + a:height - 1 > &lines
+		let row = row - (1 + a:height)
+		if quickui#core#in_screen(row, col, a:width, a:height)
+			return [row, col]
+		endif
+	endif
+	let row = cursor_pos[0] + 1
+	let col = cursor_pos[1] + 1
+	return quickui#core#screen_fit(row, col, a:height, a:height)
+endfunc
+
 
 
