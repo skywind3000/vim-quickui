@@ -97,8 +97,13 @@ function! quickui#menu#install(section, content)
 			if type(item) == v:t_dict
 				call quickui#menu#register(a:section, item.name, item.command)
 			elseif type(item) == v:t_list
-				let help = (len(item) >= 3)? item[2] : ''
-				call quickui#menu#register(a:section, item[0], item[1], help)
+				let size = len(item)
+				let name = (size >= 1)? item[0] : ''
+				let cmd = (size >= 2)? item[1] : ''
+				let help = (size >= 3)? item[2] : ''
+				call quickui#menu#register(a:section, name, cmd, help)
+			elseif type(item) == v:t_string
+				call quickui#menu#register(a:section, item, '', '')
 			endif
 		endfor
 	elseif type(a:content) == v:t_dict
@@ -176,7 +181,8 @@ function! s:parse_menu()
 		let inst.text .= item.text . ((index + 1 < size)? split : '')
 		let inst.width += item.w
 		if item.key_pos >= 0
-			let inst.hotkey[tolower(item.key_char)] = index
+			let key = tolower(item.key_char)
+			let inst.hotkey[key] = index
 		endif
 		let index += 1
 	endfor
@@ -393,6 +399,7 @@ function! s:context_dropdown()
 	let item = s:cmenu.inst.items[s:cmenu.index]
 	let opts = {'col': item.x + 1, 'line': 2, 'horizon':1, 'zindex':31100}
 	let opts.callback = 'quickui#menu#context_exit'
+	let opts.reserve = 1
 	let cfg = s:menucfg[item.name]
 	let s:cmenu.dropdown = []
 	for item in cfg.items
