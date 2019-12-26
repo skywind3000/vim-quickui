@@ -157,19 +157,7 @@ function! quickui#context#update(hwnd)
 	call win_execute(winid, 'syn clear')
 	for item in a:hwnd.items
 		let index = item.index
-		if index == a:hwnd.index
-			if a:hwnd.border == 0
-				let py = index + 1
-				let px = 1
-				let ps = px + w
-			else
-				let py = index + 2
-				let px = 2
-				let ps = px + w - 2
-			endif
-			let cmd = quickui#core#high_region('QuickSel', py, px, py, ps, 1)
-			call win_execute(winid, cmd)
-		elseif item.enable == 0 && item.is_sep == 0
+		if item.enable == 0 && item.is_sep == 0
 			if a:hwnd.border == 0
 				let py = index + 1
 				let px = 1
@@ -193,8 +181,36 @@ function! quickui#context#update(hwnd)
 			let cmd = quickui#core#high_region('QuickKey', py, px, py, ps, 1)
 			call win_execute(winid, cmd)
 		endif
+		if index == a:hwnd.index
+			if a:hwnd.border == 0
+				let py = index + 1
+				let px = 1
+				let ps = px + w
+			else
+				let py = index + 2
+				let px = 2
+				let ps = px + w - 2
+			endif
+			let cmd = quickui#core#high_region('QuickSel', py, px, py, ps, 1)
+			call win_execute(winid, cmd)
+		endif
 	endfor
 	redraw
+	if get(g:, 'quickui_show_help', 0) != 0
+		if a:hwnd.index >= 0 && a:hwnd.index < len(a:hwnd.items)
+			let help = a:hwnd.items[a:hwnd.index].help
+			let head = g:quickui#style#help
+			echohl QuickHelp
+			if help == ''
+				echo ''
+			else
+				echo ' ' . ((head != '')? (head . ' ') : '') . help
+			endif
+			echohl None
+		else
+			echo ''
+		endif
+	endif
 endfunc
 
 
@@ -229,6 +245,10 @@ function! quickui#context#callback(winid, code)
 		call F(code)
 	endif
 	silent! call popup_hide(a:winid)
+	if get(g:, 'quickui_show_help', 0) != 0
+		redraw
+		echo ''
+	endif
 	if code >= 0 && code < len(hwnd.items)
 		let item = hwnd.items[code]
 		if item.is_sep == 0 && item.enable != 0

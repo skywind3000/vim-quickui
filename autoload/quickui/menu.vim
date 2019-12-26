@@ -255,9 +255,7 @@ function! quickui#menu#update()
 		if item.key_pos >= 0
 			let x = item.key_pos + item.x + 1
 			let cmd = quickui#core#high_region('QuickKey', 1, x, 1, x + 1, 1)
-			if index != s:cmenu.index
-				call win_execute(winid, cmd)
-			endif
+			call win_execute(winid, cmd)
 		endif
 		let index += 1
 	endfor
@@ -406,7 +404,7 @@ function! s:context_dropdown()
 	let cfg = s:menucfg[item.name]
 	let s:cmenu.dropdown = []
 	for item in cfg.items
-		let s:cmenu.dropdown += [[item.name, item.cmd]]
+		let s:cmenu.dropdown += [[item.name, item.cmd, item.help]]
 	endfor
 	let index = get(cfg, 'index', 0)
 	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
