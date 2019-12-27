@@ -4,7 +4,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 
 - Old school Borland/Turbo C++ flavor (aka Turbo Vision) ui system.
 - Well designed and carefully colored to keep simple and handy.
-- Navigate with the usual Vim keys like `h/j/k/l`, confirm with `ENTER`/`SPACE` and cancel with `Ctrl+[` / `ESC` / `CTRL+C`.
+- Navigate with the usual Vim keys like `h/j/k/l`, confirm with `Enter/Space` and cancel with `ESC/Ctrl+[`.
 - Can be accessed by keyboard only while mouse is also supported.
 - No longer have to be afraid to forget keymaps anymore.
 
