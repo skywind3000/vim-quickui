@@ -23,10 +23,18 @@ Display a dropdown menubar at top of the screen:
 
 ![](images/mainmenu.png)
 
-APIS:
+APIs:
+
+register menu entries:
 
 ```VimL
-call quickui#menu#install(section, items)
+call quickui#menu#install(section, items [, weight])
+```
+
+display the menu:
+
+```VimL
+call quickui#menu#open()
 ```
 
 Sample code:
@@ -59,8 +67,16 @@ call quickui#menu#install('H&elp', [
             \ [ '&About', 'echo 5' ],
             \ ])
 call quickui#menu#install('&Window', [])
-call quickui#menu#open()
+noremap <space><space> quickui#menu#open()
 ```
+
+Then you can open the menu by pressing space twice.
+
+### Listbox
+
+Can display an array of stirng items in the popup window and can be used to pick up an item.
+
+TODO
 
 ## Credit
 
