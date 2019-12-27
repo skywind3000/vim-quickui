@@ -14,6 +14,7 @@
 " global
 "----------------------------------------------------------------------
 let s:menucfg = {}
+let s:weight = 100
 
 
 "----------------------------------------------------------------------
@@ -29,7 +30,8 @@ function! quickui#menu#register(section, entry, command, help)
 			let index += 1
 		endfor
 		let s:menucfg[a:section] = {'name':a:section, 'weight':0, 'items':[]}
-		let s:menucfg[a:section].weight = maximum + 10
+		let s:menucfg[a:section].weight = s:weight
+		let s:weight += 10
 	endif
 	let menu = s:menucfg[a:section]
 	let item = {'name':a:entry, 'cmd':a:command, 'help':a:help}
@@ -77,6 +79,7 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#menu#reset()
 	let s:menucfg = {}
+	let s:weight = 100
 endfunc
 
 
@@ -91,7 +94,7 @@ endfunc
 "----------------------------------------------------------------------
 " install a how section
 "----------------------------------------------------------------------
-function! quickui#menu#install(section, content)
+function! quickui#menu#install(section, content, ...)
 	if type(a:content) == v:t_list
 		for item in a:content
 			if type(item) == v:t_dict
@@ -112,6 +115,9 @@ function! quickui#menu#install(section, content)
 			call quickui#menu#register(a:section, name, cmd, '')
 		endfor
 	endif
+	if a:0 > 0 && has_key(s:menucfg, a:section)
+		let s:menucfg[a:section].weight = a:1
+	endif
 endfunc
 
 
@@ -121,6 +127,31 @@ endfunc
 function! quickui#menu#change_weight(section, weight)
 	if has_key(s:menucfg, a:section)
 		let s:menucfg[a:section].weight = a:weight
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" preset menu
+"----------------------------------------------------------------------
+function! quickui#menu#preset(section, context, ...)
+	let save_items = []
+	if has_key(s:menucfg, a:section)
+		let save_items = s:menucfg[a:section].items
+		let s:menucfg[a:section].items = []
+	endif
+	if a:0 == 0
+		call quickui#menu#install(a:section, a:context)
+	else
+		call quickui#menu#install(a:section, a:context, a:1)
+	endif
+	if len(save_items) > 0
+		if len(a:context) > 0
+			call quickui#menu#register(a:section, '--', '', '')
+		endif
+		for ni in save_items
+			call quickui#menu#register(a:section, ni.name, ni.cmd, ni.help)
+		endfor
 	endif
 endfunc
 
