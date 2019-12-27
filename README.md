@@ -1,12 +1,21 @@
-# Preface
+# What Is It ?
 
-Well designed and carefully colored Borland/Turbo C++ flavor ui for vim. Uses both `hjkl` and mouse to move around.
+There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:
+
+- Old school Borland/Turbo C++ flavor ui system (aka Turbo Vision).
+- Well designed and carefully colored to keep simple and handy.
+- Navigate with the usual Vim keys like `h/j/k/l` and `Ctrl+[` / `ESC`.
+- Can be accessed by keyboard only while mouse is also supported.
+- No longer have to be afraid to forget keymaps anymore.
+
 
 ## Installation
 
     Plug 'skywind3000/vim-quickui'
 
 ## Available Widgets
+
+
 
 ### Menu
 
