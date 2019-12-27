@@ -3,7 +3,7 @@
 There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:
 
 - Old school Borland/Turbo C++ flavor (aka Turbo Vision) ui system.
-- Well designed and carefully colored to keep simple and handy.
+- Well designed and carefully colored Borland/Turbo C++ flavor ui system. to keep simple and handy.
 - Navigate with the usual Vim keys like `h/j/k/l`, confirm with `Enter/Space` and cancel with `ESC/Ctrl+[`.
 - Can be accessed by keyboard only while mouse is also supported.
 - No longer have to be afraid to forget keymaps anymore.
