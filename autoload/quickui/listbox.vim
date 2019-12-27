@@ -13,16 +13,15 @@
 "----------------------------------------------------------------------
 " parse
 "----------------------------------------------------------------------
-function! quickui#listbox#parse(lines)
-	let items = {'image': [], 'column':0, 'nrows':0, 'keys':[]}
+function! quickui#listbox#parse(textlist)
+	let items = {'image': [], 'column':0, 'nrows':0, 'keys':[], 'cmds':[]}
 	let items.keymap = {}
 	let items.displaywidth = 0
 	let sizes = []
 	let objects = []
 	let spliter = '  '
-	for line in a:lines
-		let line = quickui#core#expand_text(line)
-		let obj = quickui#core#single_parse(line)
+	for description in a:textlist
+		let obj = quickui#core#single_parse(description)
 		let objects += [obj]
 		if obj.key_pos > 0
 			let items.keymap[tolower(obj.key_char)] = items.nrows
@@ -67,6 +66,7 @@ function! quickui#listbox#parse(lines)
 		endfor
 		let items.image += [output . ' ']
 		let items.keys += [ni]
+		let items.cmds += [obj.cmd]
 		let size = strdisplaywidth(output) + 1
 		if size > items.displaywidth
 			let items.displaywidth = size
@@ -242,10 +242,18 @@ function! quickui#listbox#callback(winid, code)
 	let hwnd.state = 0
 	let hwnd.code = code
 	call quickui#core#popup_clear(a:winid)
+	silent! call popup_hide(a:winid)
+	let g:quickui#listbox#current = hwnd
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
-		let g:quickui#listbox#current = hwnd
 		call F(code)
+	endif
+	if code >= 0 && code < hwnd.items.nrows
+		let cmd = hwnd.items.cmds[code]
+		if cmd != ''
+			redraw
+			exec cmd
+		endif
 	endif
 endfunc
 
@@ -390,42 +398,10 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" any callback
-"----------------------------------------------------------------------
-function! quickui#listbox#execute(code)
-	let hwnd = g:quickui#listbox#current
-	let context = hwnd.context
-	if a:code >= 0
-		if a:code < len(context)
-			exec context[a:code]
-		endif
-	endif
-endfunc
-
-
-"----------------------------------------------------------------------
 " open popup and run command when select an item
 "----------------------------------------------------------------------
-function! quickui#listbox#any(content, opts)
-	let opts = deepcopy(a:opts)
-	let opts.callback = 'quickui#listbox#execute'
-	let textlist = []
-	let cmdlist = []
-	for desc in a:content
-		if type(desc) == v:t_string
-			let textlist += [desc]
-			let cmdlist += ['']
-		elseif type(desc) == v:t_list
-			let textlist += [(len(desc) > 0)? desc[0] : '']
-			let cmdlist += [(len(desc) > 1)? desc[1] : '']
-		endif
-	endfor
-	let opts.context = cmdlist
-	if len(textlist) == 0
-		return -1000
-	endif
-	call quickui#listbox#create(textlist, opts)
-	return 0
+function! quickui#listbox#open(content, opts)
+	call quickui#listbox#create(a:content, a:opts)
 endfunc
 
 

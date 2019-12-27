@@ -98,7 +98,15 @@ function! quickui#core#single_parse(description)
 	let item.key_char = ''
 	let item.key_pos = -1
 	let item.key_idx = -1
-	for text in split(a:description, "\t")
+	if type(a:description) == v:t_string
+		let text = a:description
+		let item.cmd = ''
+	elseif type(a:description) == v:t_list
+		let size = len(a:description)
+		let text = (size > 0)? a:description[0] : ''
+		let item.cmd = (size > 1)? a:description[1] : ''
+	endif
+	for text in split(text, "\t")
 		let obj = quickui#core#escape(text)
 		let item.part += [obj[0]]
 		if obj[2] >= 0 && item.key_idx < 0
