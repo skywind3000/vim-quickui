@@ -183,4 +183,75 @@ function! quickui#utils#max_height(percentage)
 endfunc
 
 
+"----------------------------------------------------------------------
+" cursor movement
+"----------------------------------------------------------------------
+function! quickui#utils#movement(offset)
+	let height = winheight(0)	
+	let winline = winline()
+	let curline = line('.')
+	let topline = curline - winline + 1
+	let botline = curline + height - 1
+	let offset = 0
+	if type(a:offset) == v:t_number
+		let offset = a:offset
+	elseif type(a:offset) == v:t_string
+		if a:offset == 'PAGEUP'
+			let offset = -height
+		elseif a:offset == 'PAGEDOWN'
+			let offset = height
+		elseif a:offset == 'HALFUP' || a:offset == 'LEFT'
+			let offset = -(height / 2)
+		elseif a:offset == 'HALFDOWN' || a:offset == 'RIGHT'
+			let offset = height / 2
+		elseif a:offset == 'UP'
+			let offset = -1
+		elseif a:offset == 'DOWN'
+			let offset = 1
+		endif
+	endif
+	echom "offset: ". offset
+	if offset > 0
+		exec "normal ". offset . "\<C-E>"
+	elseif offset < 0
+		exec "normal ". (-offset) . "\<C-Y>"
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" cursor scroll
+"----------------------------------------------------------------------
+function! quickui#utils#scroll(winid, offset)
+	if type(a:offset) == v:t_number
+		call win_execute(a:winid, 'call quickui#utils#movement(' . a:offset .')')
+	else
+		call win_execute(a:winid, 'call quickui#utils#movement("' . a:offset .'")')
+	endif
+endfunc
+
+
+
+"----------------------------------------------------------------------
+" centerize
+"----------------------------------------------------------------------
+function! quickui#utils#center(winid)
+	let pos = popup_getpos(a:winid)
+	let h = pos.height
+	let w = pos.width
+	let limit1 = (&lines - 2) * 82 / 100
+	let limit2 = (&lines - 2)
+	let opts = {}
+	if h + 4 < limit1
+		let opts.line = (limit1 - h) / 2
+	else
+		let opts.line = (limit2 - h) / 2
+	endif
+	let opts.col = (&columns - w) / 2
+	let hr = quickui#core#screen_fit(opts.line, opts.col, w, h)
+	let opts.col = hr[1]
+	let opts.line = hr[0]
+	call popup_move(a:winid, opts)
+endfunc
+
 
