@@ -29,10 +29,15 @@ call quickui#menu#install('&Plugin', [
 			\ ["&Gist", "Gist", "open gist with mattn/gist-vim"],
 			\ ["&Edit Note", "Note", "edit note with vim-notes"],
 			\ ["&Display Calendar", "Calendar", "display a calender"],
+			\ ["-"],
+			\ ["Plugin &List", "PlugList", 'list available plugins'],
+			\ ["Plugin &Update", "PlugUpdate", 'update plugins'],
 			\ ])
 
 " script inside %{...} will be evaluated and expanded in the string
-call quickui#menu#install("&Option", [
+call quickui#menu#install("&Tools", [
+			\ ["Switch &Buffer", 'call quickui#tools#kit_buffers("e")'],
+			\ ["-"],
 			\ ['Set &Spell %{&spell? "Off":"On"}', 'set spell!', 'Toggle spell check %{&spell? "off" : "on"}'],
 			\ ['Set &Cursor Line %{&cursorline? "Off":"On"}', 'set cursorline!', 'Toggle cursor line %{&cursorline? "off" : "on"}'],
 			\ ['Set &Paste %{&paste? "Off":"On"}', 'set paste!', 'Toggle paste mode %{&paste? "off" : "on"}'],
