@@ -95,7 +95,7 @@ Then you can open the menu by pressing space twice.
 
 ### Listbox
 
-Can display an array of stirng items in the popup window and can be used to pick up an item.
+Can display an array of string items in the popup window and can be used to pick up an item.
 
 ![](images/listbox.png)
 
