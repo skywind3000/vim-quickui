@@ -81,8 +81,6 @@ call quickui#menu#install('H&elp', [
 			\ ['&Summary', 'help summary', ''],
 			\ ], 10000)
 
-call quickui#menu#install('&Window', [])
-
 " hit space twice to open menu
 noremap <space><space> :call quickui#menu#open()<cr>
 ```
