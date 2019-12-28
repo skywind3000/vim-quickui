@@ -155,9 +155,9 @@ There is a builtin buffer switcher using `listbox`, open it by:
 
 or 
    
-    call quickui#tools#kit_buffers('tabe')
+    call quickui#tools#kit_buffers('tabedit')
 
-
+Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit.
 
 ## Self-promotion
 
