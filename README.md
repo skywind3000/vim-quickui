@@ -57,7 +57,7 @@ call quickui#menu#install('&File', [
             \ [ "E&xit\tAlt+x", 'echo 6' ],
             \ ])
 
-" items containing tips, tips will display in the bottom of screen
+" items containing tips, tips will display in the cmdline
 call quickui#menu#install('&Edit', [
             \ [ '&Copy', 'echo 1', 'help 1' ],
             \ [ '&Paste', 'echo 2', 'help 2' ],
@@ -93,7 +93,11 @@ Can display an array of stirng items in the popup window and can be used to pick
 
 TODO
 
+## Self-promotion
+
+like vim-quickui? Follow the repository on [GitHub](https://github.com/skywind3000/vim-quickui) and vote for it on [vim.org](https://www.vim.org/scripts/script.php?script_id=5845). And if you're feeling especially charitable, follow skywind3000 on [Twitter](https://twitter.com/skywind3000) and [GitHub](https://github.com/skywind3000).
+
 ## Credit
 
-TODO
+This plugin will not be possible without Bram's effort on `+popup` feature.
 
