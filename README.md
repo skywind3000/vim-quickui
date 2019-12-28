@@ -10,6 +10,11 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 - Pure vim-script, `+python` is not required.
 - No longer have to be afraid to forget keymaps anymore.
 
+Just see this GIF demonstration below:
+
+![](https://github.com/skywind3000/vim-quickui/raw/master/images/screenshot.gif)
+
+Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite accaptable for them.
 
 ## Installation
 
