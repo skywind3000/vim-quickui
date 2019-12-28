@@ -206,6 +206,7 @@ function! quickui#context#update(hwnd)
 				let help = a:hwnd.items[a:hwnd.index].help
 				let head = g:quickui#style#tip_head
 				if help != ''
+					let help = quickui#core#expand_text(help)
 					let help = '' . ((head != '')? (head . ' ') : '') . help
 				endif
 			endif
