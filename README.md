@@ -57,7 +57,7 @@ call quickui#menu#install('&File', [
             \ [ "E&xit\tAlt+x", 'echo 6' ],
             \ ])
 
-" items contains tips, tips will display in the bottom of screen
+" items containing tips, tips will display in the bottom of screen
 call quickui#menu#install('&Edit', [
             \ [ '&Copy', 'echo 1', 'help 1' ],
             \ [ '&Paste', 'echo 2', 'help 2' ],
