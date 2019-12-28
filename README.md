@@ -5,6 +5,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 - Well designed and carefully colored Borland/Turbo C++ flavor ui system combined with vim's productivity.
 - Can be accessed by keyboard only while mouse is also supported.
 - Navigate with the usual Vim keys like `h/j/k/l`, confirm with `ENTER/SPACE` and cancel with `ESC/Ctrl+[`.
+- `Tip` for each entry can display in the cmdline when you are moving the cursor around.
 - Pure vim-script, `+python` is not required.
 - No longer have to be afraid to forget keymaps anymore.
 

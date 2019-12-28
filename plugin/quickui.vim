@@ -25,7 +25,7 @@ hi! QuickDefaultBackground ctermfg=0 ctermbg=7 guifg=black guibg=gray
 hi! QuickDefaultKey ctermfg=9 guifg=#f92772
 hi! QuickDefaultDisable ctermfg=59 guifg=#75715e
 hi! QuickDefaultSel cterm=bold ctermfg=0 ctermbg=2 gui=bold guibg=brown guifg=gray
-hi! QuickDefaultHelp term=bold ctermfg=13 gui=bold guifg=Magenta
+hi! QuickDefaultHelp ctermfg=247 guifg=#959173
 
 " hi! QuickDefaultSel ctermbg=
 if get(g:, 'quickui_color_pmenu', 0) != 0

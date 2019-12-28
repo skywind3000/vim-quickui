@@ -69,6 +69,8 @@ function! quickui#context#compile(items, border)
 	let menu.width = (menu.height > 0)? strwidth(image[0]) : 0
 	let menu.selected = -1
 	let menu.size = len(items)
+	let menu.exiting = 0
+	let menu.state = 0
 	let selection = []
 	for item in menu.items
 		if item.is_sep == 0
@@ -116,6 +118,7 @@ function! quickui#context#create(textlist, opts)
 		endfor
 	endif
 	let hwnd.code = 0
+	let hwnd.state = 1
 	let hwnd.keymap = keymap
 	let hwnd.hotkey = {}
 	for item in hwnd.items
@@ -195,20 +198,20 @@ function! quickui#context#update(hwnd)
 			call win_execute(winid, cmd)
 		endif
 	endfor
-	redraw
-	if get(g:, 'quickui_show_help', 0) != 0
-		if a:hwnd.index >= 0 && a:hwnd.index < len(a:hwnd.items)
-			let help = a:hwnd.items[a:hwnd.index].help
-			let head = g:quickui#style#help
-			echohl QuickHelp
-			if help == ''
-				echo ''
-			else
-				echo ' ' . ((head != '')? (head . ' ') : '') . help
+	if a:hwnd.state != 0
+		redraw
+		if get(g:, 'quickui_show_tip', 0) != 0
+			let help = ''
+			if a:hwnd.index >= 0 && a:hwnd.index < len(a:hwnd.items)
+				let help = a:hwnd.items[a:hwnd.index].help
+				let head = g:quickui#style#tip_head
+				if help != ''
+					let help = '' . ((head != '')? (head . ' ') : '') . help
+				endif
 			endif
+			echohl QuickHelp
+			echom help
 			echohl None
-		else
-			echo ''
 		endif
 	endif
 endfunc
@@ -239,16 +242,16 @@ function! quickui#context#callback(winid, code)
 	let hwnd.state = 0
 	let hwnd.code = code
 	call quickui#core#popup_clear(a:winid)
+	if get(g:, 'quickui_show_tip', 0) != 0
+		redraw
+		echo ''
+	endif
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
 		let g:quickui#context#current = hwnd
 		call F(code)
 	endif
 	silent! call popup_hide(a:winid)
-	if get(g:, 'quickui_show_help', 0) != 0
-		redraw
-		echo ''
-	endif
 	if code >= 0 && code < len(hwnd.items)
 		let item = hwnd.items[code]
 		if item.is_sep == 0 && item.enable != 0
