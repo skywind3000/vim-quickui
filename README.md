@@ -67,7 +67,8 @@ call quickui#menu#install('H&elp', [
             \ [ '&About', 'echo 5' ],
             \ ])
 call quickui#menu#install('&Window', [])
-noremap <space><space> quickui#menu#open()
+
+noremap <space><space> :call quickui#menu#open()<cr>
 ```
 
 Then you can open the menu by pressing space twice.
