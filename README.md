@@ -41,7 +41,10 @@ call quickui#menu#open()
 Sample code:
 
 ```VimL
+" clear all the menus
 call quickui#menu#reset()
+
+" install a 'File' menu, use [text, command] to represent an item.
 call quickui#menu#install('&File', [
             \ [ "&New File\tCtrl+n", 'echo 0' ],
             \ [ "&Open File\t(F3)", 'echo 1' ],
@@ -53,22 +56,34 @@ call quickui#menu#install('&File', [
             \ [ "--", '' ],
             \ [ "E&xit\tAlt+x", 'echo 6' ],
             \ ])
+
+" items contains tips, tips will display in the bottom of screen
 call quickui#menu#install('&Edit', [
-            \ [ '&Copy', 'echo 1' ],
-            \ [ '&Paste', 'echo 2'],
-            \ [ '&Find', 'echo 3' ],
+            \ [ '&Copy', 'echo 1', 'help 1' ],
+            \ [ '&Paste', 'echo 2', 'help 2' ],
+            \ [ '&Find', 'echo 3', 'help 3' ],
             \ ])
-call quickui#menu#install('&Tools', [
-            \ [ '&Copy', 'echo 1'],
-            \ [ '&Paste', 'echo 2'],
-            \ [ '&Find', 'echo 3' ],
-            \ ])
+
+" script inside %{...} will be evaluated and expanded in the string
+call quickui#menu#install("&Option", [
+			\ ['Set &Spell %{&spell? "Off":"On"}', 'set spell!'],
+			\ ['Set &Cursor Line %{&cursorline? "Off":"On"}', 'set cursorline!'],
+			\ ['Set &Paste %{&paste? "Off":"On"}', 'set paste!'],
+			\ ])
+
+" register HELP menu with weight 1000
 call quickui#menu#install('H&elp', [
-            \ [ '&Content', 'echo 4' ],
-            \ [ '&About', 'echo 5' ],
-            \ ])
+			\ ["&Cheatsheet", 'help index', ''],
+			\ ['T&ips', 'help tips', ''],
+			\ ['--',''],
+			\ ["&Tutorial", 'help tutor', ''],
+			\ ['&Quick Reference', 'help quickref', ''],
+			\ ['&Summary', 'help summary', ''],
+			\ ], 10000)
+
 call quickui#menu#install('&Window', [])
 
+" hit space twice to open menu
 noremap <space><space> :call quickui#menu#open()<cr>
 ```
 
