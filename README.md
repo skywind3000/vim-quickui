@@ -87,6 +87,9 @@ call quickui#menu#install('H&elp', [
 			\ ['&Summary', 'help summary', ''],
 			\ ], 10000)
 
+" enable to display tips in the cmdline
+let g:quickui_show_tip = 1
+
 " hit space twice to open menu
 noremap <space><space> :call quickui#menu#open()<cr>
 ```
