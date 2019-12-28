@@ -97,7 +97,54 @@ Then you can open the menu by pressing space twice.
 
 Can display an array of stirng items in the popup window and can be used to pick up an item.
 
-TODO
+![](images/listbox.png)
+
+Features:
+
+- Listbox can used to pick up item from thousands items.
+- Columns separated by `"\t"` will be aligned.
+- A scroll bar will display if there are too many items.
+- Mouse wheel can be used to scroll the content.
+- Character starting with `&` can be used as a shortcut.
+- It has a title, and can be dragged by mouse.
+
+APIs:
+
+Open the listbox:
+
+```VimL
+quickui#listbox#open(content, opts)
+```
+
+Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary.
+
+Sample code:
+
+```VimL
+let content = [
+            \ [ 'echo 1', 'echo 100' ],
+            \ [ 'echo 2', 'echo 200' ],
+            \ [ 'echo 3', 'echo 300' ],
+            \ [ 'echo 4' ],
+            \ [ 'echo 5', 'echo 500' ],
+            \]
+let opts = {'title': 'select one'}
+call quickui#listbox#open(content, opts)
+```
+
+It can also work like `inputlist()` function by using `quickui#listbox#inputlist`, it will return the index you select immediatedly instead of executing a vim command:
+
+```VimL
+let linelist = [
+            \ "line 1",
+            \ "line 2",
+            \ "line 3" 
+            \ ]
+echo quickui#listbox#inputlist(linelist, {'title':'select'})
+```
+
+The key difference between `open` and `inputlist` is `open` will return immediately to vim's event loop while `inputlist` won't return until you select an item or press `ESC`.
+
 
 ## Self-promotion
 
