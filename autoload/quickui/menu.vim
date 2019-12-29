@@ -3,7 +3,7 @@
 " menu.vim - main menu bar
 "
 " Created by skywind on 2019/12/24
-" Last Modified: 2019/12/24 10:41:13
+" Last Modified: 2019/12/30 01:14
 "
 "======================================================================
 
@@ -11,29 +11,57 @@
 
 
 "----------------------------------------------------------------------
-" global
+" namespace of configuration
 "----------------------------------------------------------------------
-let s:menucfg = {}
-let s:weight = 100
+let s:namespace = { 'system':{'config':{}, 'weight':100, 'index':0} }
+let s:name = 'system'
+
+
+"----------------------------------------------------------------------
+" switch config namespace
+"----------------------------------------------------------------------
+function! quickui#menu#switch(name)
+	if !has_key(s:namespace, a:name)
+		let s:namespace[a:name] = {}
+		let s:namespace[a:name].config = {}
+		let s:namespace[a:name].index = 0
+		let s:namespace[a:name].weight = 100
+	endif
+	let s:name = a:name
+endfunc
+
+
+"----------------------------------------------------------------------
+" clear all entries in current namespace
+"----------------------------------------------------------------------
+function! quickui#menu#reset()
+	let current = s:namespace[s:name].config
+	let s:namespace[s:name].weight = 100
+	let s:namespace[s:name].index = 0
+	for key in keys(current)
+		call remove(current, key)
+	endfor
+endfunc
 
 
 "----------------------------------------------------------------------
 " register entry: (section='File', entry='&Save', command='w')
 "----------------------------------------------------------------------
 function! quickui#menu#register(section, entry, command, help)
-	if !has_key(s:menucfg, a:section)
+	let current = s:namespace[s:name].config
+	if !has_key(current, a:section)
 		let index = 0
 		let maximum = 0
-		for name in keys(s:menucfg)
-			let w = s:menucfg[name].weight
+		for name in keys(current)
+			let w = current[name].weight
 			let maximum = (index == 0)? w : ((maximum < w)? w : maximum)
 			let index += 1
 		endfor
-		let s:menucfg[a:section] = {'name':a:section, 'weight':0, 'items':[]}
-		let s:menucfg[a:section].weight = s:weight
-		let s:weight += 10
+		let current[a:section] = {'name':a:section, 'weight':0, 'items':[]}
+		let current[a:section].weight = s:namespace[s:name].weight
+		let s:namespace[s:name].weight += 10
 	endif
-	let menu = s:menucfg[a:section]
+	let menu = current[a:section]
 	let item = {'name':a:entry, 'cmd':a:command, 'help':a:help}
 	let menu.items += [item]
 endfunc
@@ -43,10 +71,11 @@ endfunc
 " remove entry:
 "----------------------------------------------------------------------
 function! quickui#menu#remove(section, index)
-	if !has_key(s:menucfg, a:section)
+	let current = s:namespace[s:name].config
+	if !has_key(current, a:section)
 		return -1
 	endif
-	let menu = s:menucfg[a:section]
+	let menu = current[a:section]
 	if type(a:index) == v:t_number
 		let index = (a:index < 0)? (len(menu.items) + a:index) : a:index
 		if index < 0 || index >= len(menu.items)
@@ -75,19 +104,11 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" clear all entries in menucfg
-"----------------------------------------------------------------------
-function! quickui#menu#reset()
-	let s:menucfg = {}
-	let s:weight = 100
-endfunc
-
-
-"----------------------------------------------------------------------
 " return items key 
 "----------------------------------------------------------------------
 function! quickui#menu#section(section)
-	return get(s:menucfg, a:section, v:null)
+	let current = s:namespace[s:name].config
+	return get(current, a:section, v:null)
 endfunc
 
 
@@ -95,6 +116,7 @@ endfunc
 " install a how section
 "----------------------------------------------------------------------
 function! quickui#menu#install(section, content, ...)
+	let current = s:namespace[s:name].config
 	if type(a:content) == v:t_list
 		for item in a:content
 			if type(item) == v:t_dict
@@ -115,8 +137,8 @@ function! quickui#menu#install(section, content, ...)
 			call quickui#menu#register(a:section, name, cmd, '')
 		endfor
 	endif
-	if a:0 > 0 && has_key(s:menucfg, a:section)
-		let s:menucfg[a:section].weight = a:1
+	if a:0 > 0 && has_key(current, a:section)
+		let current[a:section].weight = a:1
 	endif
 endfunc
 
@@ -125,8 +147,9 @@ endfunc
 " change weight
 "----------------------------------------------------------------------
 function! quickui#menu#change_weight(section, weight)
-	if has_key(s:menucfg, a:section)
-		let s:menucfg[a:section].weight = a:weight
+	let current = s:namespace[s:name].config
+	if has_key(current, a:section)
+		let current[a:section].weight = a:weight
 	endif
 endfunc
 
@@ -135,10 +158,11 @@ endfunc
 " preset menu
 "----------------------------------------------------------------------
 function! quickui#menu#preset(section, context, ...)
+	let current = s:namespace[s:name].config
 	let save_items = []
-	if has_key(s:menucfg, a:section)
-		let save_items = s:menucfg[a:section].items
-		let s:menucfg[a:section].items = []
+	if has_key(current, a:section)
+		let save_items = current[a:section].items
+		let current[a:section].items = []
 	endif
 	if a:0 == 0
 		call quickui#menu#install(a:section, a:context)
@@ -171,10 +195,11 @@ endfunc
 "----------------------------------------------------------------------
 " get section
 "----------------------------------------------------------------------
-function! quickui#menu#available()
+function! quickui#menu#available(name)
+	let current = s:namespace[a:name].config
 	let menus = []
-	for name in keys(s:menucfg)
-		let menu = s:menucfg[name]
+	for name in keys(current)
+		let menu = current[name]
 		if len(menu.items) > 0
 			let menus += [[menu.weight, menu.name]]
 		endif
@@ -191,15 +216,16 @@ endfunc
 "----------------------------------------------------------------------
 " parse
 "----------------------------------------------------------------------
-function! s:parse_menu()
+function! s:parse_menu(name)
+	let current = s:namespace[a:name].config
 	let inst = {'items':[], 'text':'', 'width':0, 'hotkey':{}}
 	let start = 0
 	let split = '  '
-	let names = quickui#menu#available()
+	let names = quickui#menu#available(a:name)
 	let index = 0
 	let size = len(names)
 	for section in names
-		let menu = s:menucfg[section]
+		let menu = current[section]
 		let item = {'name':menu.name, 'text':''}
 		let obj = quickui#core#escape(menu.name)
 		let item.text = ' ' . obj[0] . ' '
@@ -234,9 +260,17 @@ function! quickui#menu#create(opts)
 	if s:cmenu.state != 0
 		return -1
 	endif
-	let s:cmenu.inst = s:parse_menu()
+	let name = get(a:opts, 'name', s:name)
+	if !has_key(s:namespace, name)
+		return -1
+	endif
+	let current = s:namespace[name].config
+	let s:cmenu.inst = s:parse_menu(name)
+	let s:cmenu.name = name
+	let s:cmenu.index = s:namespace[name].index
 	let s:cmenu.width = &columns
 	let s:cmenu.size = len(s:cmenu.inst.items)
+	let s:cmenu.current = current
 	let winid = popup_create([s:cmenu.inst.text], {'hidden':1, 'wrap':0})
 	let bufnr = winbufnr(winid)
 	let s:cmenu.winid = winid
@@ -321,6 +355,7 @@ function! quickui#menu#callback(winid, code)
 	" echom "quickui#menu#callback"
 	let s:cmenu.state = 0
 	let s:cmenu.winid = -1
+	let s:namespace[s:cmenu.name].index = s:cmenu.index
 	if s:cmenu.context >= 0
 		call popup_close(s:cmenu.context, -3)
 		let s:cmenu.context = -1
@@ -432,7 +467,7 @@ function! s:context_dropdown()
 	let opts = {'col': item.x + 1, 'line': 2, 'horizon':1, 'zindex':31100}
 	let opts.callback = 'quickui#menu#context_exit'
 	let opts.reserve = 1
-	let cfg = s:menucfg[item.name]
+	let cfg = s:cmenu.current[item.name]
 	let s:cmenu.dropdown = []
 	for item in cfg.items
 		let s:cmenu.dropdown += [[item.name, item.cmd, item.help]]
@@ -455,7 +490,7 @@ function! quickui#menu#context_exit(code)
 	let hwnd = g:quickui#context#current
 	if has_key(hwnd, 'index') && hwnd.index >= 0
 		let item = s:cmenu.inst.items[s:cmenu.index]
-		let cfg = s:menucfg[item.name]
+		let cfg = s:cmenu.current[item.name]
 		let cfg.index = hwnd.index
 		" echo "save index: ".hwnd.index
 	endif
@@ -486,8 +521,11 @@ endfunc
 "----------------------------------------------------------------------
 " open menu
 "----------------------------------------------------------------------
-function! quickui#menu#open()
+function! quickui#menu#open(...)
 	let opts = {}
+	if a:0 > 0
+		let opts.name = a:1
+	endif
 	call quickui#menu#create(opts)
 endfunc
 
@@ -496,7 +534,8 @@ endfunc
 " testing suit
 "----------------------------------------------------------------------
 if 0
-	let s:menucfg = {}
+	call quickui#menu#switch('test')
+	call quickui#menu#reset()
 	call quickui#menu#install('H&elp', [
 				\ [ '&Content', 'echo 4' ],
 				\ [ '&About', 'echo 5' ],
@@ -525,13 +564,8 @@ if 0
 
 	call quickui#menu#install('&Window', [])
 	call quickui#menu#change_weight('H&elp', 1000)
-	let inst = s:parse_menu()
-	" echo '"' . inst.text . '"'
-	let opts = {}
-	" let s:cmenu.index = -1
-	call quickui#menu#create(opts)
-	let keymap = quickui#utils#keymap()
-	" echo keymap
+	call quickui#menu#switch('system')
+	call quickui#menu#open('test')
 endif
 
 
