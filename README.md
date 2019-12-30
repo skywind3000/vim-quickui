@@ -166,7 +166,7 @@ Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to 
 
 ## Customize
 
-### How to change border style ?
+### How to change border style
 
 Change border characters.
 
@@ -184,31 +184,18 @@ Change border characters.
 
 ![](images/border3.png)
 
-### How to change color scheme ?
+### How to change the color scheme
 
-There are 4 builtini color themes below:
+To change the color scheme, you can set the option below:
 
-    let g:quickui_color_theme = 'borland'
+    let g:quickui_color_scheme = 'borland'
 
-Set to `"borland"` will use the default color theme.
+And the default color scheme `"borland"` will be used.
 
-    let g:quickui_color_theme = 'gruvbox'
+Avaliables color scheme:
 
-![](images/color1.png)
+![](images/colors.png)
 
-    let g:quickui_color_theme = 'solarized'
-
-![](images/color2.png)
-
-    let g:quickui_color_theme = 'papercol'  
-    set background=dark
-
-![](images/color3.png)
-
-    let g:quickui_color_theme = 'papercol'  
-    set background=light
-
-![](images/color4.png)
 
 ### Specify color group precisely
 
