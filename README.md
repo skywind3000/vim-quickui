@@ -192,7 +192,7 @@ To change the color scheme, you can set the option below:
 
 And the default color scheme `"borland"` will be used.
 
-Avaliables color scheme:
+Avaliables color schemes:
 
 ![](images/colors.png)
 
