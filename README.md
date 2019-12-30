@@ -164,6 +164,76 @@ or
 
 Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit.
 
+## Customize
+
+### How to change border style ?
+
+Change border characters.
+
+
+    let g:quickui_border_style = 1   (default)
+
+![](images/border1.png)
+
+
+    let g:quickui_border_style = 2
+
+![](images/border2.png)
+
+    let g:quickui_border_style = 3
+
+![](images/border3.png)
+
+### How to change color scheme ?
+
+There are 4 builtini color themes below:
+
+    let g:quickui_color_theme = 'borland'
+
+Set to `"borland"` will use the default color theme.
+
+    let g:quickui_color_theme = 'gruvbox'
+
+![](images/color1.png)
+
+    let g:quickui_color_theme = 'solarized'
+
+![](images/color2.png)
+
+    let g:quickui_color_theme = 'papercol'  
+    set background=dark
+
+![](images/color3.png)
+
+    let g:quickui_color_theme = 'papercol'  
+    set background=light
+
+![](images/color4.png)
+
+### Specify color group precisely
+
+If none of the builtin color schemes satisfy your need, you can define the color groups your self in your `.vimrc` before enter vim (`VimEnter` event).
+
+| Group | Meaning |
+|-|-|
+| QuickBG | Background color |
+| QuickSel | Selector (or cursor) color |
+| QuickKey | Hotkey (or shortcut-key) color |
+| QuickOff | Disabled item color |
+| QuickHelp | Tip text color |
+
+Default color `"borland"` is defined as:
+
+```VimL
+hi! QuickBG ctermfg=0 ctermbg=7 guifg=black guibg=gray
+hi! QuickSel cterm=bold ctermfg=0 ctermbg=2 gui=bold guibg=brown guifg=gray
+hi! QuickKey term=bold ctermfg=9 gui=bold guifg=#f92772
+hi! QuickOff ctermfg=59 guifg=#75715e
+hi! QuickHelp ctermfg=247 guifg=#959173
+```
+
+
+
 ## Self-promotion
 
 like vim-quickui? Follow the repository on [GitHub](https://github.com/skywind3000/vim-quickui) and vote for it on [vim.org](https://www.vim.org/scripts/script.php?script_id=5845). And if you're feeling especially charitable, follow skywind3000 on [Twitter](https://twitter.com/skywind3000) and [GitHub](https://github.com/skywind3000).
