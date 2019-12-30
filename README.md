@@ -8,6 +8,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 - `Tip` for each entry can display in the cmdline when you are moving the cursor around.
 - Available widgets: [menu](#menu), [listbox](#listbox), .. (coming soon)
 - Pure vim-script, `+python` is not required.
+- Fully customizable, including color scheme and borders.
 - No longer have to be afraid to forget keymaps anymore.
 
 Just see this GIF demonstration below:
