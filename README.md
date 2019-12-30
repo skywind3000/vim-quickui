@@ -148,17 +148,19 @@ echo quickui#listbox#inputlist(linelist, {'title':'select'})
 
 The key difference between `open` and `inputlist` is `open` will return immediately to vim's event loop while `inputlist` won't return until you select an item or press `ESC`.
 
-## Utilities
+## Tools
+
+Tools are build upon basic widgets.
 
 ### Buffer switcher
 
 There is a builtin buffer switcher using `listbox`, open it by:
 
-    call quickui#tools#kit_buffers('e')
+    call quickui#tools#list_buffer('e')
 
 or 
    
-    call quickui#tools#kit_buffers('tabedit')
+    call quickui#tools#list_buffer('tabedit')
 
 Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit.
 

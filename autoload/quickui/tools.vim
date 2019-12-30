@@ -57,7 +57,7 @@ endfunc
 "----------------------------------------------------------------------
 " get content
 "----------------------------------------------------------------------
-function! quickui#tools#kit_buffers(switch)
+function! quickui#tools#list_buffer(switch)
 	let bids = s:buffer_list()
 	let content = []
 	let index = 0
