@@ -85,6 +85,13 @@ function! quickui#textbox#create(textlist, opts)
 	let local.keymap = quickui#utils#keymap()
 	let local.keymap['x'] = 'ESC'
 	let local.opts = deepcopy(a:opts)
+	if has_key(a:opts, 'list')
+		if a:opts.list
+			call win_execute(winid, 'setl list')
+		else
+			call win_execute(winid, 'setl nolist')
+		endif
+	endif
 	call popup_setoptions(winid, opts)
 	call popup_show(winid)
 	return winid
