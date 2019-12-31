@@ -17,6 +17,12 @@ Just see this GIF demonstration below:
 
 Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite accaptable for them.
 
+## Requirements
+
+It depends on the `+popup` APIs provided in Vim, so vim 8.2+ is required.
+
+Note: Currently, NeoVim is not supported yet.
+
 ## Installation
 
     Plug 'skywind3000/vim-quickui'
