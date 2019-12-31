@@ -216,11 +216,11 @@ endfunc
 "----------------------------------------------------------------------
 " parse
 "----------------------------------------------------------------------
-function! s:parse_menu(name)
+function! s:parse_menu(name, split)
 	let current = s:namespace[a:name].config
 	let inst = {'items':[], 'text':'', 'width':0, 'hotkey':{}}
 	let start = 0
-	let split = '  '
+	let split = repeat(' ', a:split)
 	let names = quickui#menu#available(a:name)
 	let index = 0
 	let size = len(names)
@@ -236,13 +236,13 @@ function! s:parse_menu(name)
 		let start += item.w + strwidth(split)
 		let inst.items += [item]
 		let inst.text .= item.text . ((index + 1 < size)? split : '')
-		let inst.width += item.w
 		if item.key_pos >= 0
 			let key = tolower(item.key_char)
 			let inst.hotkey[key] = index
 		endif
 		let index += 1
 	endfor
+	let inst.width = strwidth(inst.text)
 	return inst
 endfunc
 
@@ -265,7 +265,13 @@ function! quickui#menu#create(opts)
 		return -1
 	endif
 	let current = s:namespace[name].config
-	let s:cmenu.inst = s:parse_menu(name)
+	let s:cmenu.inst = s:parse_menu(name, 2)
+	if s:cmenu.inst.width + 5 >= &columns
+		let s:cmenu.inst = s:parse_menu(name, 1)
+		if s:cmenu.inst.width + 5 >= &columns
+			let s:cmenu.inst = s:parse_menu(name, 0)
+		endif
+	endif
 	let s:cmenu.name = name
 	let s:cmenu.index = s:namespace[name].index
 	let s:cmenu.width = &columns
