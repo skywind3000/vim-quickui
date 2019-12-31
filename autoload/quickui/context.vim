@@ -303,9 +303,9 @@ function! quickui#context#filter(winid, key)
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
 		elseif key == 'DOWN'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
-		elseif key == 'TOP' || key == 'PAGEUP'
+		elseif key == 'TOP'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'TOP')
-		elseif key == 'BOTTOM' || key == 'PAGEDOWN'
+		elseif key == 'BOTTOM'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'BOTTOM')
 		endif
 		if get(hwnd.opts, 'horizon', 0) != 0
@@ -313,6 +313,10 @@ function! quickui#context#filter(winid, key)
 				call popup_close(a:winid, -1000)
 			elseif key == 'RIGHT'
 				call popup_close(a:winid, -2000)
+			elseif key == 'PAGEUP'
+				call popup_close(a:winid, -1001)
+			elseif key == 'PAGEDOWN'
+				call popup_close(a:winid, -2001)
 			endif
 		endif
 		call quickui#context#update(hwnd)

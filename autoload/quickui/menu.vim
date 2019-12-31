@@ -296,8 +296,6 @@ function! quickui#menu#create(opts)
 	if 1
 		let keymap = quickui#utils#keymap()
 		let s:cmenu.keymap = keymap
-		let keymap['H'] = 'LEFT'
-		let keymap['L'] = 'RIGHT'
 	endif
 	let s:cmenu.hotkey = s:cmenu.inst.hotkey
 	" echo "hotkey: ". string(s:cmenu.hotkey)
@@ -418,6 +416,10 @@ function! s:movement(key)
 		let s:cmenu.index = (s:cmenu.size == 0)? 0 : index
 		call quickui#menu#update()
 		" echo "MOVE: " . index
+	elseif a:key == 'PAGEUP' || a:key == 'PAGEDOWN'
+		let index = (a:key == 'PAGEUP')? 0 : (s:cmenu.size - 1)
+		let s:cmenu.index = (s:cmenu.size == 0)? 0 : index
+		call quickui#menu#update()
 	elseif a:key == 'ENTER' || a:key == 'DOWN'
 		call s:context_dropdown()
 	endif
@@ -518,6 +520,9 @@ function! quickui#menu#context_exit(code)
 		endif
 	elseif a:code == -1000 || a:code == -2000
 		call s:movement((a:code == -1000)? 'LEFT' : 'RIGHT')
+		call s:movement('DOWN')
+	elseif a:code == -1001 || a:code == -2001
+		call s:movement((a:code == -1001)? 'PAGEUP' : 'PAGEDOWN')
 		call s:movement('DOWN')
 	endif
 	return 0
