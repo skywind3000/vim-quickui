@@ -216,11 +216,11 @@ endfunc
 "----------------------------------------------------------------------
 " parse
 "----------------------------------------------------------------------
-function! s:parse_menu(name, split)
+function! s:parse_menu(name, padding)
 	let current = s:namespace[a:name].config
 	let inst = {'items':[], 'text':'', 'width':0, 'hotkey':{}}
 	let start = 0
-	let split = repeat(' ', a:split)
+	let split = repeat(' ', a:padding)
 	let names = quickui#menu#available(a:name)
 	let index = 0
 	let size = len(names)
