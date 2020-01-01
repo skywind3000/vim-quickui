@@ -112,20 +112,6 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" display the command result in the textbox
-"----------------------------------------------------------------------
-function! quickui#tools#command_box(cmd, opts)
-	let text = quickui#utils#system(a:cmd)
-	let linelist = []
-	for line in split(text, "\n")
-		let line = trim(line, "\r")
-		let linelist += [line]
-	endfor
-	call quickui#textbox#open(linelist, a:opts)
-endfunc
-
-
-"----------------------------------------------------------------------
 " display python help in the textbox
 "----------------------------------------------------------------------
 function! quickui#tools#python_help(word)
@@ -142,7 +128,10 @@ function! quickui#tools#python_help(word)
 	let cmd = python . ' -m pydoc ' . shellescape(a:word)
 	let title = 'PyDoc <'. a:word . '>'
 	let opts = {'title':title}
-	call quickui#tools#command_box(cmd, opts)
+	let opts.color = 'QuickBG'
+	let opts.bordercolor = 'QuickBG'
+	let opts.tabstop = 12
+	call quickui#textbox#command(cmd, opts)
 endfunc
 
 

@@ -234,7 +234,7 @@ function! quickui#utils#movement(offset)
 	let winline = winline()
 	let curline = line('.')
 	let topline = curline - winline + 1
-	let botline = curline + height - 1
+	let botline = topline + height - 1
 	let offset = 0
 	if type(a:offset) == v:t_number
 		let offset = a:offset
@@ -259,7 +259,7 @@ function! quickui#utils#movement(offset)
 			return
 		endif
 	endif
-	echom "offset: ". offset
+	" echom "offset: ". offset
 	if offset > 0
 		exec "normal ". offset . "\<C-E>"
 	elseif offset < 0
@@ -301,6 +301,42 @@ function! quickui#utils#center(winid)
 	let opts.col = hr[1]
 	let opts.line = hr[0]
 	call popup_move(a:winid, opts)
+endfunc
+
+
+"----------------------------------------------------------------------
+" show cursorline in textbox
+"----------------------------------------------------------------------
+function! quickui#utils#show_cursor(winid, row)
+	let height = winheight(0)
+	let winline = winline()
+	let curline = line('.')
+	let topline = curline - winline + 1
+	let botline = topline + height - 1
+	let w:__quickui_line__ = get(w:, '__quickui_line__', -1)
+	if a:row >= topline && a:row <= botline
+		exec ":" . a:row
+		if w:__quickui_line__ != 1
+			call popup_setoptions(a:winid, {'cursorline': 1})
+		endif
+		let w:__quickui_line__ = 1
+	else
+		if w:__quickui_line__ != 0
+			call popup_setoptions(a:winid, {'cursorline': 0})
+		endif
+		let w:__quickui_line__ = 0
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" update cursor line
+"----------------------------------------------------------------------
+function! quickui#utils#update_cursor(winid)
+	let bid = winbufnr(a:winid)
+	let row = getbufvar(bid, '__quickui_cursor__', -1)
+	let cmd = 'call quickui#utils#show_cursor('. a:winid .', '.row.')'
+	call win_execute(a:winid, cmd)
 endfunc
 
 
