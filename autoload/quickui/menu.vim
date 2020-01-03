@@ -544,7 +544,11 @@ function! quickui#menu#open(...)
 	if a:0 > 0
 		let opts.name = a:1
 	endif
-	call quickui#menu#create(opts)
+	if g:quickui#core#has_nvim == 0
+		call quickui#menu#create(opts)
+	else
+		call quickui#menu#nvim_open_menu(opts)
+	endif
 endfunc
 
 
