@@ -318,13 +318,13 @@ function! quickui#menu#update()
 		return -1
 	endif
 	let inst = s:cmenu.inst
-	call win_execute(winid, "syn clear")
+	let cmdlist = ['syn clear']
 	let index = 0
 	for item in inst.items
 		if item.key_pos >= 0
 			let x = item.key_pos + item.x + 1
 			let cmd = quickui#core#high_region('QuickKey', 1, x, 1, x + 1, 1)
-			call win_execute(winid, cmd)
+			let cmdlist += [cmd]
 		endif
 		let index += 1
 	endfor
@@ -333,8 +333,9 @@ function! quickui#menu#update()
 		let x = inst.items[index].x + 1
 		let e = x + inst.items[index].w
 		let cmd = quickui#core#high_region('QuickSel', 1, x, 1, e, 1)
-		call win_execute(winid, cmd)
+		let cmdlist += [cmd]
 	endif
+	call quickui#core#win_execute(winid, cmdlist)
 	return 0
 endfunc
 
@@ -400,7 +401,9 @@ endfunc
 "----------------------------------------------------------------------
 function! s:movement(key)
 	if a:key == 'ESC'
-		call popup_close(a:winid, -1)
+		if g:quickui#core#has_nvim == 0
+			call popup_close(a:winid, -1)
+		endif
 		return 1
 	elseif a:key == 'LEFT' || a:key == 'RIGHT'
 		let index = s:cmenu.index
@@ -421,7 +424,11 @@ function! s:movement(key)
 		let s:cmenu.index = (s:cmenu.size == 0)? 0 : index
 		call quickui#menu#update()
 	elseif a:key == 'ENTER' || a:key == 'DOWN'
-		call s:context_dropdown()
+		if g:quickui#core#has_nvim == 0
+			call s:context_dropdown()
+		else
+			return s:neovim_dropdown()
+		endif
 	endif
 endfunc
 
@@ -483,7 +490,7 @@ function! s:context_dropdown()
 	let index = get(cfg, 'index', 0)
 	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
 	let cfg.index = opts.index
-	let hwnd = quickui#context#create(s:cmenu.dropdown, opts)
+	let hwnd = quickui#context#open(s:cmenu.dropdown, opts)
 	let s:cmenu.context = hwnd.winid
 	let s:cmenu.state = 1
 endfunc
@@ -538,6 +545,171 @@ function! quickui#menu#open(...)
 		let opts.name = a:1
 	endif
 	call quickui#menu#create(opts)
+endfunc
+
+
+"----------------------------------------------------------------------
+" neovim dropdown context: returns non-zero for exit
+"----------------------------------------------------------------------
+function! s:neovim_dropdown()
+	let cursor = s:cmenu.index
+	if cursor < 0 || cursor >= s:cmenu.size || s:cmenu.state == 0
+		return 0
+	endif
+	if s:cmenu.state == 2
+		let s:cmenu.state = 1
+		let s:cmenu.context = -1
+		return 1
+	endif
+	let item = s:cmenu.inst.items[s:cmenu.index]
+	let opts = {'col': item.x + 1, 'line': 2, 'horizon':1, 'zindex':31100}
+	let opts.reserve = 1
+	let cfg = s:cmenu.current[item.name]
+	let s:cmenu.dropdown = []
+	for item in cfg.items
+		let s:cmenu.dropdown += [[item.name, item.cmd, item.help]]
+	endfor
+	let index = get(cfg, 'index', 0)
+	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
+	let cfg.index = opts.index
+	let hr = quickui#context#open(s:cmenu.dropdown, opts)
+	let cfg.index = g:quickui#context#current.index
+	let s:cmenu.next = 0
+	if hr >= 0
+		return 1
+	elseif hr == -1000
+		call s:movement('LEFT')
+		let s:cmenu.next = 1
+	elseif hr == -2000
+		call s:movement('RIGHT')
+		let s:cmenu.next = 1
+	elseif hr == -1001
+		call s:movement('PAGEUP')
+		let s:cmenu.next = 1
+	elseif hr == -2001
+		call s:movement('PAGEDOWN')
+		let s:cmenu.next = 1
+	elseif hr == -2
+		call s:neovim_click()
+	endif
+	return (s:cmenu.next == 0)? 1 : 0
+endfunc
+
+
+"----------------------------------------------------------------------
+" returns non-zero to quit
+"----------------------------------------------------------------------
+function! s:neovim_click()
+	if v:mouse_winid != s:cmenu.winid || v:mouse_lnum != 1
+		return 1
+	endif
+	let x = v:mouse_col - 1
+	let index = 0
+	let select = -1
+	for item in s:cmenu.inst.items
+		if x >= item.x && x < item.x + item.w
+			let select = index
+		endif
+		let index += 1
+	endfor
+	if select >= 0
+		let s:cmenu.index = select
+		let s:cmenu.next = 1
+		echom "exit2"
+	endif
+	return 0
+endfunc
+
+
+"----------------------------------------------------------------------
+" neovim open menu
+"----------------------------------------------------------------------
+function! quickui#menu#nvim_open_menu(opts)
+	if s:cmenu.state != 0
+		" return -1
+	endif
+	let name = get(a:opts, 'name', s:name)
+	if !has_key(s:namespace, name)
+		return -1
+	endif
+	let current = s:namespace[name].config
+	let s:cmenu.inst = s:parse_menu(name, 2)
+	if s:cmenu.inst.width + 5 >= &columns
+		let s:cmenu.inst = s:parse_menu(name, 1)
+		if s:cmenu.inst.width + 5 >= &columns
+			let s:cmenu.inst = s:parse_menu(name, 0)
+		endif
+	endif
+	let s:cmenu.name = name
+	let s:cmenu.index = s:namespace[name].index
+	let s:cmenu.width = &columns
+	let s:cmenu.size = len(s:cmenu.inst.items)
+	let s:cmenu.current = current
+	let bid = quickui#core#neovim_buffer('menu', [s:cmenu.inst.text])
+	let w = s:cmenu.width
+	let opts = {'width':w, 'height':1, 'focusable':1, 'style':'minimal'}
+	let opts.col = 0
+	let opts.row = 0
+	let opts.relative = 'editor'
+	let s:cmenu.bufnr = bid
+	let winid = nvim_open_win(bid, 0, opts)
+	let s:cmenu.winid = winid
+	let s:cmenu.cfg = deepcopy(a:opts)
+	let w = s:cmenu.width
+	let color = get(a:opts, 'color', 'QuickBG')
+    call nvim_win_set_option(winid, 'winhl', 'Normal:'. color)
+	let s:cmenu.hotkey = s:cmenu.inst.hotkey
+	let s:cmenu.state = 1
+	let s:cmenu.context = -1
+	let s:cmenu.next = 0
+	let keymap = quickui#utils#keymap()
+	let s:cmenu.keymap = keymap
+	call quickui#menu#update()
+	while 1
+		call quickui#menu#update()
+		redraw
+		if s:cmenu.next == 1
+			let s:cmenu.next = 0
+			call quickui#menu#update()
+			if s:neovim_dropdown() != 0
+				break
+			else
+				continue
+			endif
+		elseif s:cmenu.next == 2
+			let s:cmenu.next = 0
+			continue
+		endif
+		let s:cmenu.next = 0
+		try
+			let code = getchar()
+		catch /^Vim:Interrupt$/
+			let code = "\<C-C>"
+		endtry
+		let ch = (type(code) == v:t_number)? nr2char(code) : code
+		if ch == "\<ESC>" || ch == "\<c-c>"
+			break
+		elseif ch == "\<LeftMouse>"
+			if s:neovim_click() != 0
+				break
+			endif
+		elseif has_key(s:cmenu.hotkey, ch)
+			let index = s:cmenu.hotkey[ch]
+			let index = (index < 0)? (s:cmenu.size - 1) : index
+			let index = (index >= s:cmenu.size)? 0 : index
+			let s:cmenu.index = (s:cmenu.size == 0)? 0 : index
+			call quickui#menu#update()
+			if s:neovim_dropdown() != 0
+				break
+			endif
+		elseif has_key(keymap, ch)
+			let key = keymap[ch]
+			if s:movement(key) != 0
+				break
+			endif
+		endif
+	endwhile
+	call nvim_win_close(winid, 0)
 endfunc
 
 

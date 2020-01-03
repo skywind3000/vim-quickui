@@ -179,7 +179,9 @@ endfunc
 " python simulate system() on window to prevent temporary window
 "----------------------------------------------------------------------
 function! s:python_system(cmd, version)
-	if has('win32') || has('win64') || has('win95') || has('win16')
+	if has('nvim')
+		return system(a:cmd)
+	elseif has('win32') || has('win64') || has('win95') || has('win16')
 		if a:version < 0
 			return system(a:cmd)
 		elseif has('python3') == 0 && has('python') == 0

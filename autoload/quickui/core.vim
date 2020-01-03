@@ -17,8 +17,15 @@
 "----------------------------------------------------------------------
 " global variables
 "----------------------------------------------------------------------
+let g:quickui#core#has_nvim = has('nvim')
 let g:quickui#core#has_popup = exists('*popup_create') && v:version >= 800
 let g:quickui#core#has_floating = has('nvim-0.4')
+
+
+"----------------------------------------------------------------------
+" internal variables
+"----------------------------------------------------------------------
+let s:buffer_cache = {}
 
 
 "----------------------------------------------------------------------
@@ -206,6 +213,43 @@ function! quickui#core#popup_clear(winid)
 	if has_key(inst.popup_local, a:winid)
 		call remove(inst.popup_local, a:winid)
 	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" vim/nvim compatible
+"----------------------------------------------------------------------
+function! quickui#core#win_execute(winid, command)
+	if g:quickui#core#has_popup != 0
+		if type(a:command) == v:t_string
+			call win_execute(a:winid, a:command)
+		elseif type(a:command) == v:t_list
+			call win_execute(a:winid, join(a:command, "\n"))
+		endif
+	else
+		let current = nvim_get_current_win()
+		call nvim_set_current_win(a:winid)
+		if type(a:command) == v:t_string
+			exec a:command
+		elseif type(a:command) == v:t_list
+			exec join(a:command, "\n")
+		endif
+		call nvim_set_current_win(current)
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" get a named buffer
+"----------------------------------------------------------------------
+function! quickui#core#neovim_buffer(name, textlist)
+	let bid = get(s:buffer_cache, a:name, -1)
+	if bid < 0
+		let bid = nvim_create_buf(v:false, v:true)
+		let s:buffer_cache[a:name] = bid
+	endif
+	call nvim_buf_set_lines(bid, 0, -1, v:true, a:textlist)
+	return bid
 endfunc
 
 
