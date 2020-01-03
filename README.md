@@ -8,6 +8,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 - `Tip` for each entry can display in the cmdline when you are moving the cursor around.
 - Available widgets: [menu](#menu), [listbox](#listbox), .. (coming soon)
 - Fully customizable, including color scheme and borders.
+- Corresponding experience in both `Vim` and `NeoVim`.
 - Pure vim-script, `+python` is not required.
 - No longer have to be afraid to forget keymaps anymore.
 
@@ -19,8 +20,8 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 ## Requirements
 
-- Vim: 8.2 or later
-- NeoVim: 0.4.0 or later
+- Vim: 8.2 or later.
+- NeoVim: 0.4.0 or later.
 
 ## Installation
 
