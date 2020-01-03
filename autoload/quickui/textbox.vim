@@ -225,8 +225,8 @@ if 0
 	let opts.resize = 1
 	let opts.title = "title"
 	let opts.syntax = "cpp"
-	let opts.color = "Normal"
-	let opts.bordercolor = "QuickBG"
+	let opts.color = "QuickBox"
+	" let opts.bordercolor = "QuickBG"
 	let opts.cursor = 38
 	let opts.number = 1
 	" let opts.exit_on_click = 0

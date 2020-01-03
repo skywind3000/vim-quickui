@@ -187,7 +187,6 @@ function! quickui#listbox#create(textlist, opts)
 	if has_key(a:opts, 'close')
 		let opts.close = a:opts.close
 	endif
-	call popup_setoptions(winid, opts)
 	let local = quickui#core#popup_local(winid)
 	let local.hwnd = hwnd
 	let local.winid = winid
@@ -205,7 +204,8 @@ function! quickui#listbox#create(textlist, opts)
 	endif
 	let hwnd.state = 1
 	let hwnd.code = 0
-	let hwnd.input = ''
+	let hwnd.tag = ''
+	call popup_setoptions(winid, opts)
 	if has_key(a:opts, 'syntax')
 		call win_execute(winid, 'set ft=' . fnameescape(a:opts.syntax))
 	endif
@@ -286,8 +286,8 @@ function! quickui#listbox#filter(winid, key)
 		return 1
 	elseif has_key(keymap, a:key)
 		let key = keymap[a:key]
-		if strpart(key, 0, 6) == 'INPUT-'
-			let hwnd.input = strpart(key, 6)
+		if strpart(key, 0, 4) == 'TAG:'
+			let hwnd.tag = strpart(key, 4)
 			return popup_filter_menu(a:winid, "\<CR>")
 		elseif key == 'ESC'
 			call popup_close(a:winid, -1)

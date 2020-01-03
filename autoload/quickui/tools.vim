@@ -38,7 +38,7 @@ let s:keymaps = '123456789abcdefimnopqrstuvwxyz'
 " 
 "----------------------------------------------------------------------
 function! quickui#tools#buffer_switch(bid)
-	let code = g:quickui#listbox#current.input
+	let code = g:quickui#listbox#current.tag
 	let name = fnamemodify(bufname(a:bid), ':p')
 	if code == ''
 		exec s:switch . ' '. fnameescape(name)
@@ -91,10 +91,10 @@ function! quickui#tools#list_buffer(switch)
 	let opts = {'title': 'Switch Buffer', 'index':current, 'close':'button'}
 	let opts.border = g:quickui#style#border
 	let opts.keymap = {}
-	let opts.keymap["\<c-e>"] = 'INPUT-1'
-	let opts.keymap["\<c-]>"] = 'INPUT-2'
-	let opts.keymap["\<c-t>"] = 'INPUT-3'
-	let opts.keymap["\<c-g>"] = 'INPUT-4'
+	let opts.keymap["\<c-e>"] = 'TAG:1'
+	let opts.keymap["\<c-]>"] = 'TAG:2'
+	let opts.keymap["\<c-t>"] = 'TAG:3'
+	let opts.keymap["\<c-g>"] = 'TAG:4'
 	" let opts.syntax = 'cpp'
 	let maxheight = (&lines) * 60 / 100
 	if len(content) > maxheight
