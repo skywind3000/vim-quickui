@@ -365,6 +365,9 @@ function! quickui#menu#callback(winid, code)
 		call popup_close(s:cmenu.context, -3)
 		let s:cmenu.context = -1
 	endif
+	redraw
+	echo ""
+	redraw
 endfunc
 
 
@@ -482,6 +485,7 @@ function! s:context_dropdown()
 	let opts = {'col': item.x + 1, 'line': 2, 'horizon':1, 'zindex':31100}
 	let opts.callback = 'quickui#menu#context_exit'
 	let opts.reserve = 1
+	let opts.lazyredraw = 1
 	let cfg = s:cmenu.current[item.name]
 	let s:cmenu.dropdown = []
 	for item in cfg.items
@@ -672,8 +676,9 @@ function! quickui#menu#nvim_open_menu(opts)
 	call quickui#menu#update()
 	while 1
 		call quickui#menu#update()
-		redraw
-		if s:cmenu.next == 1
+		if s:cmenu.next == 0
+			redraw
+		elseif s:cmenu.next == 1
 			let s:cmenu.next = 0
 			call quickui#menu#update()
 			if s:neovim_dropdown() != 0
@@ -715,6 +720,9 @@ function! quickui#menu#nvim_open_menu(opts)
 		endif
 	endwhile
 	call nvim_win_close(winid, 0)
+	redraw
+	echo ""
+	redraw
 	let s:namespace[name].index = s:cmenu.index
 	redraw
 endfunc

@@ -246,9 +246,11 @@ function! quickui#context#callback(winid, code)
 	let hwnd.code = code
 	call quickui#core#popup_clear(a:winid)
 	if get(g:, 'quickui_show_tip', 0) != 0
-		redraw
-		echo ''
-		redraw
+		if get(hwnd.opts, 'lazyredraw', 0) == 0
+			redraw
+			echo ''
+			redraw
+		endif
 	endif
 	let g:quickui#context#code = code
 	let g:quickui#context#current = hwnd
@@ -539,6 +541,7 @@ function! s:nvim_create_context(textlist, opts)
 		elseif has_key(hwnd.hotkey, ch)
 			let hr = hwnd.hotkey[ch]
 			if hr >= 0
+				let hwnd.index = hr
 				let retval = hr
 				break
 			endif
@@ -621,7 +624,7 @@ if 0
 	let lines = [
 				\ "&New File\tCtrl+n",
 				\ "&Open File\tCtrl+o", 
-				\ ["&Close", 'test echo'],
+				\ ["&Close", 'echo 1234', 'help 1'],
 				\ "--",
 				\ "&Save\tCtrl+s",
 				\ "Save &As",
@@ -643,7 +646,7 @@ if 0
 		echo "callback: " . a:code
 	endfunc
 	if 1
-		let menu = quickui#context#create(lines, opts)
+		let menu = quickui#context#open(lines, opts)
 		" echo menu
 	else
 		let item = quickui#utils#item_parse("你好吗f&aha\tAlt+x")	
