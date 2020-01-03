@@ -568,6 +568,7 @@ function! s:neovim_dropdown()
 	let item = s:cmenu.inst.items[s:cmenu.index]
 	let opts = {'col': item.x + 1, 'line': 2, 'horizon':1, 'zindex':31100}
 	let opts.reserve = 1
+	let opts.lazyredraw = 1
 	let cfg = s:cmenu.current[item.name]
 	let s:cmenu.dropdown = []
 	for item in cfg.items
@@ -714,6 +715,8 @@ function! quickui#menu#nvim_open_menu(opts)
 		endif
 	endwhile
 	call nvim_win_close(winid, 0)
+	let s:namespace[name].index = s:cmenu.index
+	redraw
 endfunc
 
 

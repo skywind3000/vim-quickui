@@ -573,10 +573,14 @@ function! s:nvim_create_context(textlist, opts)
 		endif
 	endwhile
 	call nvim_win_close(winid, 0)
+	if get(a:opts, 'lazyredraw', 0) == 0
+		redraw
+	endif
 	if get(g:, 'quickui_show_tip', 0) != 0
-		redraw
-		echo ''
-		redraw
+		if get(a:opts, 'lazyredraw', 0) == 0
+			echo ''
+			redraw
+		endif
 	endif
 	let g:quickui#context#code = retval
 	let g:quickui#context#current = hwnd
