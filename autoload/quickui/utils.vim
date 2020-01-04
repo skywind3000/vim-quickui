@@ -342,3 +342,43 @@ function! quickui#utils#update_cursor(winid)
 endfunc
 
 
+"----------------------------------------------------------------------
+" get window line
+"----------------------------------------------------------------------
+function! quickui#utils#get_cursor(winid)
+	let g:quickui#utils#__cursor_index__ = -1
+	let cmd = 'let g:quickui#utils#__cursor_index__ = line(".")'
+	call quickui#core#win_execute(a:winid, cmd)
+	return g:quickui#utils#__cursor_index__
+endfunc
+
+
+"----------------------------------------------------------------------
+" make border
+"----------------------------------------------------------------------
+function! quickui#utils#make_border(width, height, border, title, button)
+	let pattern = quickui#core#border_get(a:border)
+	let image = []
+	let w = a:width
+	let h = a:height
+	let text = pattern[0] . repeat(pattern[1], w) . pattern[2]
+	let image += [text]
+	let index = 0
+	while index < h
+		let text = pattern[3] . repeat(' ', w) . pattern[5]
+		let image += [text]
+		let index += 1
+	endwhile
+	let text = pattern[6] . repeat(pattern[7], w) . pattern[8]
+	let image += [text]
+	let text = image[0]
+	let title = quickui#core#string_fit(a:title, w)
+	let text = quickui#core#string_compose(text, 1, title)
+	if a:button != 0
+		let text = quickui#core#string_compose(text, w + 1, 'X')
+	endif
+	let image[0] = text
+	return image
+endfunc
+
+

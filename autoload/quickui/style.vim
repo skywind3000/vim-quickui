@@ -10,7 +10,7 @@
 "----------------------------------------------------------------------
 " default border style: 1/ascii, 2/single, 3/double
 "----------------------------------------------------------------------
-let quickui#style#border = get(g:, 'quickui#style#border', 1)
+let g:quickui#style#border = get(g:, 'quickui#style#border', 1)
 
-let quickui#style#tip_head = '[tip]'
+let g:quickui#style#tip_head = '[tip]'
 

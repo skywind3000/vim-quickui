@@ -25,7 +25,39 @@ let g:quickui#core#has_floating = has('nvim-0.4')
 "----------------------------------------------------------------------
 " internal variables
 "----------------------------------------------------------------------
-let s:buffer_cache = {}
+
+
+"----------------------------------------------------------------------
+" object pool acquire
+"----------------------------------------------------------------------
+function! quickui#core#object_acquire(name)
+	if !exists('g:quickui#core#__object_pool__')
+		let g:quickui#core#__object_pool__ = {}
+	endif
+	if !has_key(g:quickui#core#__object_pool__, a:name)
+		let g:quickui#core#__object_pool__[a:name] = []
+	endif
+	let array = g:quickui#core#__object_pool__[a:name]
+	if len(array) == 0
+		return v:null
+	endif
+	let obj = remove(array, -1)	
+	return obj
+endfunc
+
+
+"----------------------------------------------------------------------
+" object pool release
+"----------------------------------------------------------------------
+function! quickui#core#object_release(name, obj)
+	if !exists('g:quickui#core#__object_pool__')
+		let g:quickui#core#__object_pool__ = {}
+	endif
+	if !has_key(g:quickui#core#__object_pool__, a:name)
+		let g:quickui#core#__object_pool__[a:name] = []
+	endif
+	call add(g:quickui#core#__object_pool__[a:name], a:obj)
+endfunc
 
 
 "----------------------------------------------------------------------
@@ -34,6 +66,49 @@ let s:buffer_cache = {}
 function! quickui#core#string_replace(text, old, new)
 	let l:data = split(a:text, a:old, 1)
 	return join(l:data, a:new)
+endfunc
+
+
+"----------------------------------------------------------------------
+" compose two string
+"----------------------------------------------------------------------
+function! quickui#core#string_compose(target, pos, source)
+	if a:source == ''
+		return a:target
+	endif
+	let pos = a:pos
+	let source = a:source
+	if pos < 0
+		let source = strcharpart(a:source, -pos)
+		let pos = 0
+	endif
+	let target = strcharpart(a:target, 0, pos)
+	if strchars(target) < pos
+		let target .= repeat(' ', pos - strchars(target))
+	endif
+	let target .= source
+	let target .= strcharpart(a:target, pos + strchars(source))
+	return target
+endfunc
+
+
+"----------------------------------------------------------------------
+" fit size
+"----------------------------------------------------------------------
+function! quickui#core#string_fit(source, size)
+	let require = a:size
+	let source = a:source
+	let size = len(source)
+	if size <= require
+		return source
+	endif
+	let avail = require - 2
+	let left = avail / 2
+	let right = avail - left
+	let p1 = strpart(source, 0, left)
+	let p2 = strpart(source, size - right)
+	let text = p1 . '..' . p2
+	return text
 endfunc
 
 
@@ -243,6 +318,9 @@ endfunc
 " get a named buffer
 "----------------------------------------------------------------------
 function! quickui#core#neovim_buffer(name, textlist)
+	if !exists('s:buffer_cache')
+		let s:buffer_cache = {}
+	endif
 	let bid = get(s:buffer_cache, a:name, -1)
 	if bid < 0
 		let bid = nvim_create_buf(v:false, v:true)
