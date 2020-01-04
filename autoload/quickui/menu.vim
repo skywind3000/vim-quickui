@@ -576,7 +576,7 @@ function! s:neovim_dropdown()
 	let cfg = s:cmenu.current[item.name]
 	let s:cmenu.dropdown = []
 	for item in cfg.items
-		let s:cmenu.dropdown += [[item.name, item.cmd, item.help]]
+		let s:cmenu.dropdown += [[item.name, '', item.help]]
 	endfor
 	let index = get(cfg, 'index', 0)
 	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
@@ -585,6 +585,9 @@ function! s:neovim_dropdown()
 	let cfg.index = g:quickui#context#current.index
 	let s:cmenu.next = 0
 	if hr >= 0
+		if hr < len(cfg.items)
+			let s:cmenu.script = cfg.items[hr].cmd
+		endif
 		return 1
 	elseif hr == -1000
 		call s:movement('LEFT')
@@ -624,7 +627,6 @@ function! s:neovim_click()
 	if select >= 0
 		let s:cmenu.index = select
 		let s:cmenu.next = 1
-		echom "exit2"
 	endif
 	return 0
 endfunc
@@ -673,6 +675,7 @@ function! quickui#menu#nvim_open_menu(opts)
 	let s:cmenu.next = 0
 	let keymap = quickui#utils#keymap()
 	let s:cmenu.keymap = keymap
+	let s:cmenu.script = ''
 	call quickui#menu#update()
 	while 1
 		call quickui#menu#update()
@@ -724,7 +727,10 @@ function! quickui#menu#nvim_open_menu(opts)
 	echo ""
 	redraw
 	let s:namespace[name].index = s:cmenu.index
-	redraw
+	if s:cmenu.script != ''
+		let script = s:cmenu.script
+		exec script
+	endif
 endfunc
 
 
