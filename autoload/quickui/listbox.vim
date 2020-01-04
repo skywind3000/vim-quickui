@@ -344,7 +344,7 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#listbox#inputlist(textlist, opts)
 	if g:quickui#core#has_nvim != 0
-		let opts = deepcopy(opts)
+		let opts = deepcopy(a:opts)
 		if has_key(opts, 'callback')
 			unlet opts['callback']
 		endif
