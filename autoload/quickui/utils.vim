@@ -376,6 +376,30 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" get topline in current window
+"----------------------------------------------------------------------
+function! quickui#utils#current_topline()
+	let height = winheight(0)
+	let winline = winline()
+	let curline = line('.')
+	let topline = curline - winline + 1
+	return topline
+endfunc
+
+
+"----------------------------------------------------------------------
+" get first cursorline
+"----------------------------------------------------------------------
+function! quickui#utils#get_topline(winid)
+	let g:quickui#utils#__cursor_topline__ = -1
+	let cmd = 'let g:quickui#utils#__cursor_topline__ = '
+	let cmd = cmd . 'quickui#utils#current_topline()'
+	call quickui#core#win_execute(a:winid, cmd)
+	return g:quickui#utils#__cursor_topline__
+endfunc
+
+
+"----------------------------------------------------------------------
 " make border
 "----------------------------------------------------------------------
 function! quickui#utils#make_border(width, height, border, title, button)

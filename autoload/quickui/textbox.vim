@@ -123,6 +123,8 @@ endfunc
 " exit and quit
 "----------------------------------------------------------------------
 function! quickui#textbox#exit(winid, code)
+	let topline = quickui#utils#get_topline(a:winid)
+	let g:quickui#textbox#topline = topline
 	call quickui#core#popup_clear(a:winid)
 endfunc
 
@@ -273,10 +275,13 @@ function! s:nvim_create_textbox(textlist, opts)
 			endif
 		endif
 	endwhile
+	let topline = quickui#utils#get_topline(winid)
+	let g:quickui#textbox#topline = topline
 	call nvim_win_close(winid, 0)
 	if background >= 0
 		call nvim_win_close(background, 0)
 	endif
+	return topline
 endfunc
 
 
