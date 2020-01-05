@@ -215,7 +215,7 @@ function! quickui#context#update(hwnd)
 				endif
 			endif
 			echohl QuickHelp
-			echom help
+			echo help
 			echohl None
 		endif
 	endif
