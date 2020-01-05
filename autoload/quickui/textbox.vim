@@ -326,6 +326,16 @@ function! quickui#textbox#open(textlist, opts)
 			endif
 		endif
 	endif
+	if has_key(opts, 'h')
+		let minheight = get(opts, 'minheight', 1)
+		let minheight = (minheight < 1)? 1 : minheight
+		let opts.h = (opts.h < minheight)? minheight : opts.h
+	endif
+	if has_key(opts, 'w')
+		let minwidth = get(opts, 'minwidth', 20)
+		let minwidth = (minwidth < 1)? 1 : minwidth
+		let opts.w = (opts.w < minwidth)? minwidth : opts.w
+	endif
 	call quickui#textbox#create(a:textlist, opts)
 endfunc
 

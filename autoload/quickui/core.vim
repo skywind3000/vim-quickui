@@ -102,6 +102,9 @@ function! quickui#core#string_fit(source, size)
 	if size <= require
 		return source
 	endif
+	if require <= 2
+		return repeat('.', (require < 0)? 0 : require)
+	endif	
 	let avail = require - 2
 	let left = avail / 2
 	let right = avail - left

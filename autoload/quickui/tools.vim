@@ -142,3 +142,16 @@ function! quickui#tools#python_help(word)
 endfunc
 
 
+"----------------------------------------------------------------------
+" display messages
+"----------------------------------------------------------------------
+function! quickui#tools#display_messages()
+	redir => x
+	silent messages
+	redir END
+	let content = split(x, "\n")
+	let opts = {"close":"button", "title":"Vim Messages"}
+	call quickui#textbox#open(content, opts)
+endfunc
+
+
