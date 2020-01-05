@@ -256,6 +256,7 @@ function! quickui#context#callback(winid, code)
 	endif
 	let g:quickui#context#code = code
 	let g:quickui#context#current = hwnd
+	let redrawed = 0
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
 		call F(code)
@@ -265,6 +266,7 @@ function! quickui#context#callback(winid, code)
 		let item = hwnd.items[code]
 		if item.is_sep == 0 && item.enable != 0
 			if item.cmd != ''
+				redraw
 				exec item.cmd
 			endif
 		endif
@@ -599,6 +601,7 @@ function! s:nvim_create_context(textlist, opts)
 		let item = hwnd.items[retval]
 		if item.is_sep == 0 && item.enable != 0
 			if item.cmd != ''
+				redraw
 				exec item.cmd
 			endif
 		endif
