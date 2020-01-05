@@ -146,12 +146,20 @@ endfunc
 " display messages
 "----------------------------------------------------------------------
 function! quickui#tools#display_messages()
+	let x = ''
 	redir => x
-	silent messages
+	silent! messages
 	redir END
+	let x = substitute(x, '[\n\r]\+\%$', '', 'g')
 	let content = split(x, "\n")
+	let trim = []
+	for line in content
+		if line != ''
+			let trim += [line]
+		endif
+	endfor
 	let opts = {"close":"button", "title":"Vim Messages"}
-	call quickui#textbox#open(content, opts)
+	call quickui#textbox#open(trim, opts)
 endfunc
 
 

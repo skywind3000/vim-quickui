@@ -83,6 +83,9 @@ function! s:vim_create_textbox(textlist, opts)
 	let local.keymap = quickui#utils#keymap()
 	let local.keymap['x'] = 'ESC'
 	let local.opts = deepcopy(a:opts)
+	if has_key(a:opts, 'callback')
+		let local.callback = a:opts.callback
+	endif
 	if has_key(a:opts, 'list')
 		if a:opts.list
 			call win_execute(winid, 'setl list')
@@ -125,7 +128,13 @@ endfunc
 function! quickui#textbox#exit(winid, code)
 	let topline = quickui#utils#get_topline(a:winid)
 	let g:quickui#textbox#topline = topline
+	let local = quickui#core#popup_local(a:winid)
+	let g:quickui#textbox#current = local
 	call quickui#core#popup_clear(a:winid)
+	if has_key(local, 'callback')
+		let F = function(local.callback)
+		call F(topline)
+	endif
 endfunc
 
 
@@ -280,6 +289,11 @@ function! s:nvim_create_textbox(textlist, opts)
 	call nvim_win_close(winid, 0)
 	if background >= 0
 		call nvim_win_close(background, 0)
+	endif
+	let g:quickui#textbox#current = local
+	if has_key(a:opts, 'callback')
+		let F = function(a:opts.callback)
+		call F(topline)
 	endif
 	return topline
 endfunc
