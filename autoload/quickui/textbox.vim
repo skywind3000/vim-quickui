@@ -214,7 +214,7 @@ function! s:nvim_create_textbox(textlist, opts)
 	endif
 	if has_key(a:opts, 'syntax')
 		let init += ['set ft='.fnameescape(a:opts.syntax)]
-		echo "syntax: ". a:opts.syntax
+		" echo "syntax: ". a:opts.syntax
 	endif
 	let cursor = get(a:opts, 'cursor', -1)
 	call setbufvar(bid, '__quickui_cursor__', cursor)
@@ -222,13 +222,15 @@ function! s:nvim_create_textbox(textlist, opts)
 	if has_key(a:opts, 'index')
 		let index = (a:opts.index < 1)? 1 : a:opts.index
 		let opts.firstline = index
-		let init += ['noautocmd exec "normal! G"']
-		let init += ['noautocmd exec ":'. index . '"']
+		let init += ['noautocmd exec "normal! gg"']
+		if index > 1
+			let init += ['noautocmd exec "normal! '. (index - 1) . '\<c-e>"']
+		endif
 	endif
 	call quickui#core#win_execute(winid, init)
-    call nvim_win_set_option(winid, 'winhl', 'Normal:'. color)
-    " call nvim_win_set_option(winid, 'winhl', 'NonText:'. color)
-	" call quickui#utils#update_cursor(winid)
+	let highlight = 'Normal:'.color.',NonText:'.color.',EndOfBuffer:'.color
+    call nvim_win_set_option(winid, 'winhl', highlight)
+	noautocmd call quickui#utils#update_cursor(winid)
 	let local = {}
 	let local.winid = winid
 	let local.keymap = quickui#utils#keymap()
@@ -236,7 +238,7 @@ function! s:nvim_create_textbox(textlist, opts)
 	let local.opts = deepcopy(a:opts)
 	noautocmd redraw
 	while 1
-		noautocmd redraw
+		noautocmd redraw!
 		try
 			let code = getchar()
 		catch /^Vim:Interrupt$/
@@ -266,8 +268,8 @@ function! s:nvim_create_textbox(textlist, opts)
 			if key == 'ENTER' || key == 'ESC'
 				break
 			else
-				call quickui#utils#scroll(winid, key)
-				" call quickui#utils#update_cursor(winid)
+				noautocmd call quickui#utils#scroll(winid, key)
+				noautocmd call quickui#utils#update_cursor(winid)
 			endif
 		endif
 	endwhile

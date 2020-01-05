@@ -543,7 +543,7 @@ function! s:nvim_create_listbox(textlist, opts)
 				break
 			else
 				let cmd = 'quickui#listbox#cursor_movement("' . key . '")'
-				call quickui#core#win_execute(winid, 'call ' . cmd)
+				noautocmd call quickui#core#win_execute(winid, 'call ' . cmd)
 			endif
 		endif
 	endwhile

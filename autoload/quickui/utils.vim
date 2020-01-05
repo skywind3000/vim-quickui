@@ -232,7 +232,7 @@ endfunc
 " cursor movement
 "----------------------------------------------------------------------
 function! quickui#utils#movement(offset)
-	let height = winheight(0)	
+	let height = winheight(0)
 	let winline = winline()
 	let curline = line('.')
 	let topline = curline - winline + 1
@@ -254,10 +254,10 @@ function! quickui#utils#movement(offset)
 		elseif a:offset == 'DOWN'
 			let offset = 1
 		elseif a:offset == 'TOP'
-			exec "normal gg"
+			exec "noautocmd normal gg"
 			return
 		elseif a:offset == 'BOTTOM'
-			exec "normal G"
+			exec "noautocmd normal G"
 			return
 		endif
 	endif

@@ -517,7 +517,7 @@ function! s:nvim_create_context(textlist, opts)
     call nvim_win_set_option(winid, 'winhl', 'Normal:'. hwnd.opts.color)
 	let retval = -1
 	while 1
-		call quickui#context#update(hwnd)
+		noautocmd call quickui#context#update(hwnd)
 		redraw
 		try
 			let code = getchar()

@@ -678,9 +678,9 @@ function! quickui#menu#nvim_open_menu(opts)
 	let s:cmenu.script = ''
 	call quickui#menu#update()
 	while 1
-		call quickui#menu#update()
+		noautocmd call quickui#menu#update()
 		if s:cmenu.next == 0
-			redraw
+			noautocmd redraw
 		elseif s:cmenu.next == 1
 			let s:cmenu.next = 0
 			call quickui#menu#update()
