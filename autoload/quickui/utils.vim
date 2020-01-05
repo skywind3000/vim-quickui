@@ -263,9 +263,9 @@ function! quickui#utils#movement(offset)
 	endif
 	" echom "offset: ". offset
 	if offset > 0
-		exec "normal ". offset . "\<C-E>"
+		exec "noautocmd normal ". offset . "\<C-E>"
 	elseif offset < 0
-		exec "normal ". (-offset) . "\<C-Y>"
+		exec "noautocmd normal ". (-offset) . "\<C-Y>"
 	endif
 endfunc
 
@@ -275,9 +275,11 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#utils#scroll(winid, offset)
 	if type(a:offset) == v:t_number
-		call win_execute(a:winid, 'call quickui#utils#movement(' . a:offset .')')
+		let cmd = 'call quickui#utils#movement(' . a:offset . ')'
+		call quickui#core#win_execute(a:winid, cmd)
 	else
-		call win_execute(a:winid, 'call quickui#utils#movement("' . a:offset .'")')
+		let cmd = 'call quickui#utils#movement("' . a:offset . '")'
+		call quickui#core#win_execute(a:winid, cmd)
 	endif
 endfunc
 
@@ -287,7 +289,13 @@ endfunc
 " centerize
 "----------------------------------------------------------------------
 function! quickui#utils#center(winid)
-	let pos = popup_getpos(a:winid)
+	if g:quickui#core#has_nvim == 0
+		let pos = popup_getpos(a:winid)
+	else
+		let pos = {}
+		let pos.width = nvim_win_get_width(a:winid)
+		let pos.height = nvim_win_get_height(a:winid)
+	endif
 	let h = pos.height
 	let w = pos.width
 	let limit1 = (&lines - 2) * 82 / 100
@@ -302,7 +310,13 @@ function! quickui#utils#center(winid)
 	let hr = quickui#core#screen_fit(opts.line, opts.col, w, h)
 	let opts.col = hr[1]
 	let opts.line = hr[0]
-	call popup_move(a:winid, opts)
+	if g:quickui#core#has_nvim == 0
+		call popup_move(a:winid, opts)
+	else
+		let no = {'col': opts.col - 1, 'row': opts.line - 1}
+		let no.relative = 'editor'
+		call nvim_win_set_config(a:winid, no)
+	endif
 endfunc
 
 
@@ -319,12 +333,20 @@ function! quickui#utils#show_cursor(winid, row)
 	if a:row >= topline && a:row <= botline
 		exec ":" . a:row
 		if w:__quickui_line__ != 1
-			call popup_setoptions(a:winid, {'cursorline': 1})
+			if g:quickui#core#has_nvim == 0
+				call popup_setoptions(a:winid, {'cursorline': 1})
+			else
+				call quickui#core#win_execute(a:winid, 'setl cursorline')
+			endif
 		endif
 		let w:__quickui_line__ = 1
 	else
 		if w:__quickui_line__ != 0
-			call popup_setoptions(a:winid, {'cursorline': 0})
+			if g:quickui#core#has_nvim == 0
+				call popup_setoptions(a:winid, {'cursorline': 0})
+			else
+				call quickui#core#win_execute(a:winid, 'setl nocursorline')
+			endif
 		endif
 		let w:__quickui_line__ = 0
 	endif
@@ -338,7 +360,7 @@ function! quickui#utils#update_cursor(winid)
 	let bid = winbufnr(a:winid)
 	let row = getbufvar(bid, '__quickui_cursor__', -1)
 	let cmd = 'call quickui#utils#show_cursor('. a:winid .', '.row.')'
-	call win_execute(a:winid, cmd)
+	call quickui#core#win_execute(a:winid, cmd)
 endfunc
 
 

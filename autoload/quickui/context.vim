@@ -127,6 +127,8 @@ function! s:vim_create_context(textlist, opts)
 			let key = tolower(item.key_char)
 			if get(a:opts, 'reserve', 0) == 0
 				let hwnd.hotkey[key] = item.index
+			elseif get(g:, 'quickui_protect_hjkl', 0) != 0
+				let hwnd.hotkey[key] = item.index
 			else
 				if key != 'h' && key != 'j' && key != 'k' && key != 'l'
 					let hwnd.hotkey[key] = item.index
@@ -479,6 +481,7 @@ function! s:nvim_create_context(textlist, opts)
 	let hwnd.index = get(a:opts, 'index', -1)
 	let hwnd.opts = deepcopy(a:opts)
 	let opts = {'width':w, 'height':h, 'focusable':1, 'style':'minimal'}
+	let opts.relative = 'editor'
 	if has_key(a:opts, 'line') && has_key(a:opts, 'col')
 		let opts.row = a:opts.line - 1
 		let opts.col = a:opts.col - 1
@@ -487,7 +490,6 @@ function! s:nvim_create_context(textlist, opts)
 		let opts.row = pos[0] - 1
 		let opts.col = pos[1] - 1
 	endif
-	let opts.relative = 'editor'
 	let winid = nvim_open_win(bid, 0, opts)
 	let hwnd.winid = winid
 	let keymap = quickui#utils#keymap()
@@ -501,6 +503,8 @@ function! s:nvim_create_context(textlist, opts)
 		if item.enable != 0 && item.key_pos >= 0
 			let key = tolower(item.key_char)
 			if get(a:opts, 'reserve', 0) == 0
+				let hwnd.hotkey[key] = item.index
+			elseif get(g:, 'quickui_protect_hjkl', 0) != 0
 				let hwnd.hotkey[key] = item.index
 			else
 				if key != 'h' && key != 'j' && key != 'k' && key != 'l'

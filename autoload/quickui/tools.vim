@@ -112,6 +112,13 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" preview register in popup and choose to paste
+"----------------------------------------------------------------------
+function! quickui#tools#list_register()
+endfunc
+
+
+"----------------------------------------------------------------------
 " display python help in the textbox
 "----------------------------------------------------------------------
 function! quickui#tools#python_help(word)
