@@ -6,7 +6,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 - Can be accessed by keyboard only while mouse is also supported.
 - Navigate with the usual Vim keys like `h/j/k/l`, confirm with `ENTER/SPACE` and cancel with `ESC/Ctrl+[`.
 - `Tip` for each entry can display in the cmdline when you are moving the cursor around.
-- Available widgets: [menu](#menu), [listbox](#listbox), .. (coming soon)
+- Available widgets: [menu](#menu), [listbox](#listbox), [textbox](#textbox).. (coming soon)
 - Fully customizable, including color scheme and borders.
 - Corresponding experience in both `Vim` and `NeoVim`.
 - Pure vim-script, `+python` is not required.
@@ -154,6 +154,60 @@ echo quickui#listbox#inputlist(linelist, {'title':'select'})
 ```
 
 The key difference between `open` and `inputlist` is `open` will return immediately to vim's event loop while `inputlist` won't return until you select an item or press `ESC`.
+
+### Textbox
+
+Textbox is used to display arbitrary text in a popup window.
+
+![](images/textbox.png)
+
+Features:
+
+- HJKL to scroll up/down, ESC to quit
+- Support sytax highlighting
+
+APIs:
+
+open textbox:
+
+```VimL
+quickui#textbox#open(textlist, opts)
+```
+
+Run a shell command and display the output in the textbox:
+
+```VimL
+quickui#textbox#command(command, opts)
+```
+
+Sample code:
+
+```VimL
+" display vim messages in the textbox
+function! DisplayMessages()
+    let x = ''
+    redir => x
+    silent! messages
+    redir END
+    let x = substitute(x, '[\n\r]\+\%$', '', 'g')
+    let content = split(x, "\n")
+    let trim = []
+    for line in content
+        if line != ''
+            let trim += [line]
+        endif
+    endfor
+    let opts = {"close":"button", "title":"Vim Messages"}
+    call quickui#textbox#open(trim, opts)
+endfunc
+```
+
+This function can display vim error messages (`:messages`) in the text window:
+
+![](images/messages.png)
+
+Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list them in the command line by `:messages`.
+
 
 ## Tools
 
