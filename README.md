@@ -164,7 +164,7 @@ Textbox is used to display arbitrary text in a popup window.
 Features:
 
 - HJKL to scroll up/down, ESC to quit
-- Support sytax highlighting
+- Support syntax highlighting
 
 APIs:
 
