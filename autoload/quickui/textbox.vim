@@ -219,6 +219,7 @@ function! s:nvim_create_textbox(textlist, opts)
 	let init += ['setlocal tabstop='. get(a:opts, 'tabstop', 4)]
 	let init += ['setlocal signcolumn=no']
 	let init += ['setlocal scrolloff=0']
+	let init += ['setlocal wrap']
 	let init += ['noautocmd exec "normal! gg"']
 	if get(a:opts, 'number', 0) != 0
 		let init += ['setlocal number']
