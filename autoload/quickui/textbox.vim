@@ -155,9 +155,9 @@ function! quickui#textbox#filter(winid, key)
 			call popup_close(a:winid, 0)
 			return 1
 		else
-			call quickui#utils#scroll(a:winid, key)
+			noautocmd call quickui#utils#scroll(a:winid, key)
 			redraw
-			call quickui#utils#update_cursor(a:winid)
+			noautocmd call quickui#utils#update_cursor(a:winid)
 		endif
 	endif
 	return popup_filter_yesno(a:winid, a:key)
