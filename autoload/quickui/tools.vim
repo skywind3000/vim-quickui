@@ -112,6 +112,49 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" list function
+"----------------------------------------------------------------------
+function! quickui#tools#list_function()
+	let items = quickui#tags#function_list(bufnr(), &ft)
+	if len(items) == 0
+		call quickui#utils#errmsg('No content !')
+		return -1
+	endif
+	let content = []
+	let cursor = -1
+	let index = 0
+	let ln = line('.')
+	let maxsize = (&columns) * 60 / 100
+	let maxheight = (&lines) * 60 / 100
+	let maxwidth = 0
+	for item in items
+		if ln >= item.line
+			let cursor = index
+		endif
+		let index += 1
+		let text = '' . item.mode . '' . "   \t" . item.text
+		let text = text . '  [:' . item.line . ']'
+		let text = strcharpart(text, 0, maxsize)
+		let size = strdisplaywidth(text)
+		let maxwidth = (maxwidth > size)? maxwidth : size
+		let content += [[text, ':' . item.line]]
+	endfor
+	let opts = {'title': 'Function List', 'close':'button'}
+	if cursor >= 0
+		let opts.index = cursor
+	endif
+	let opts.h = len(content)
+	let opts.h = (opts.h < maxheight)? opts.h : maxheight
+	let opts.w = maxwidth
+	if opts.w < maxsize
+		let opts.w = (opts.w < 60)? 60 : opts.w
+	endif
+	call quickui#listbox#open(content, opts)
+	return 0
+endfunc
+
+
+"----------------------------------------------------------------------
 " preview register in popup and choose to paste
 "----------------------------------------------------------------------
 function! quickui#tools#list_register()

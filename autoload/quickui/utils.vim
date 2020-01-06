@@ -221,6 +221,17 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" display a error msg
+"----------------------------------------------------------------------
+function! quickui#utils#errmsg(what)
+	redraw
+	echohl ErrorMsg
+	echo a:what
+	echohl None
+endfunc
+
+
+"----------------------------------------------------------------------
 " max height
 "----------------------------------------------------------------------
 function! quickui#utils#max_height(percentage)
