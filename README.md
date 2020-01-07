@@ -29,15 +29,28 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 ## Available Widgets
 
-
-
 ### Menu
 
 Display a dropdown menubar at top of the screen:
 
 ![](images/mainmenu.png)
 
-APIs:
+**Keymaps**:
+
+- `h` / `CTRL+h` / `LEFT`: move left.
+- `l` / `CTRL+l` / `RIGHT`: move right.
+- `j` / `CTRL+j` / `DOWN`: move down.
+- `k` / `CTRL+k` / `UP`: move up.
+- `SPACE` / `ENTER`: confirm.
+- `ESC` / `CTRL+[`: cancel.
+- `H`: move to the left-most menu.
+- `L`: move to the right-most menu.
+- `J`: move to the last item.
+- `K`: move to the first item.
+
+Note: `hjkl` may be overried by user hotkeys, so `CTRL`+`hjkl` or arrow keys can be used at all time.
+
+**APIs**:
 
 register menu entries:
 
@@ -51,7 +64,7 @@ display the menu:
 call quickui#menu#open()
 ```
 
-Sample code:
+**Sample code**:
 
 ```VimL
 " clear all the menus
@@ -109,7 +122,7 @@ Can display an array of string items in the popup window and can be used to pick
 
 ![](images/listbox.png)
 
-Features:
+**Features**:
 
 - Listbox can used to pick up item from thousands items.
 - Columns separated by `"\t"` will be aligned.
@@ -117,8 +130,30 @@ Features:
 - Mouse wheel can be used to scroll the content.
 - Character starting with `&` can be used as a shortcut.
 - It has a title, and can be dragged by mouse.
+- Search item with `/` or `?` command.
+- Jump to line with `:` command.
 
-APIs:
+**Keymaps**:
+
+- `j` / `CTRL+j` / `UP`: move up.
+- `k` / `CTRL+k` / `DOWN`: move down.
+- `J` / `CTRL+d`: half page down.
+- `K` / `CTRL+d`: half page up.
+- `H` / `CTRL+b` / `PageUp`: page up.
+- `L` / `CTRL+f` / `PageDown`: page down.
+- `SPACE` / `ENTER`: confirm.
+- `ESC` / `CTRL+[`: cancel.
+- `g`: go to the first item.
+- `G`: go to the last item.
+- `/`: search forwards.
+- `?`: search backwards.
+- `:`: go to line number.
+- `n` / `CTRL+n`: next match.
+- `N` / `CTRL+p`: previous match.
+
+Note: `hjkl` or `n` may be overried by user hotkeys, so `CTRL`+`hjkl` or `CTRL`+`n` can always be used at all time.
+
+**APIs**:
 
 Open the listbox:
 
@@ -128,7 +163,7 @@ quickui#listbox#open(content, opts)
 
 Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary.
 
-Sample code:
+**Sample code**:
 
 ```VimL
 let content = [
@@ -161,12 +196,12 @@ Textbox is used to display arbitrary text in a popup window.
 
 ![](images/textbox.png)
 
-Features:
+**Features**:
 
 - HJKL to scroll up/down, ESC to quit
 - Support syntax highlighting
 
-APIs:
+**APIs**:
 
 open textbox:
 
@@ -180,7 +215,7 @@ Run a shell command and display the output in the textbox:
 quickui#textbox#command(command, opts)
 ```
 
-Sample code:
+**Sample code**:
 
 ```VimL
 " display vim messages in the textbox
