@@ -338,15 +338,15 @@ hi! QuickHelp ctermfg=247 guifg=#959173
 
 My name is Lin Wei, an open source believer and vim enthusiast. I started learning programming in early 1990s. Borland's Turbo Pascal/C++ was the most popular IDE at that time and I really enjoyed the old days, back home from school, powered on my computer, started Turbo c++ 3.1 and studied how to make a game in MS-DOS.
 
-I even imitated Turbo C++ and made my own editor when I moved to watcom-C++:
+I even imitated Turbo C++ and made my own editor when I moved to Watcom C++:
 
 ![](images/editor.png)
 
-Because I didn't own a proper editor/IDE for watcom C++ at that time.
+Because I didn't own a proper editor/IDE for Watcom C++ at that time.
 
 After coming to windows, I tried a lot of GUI-editors, from UltraEdit, editplus to NotePad++, from gedit to geany, none of them could fully satisfy me. Eventually I met vim, and soon fell in love with it.
 
-As Vim is evolving nowadays, due to the effort of Bram, 8.2 released. Finally I realised, maybe, it is possible to bring some cool things from 25 years ago to vim now. Maybe I can have a Borland/Turbo C++ flavor vim in my everyday work just like I was learning making pc games in the golden 1990s as a middle school student.
+As Vim is evolving nowadays, due to the effort of Bram, 8.2 released. Finally I realised, maybe, it is possible to bring some cool things from 25 years ago to vim now. Maybe I can have a Borland/Turbo C++ flavor vim in my everyday work just like I was learning making PC games in the golden 1990s as a middle school student.
 
 ## Credit
 
