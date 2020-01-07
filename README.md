@@ -145,7 +145,7 @@ Can display an array of string items in the popup window and can be used to pick
 
 **Features**:
 
-- Listbox can used to pick up item from thousands items.
+- Listbox can used to pick up a item from thousands items.
 - Columns separated by `"\t"` will be aligned.
 - A scroll bar will display if there are too many items.
 - Mouse wheel can be used to scroll the content.
