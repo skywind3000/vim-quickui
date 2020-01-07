@@ -338,7 +338,7 @@ hi! QuickHelp ctermfg=247 guifg=#959173
 
 My name is Lin Wei, an open source believer and vim enthusiast. I started learning programming in early 1990s. Borland's Turbo Pascal/C++ was the most popular IDE at that time and I really enjoyed the old days, back home from school, powered on my computer, started Turbo c++ 3.1 and studied how to make a game in MS-DOS.
 
-I even intimidated TCC and made my own editor when I moved to watcom-C++:
+I even imitated Turbo C++ and made my own editor when I moved to watcom-C++:
 
 ![](images/editor.png)
 
