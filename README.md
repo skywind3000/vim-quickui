@@ -14,7 +14,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 
 Just see this GIF demonstration below:
 
-![](https://github.com/skywind3000/vim-quickui/raw/master/images/screenshot.gif)
+![](images/screenshot.gif)
 
 Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite accaptable for them.
 
@@ -34,7 +34,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
     - [How to change border style](#how-to-change-border-style)
     - [How to change the color scheme](#how-to-change-the-color-scheme)
     - [Specify color group precisely](#specify-color-group-precisely)
-- [Self-promotion](#self-promotion)
+- [Who Am I ?](#who-am-i-)
 - [Credit](#credit)
 
 <!-- /TOC -->
@@ -334,13 +334,21 @@ hi! QuickOff ctermfg=59 guifg=#75715e
 hi! QuickHelp ctermfg=247 guifg=#959173
 ```
 
+## Who Am I ?
 
+My name is Lin Wei, an open source believer and vim enthusiast. I started learning programming in early 1990s. Borland's Turbo Pascal/C++ was the most popular IDE at that time and I really enjoyed the old days, back home from school, powered on my computer, started Turbo c++ 3.1 and studied how to make a game in MS-DOS.
 
-## Self-promotion
+I even intimidated TCC and made my own editor when I moved to watcom-C++:
 
-like vim-quickui? Follow the repository on [GitHub](https://github.com/skywind3000/vim-quickui) and vote for it on [vim.org](https://www.vim.org/scripts/script.php?script_id=5845). And if you're feeling especially charitable, follow skywind3000 on [Twitter](https://twitter.com/skywind3000) and [GitHub](https://github.com/skywind3000).
+![](images/editor.png)
+
+Because I didn't own a proper editor/IDE for watcom C++ at that time.
+
+After coming to windows, I tried a lot of GUI-editors, from UltraEdit, editplus to NotePad++, from gedit to geany, none of them could fully satisfy me. Eventually I met vim, and soon fell in love with it.
+
+As Vim is evolving nowadays, due to the effort of Bram, 8.2 released. Finally I realised, maybe, it is possible to bring some cool things from 25 years ago to vim now. Maybe I can have a Borland/Turbo C++ flavor vim in my everyday work just like I was learning making pc games in the golden 1990s as a middle school student.
 
 ## Credit
 
-This plugin will not be possible without Bram's effort on `+popup` feature.
+like vim-quickui? Follow the repository on [GitHub](https://github.com/skywind3000/vim-quickui) and vote for it on [vim.org](https://www.vim.org/scripts/script.php?script_id=5845). And if you're feeling especially charitable, follow skywind3000 on [Twitter](https://twitter.com/skywind3000) and [GitHub](https://github.com/skywind3000).
 
