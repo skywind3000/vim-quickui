@@ -470,4 +470,18 @@ function! quickui#core#around_cursor(width, height)
 endfunc
 
 
+"----------------------------------------------------------------------
+" safe input
+"----------------------------------------------------------------------
+function! quickui#core#input(prompt, text)
+	call inputsave()
+	try
+		let t = input(a:prompt, a:text)
+	catch /^Vim:Interrupt$/
+		let t = "\<c-c>"
+	endtry
+	call inputrestore()
+	return t
+endfunc
+
 

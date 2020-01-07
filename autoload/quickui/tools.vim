@@ -194,15 +194,9 @@ function! quickui#tools#display_messages()
 	silent! messages
 	redir END
 	let x = substitute(x, '[\n\r]\+\%$', '', 'g')
-	let content = split(x, "\n")
-	let trim = []
-	for line in content
-		if line != ''
-			let trim += [line]
-		endif
-	endfor
+	let content = filter(split(x, "\n"), 'v:key != ""')
 	let opts = {"close":"button", "title":"Vim Messages"}
-	call quickui#textbox#open(trim, opts)
+	call quickui#textbox#open(content, opts)
 endfunc
 
 

@@ -149,14 +149,15 @@ let s:maps["\<c-j>"] = 'DOWN'
 let s:maps["\<c-k>"] = 'UP'
 let s:maps["\<c-h>"] = 'LEFT'
 let s:maps["\<c-l>"] = 'RIGHT'
-let s:maps["\<c-n>"] = 'DOWN'
-let s:maps["\<c-p>"] = 'UP'
+let s:maps["\<c-n>"] = 'NEXT'
+let s:maps["\<c-p>"] = 'PREV'
 let s:maps["\<c-b>"] = 'PAGEUP'
 let s:maps["\<c-f>"] = 'PAGEDOWN'
 let s:maps["\<c-u>"] = 'HALFUP'
 let s:maps["\<c-d>"] = 'HALFDOWN'
 let s:maps["\<PageUp>"] = 'PAGEUP'
 let s:maps["\<PageDown>"] = 'PAGEDOWN'
+let s:maps["\<c-g>"] = 'NOHL'
 let s:maps['j'] = 'DOWN'
 let s:maps['k'] = 'UP'
 let s:maps['h'] = 'LEFT'
@@ -168,6 +169,8 @@ let s:maps['L'] = 'PAGEDOWN'
 let s:maps["g"] = 'TOP'
 let s:maps["G"] = 'BOTTOM'
 let s:maps['q'] = 'ESC'
+let s:maps['n'] = 'NEXT'
+let s:maps['N'] = 'PREV'
 
 
 function! quickui#utils#keymap()
@@ -437,5 +440,56 @@ function! quickui#utils#make_border(width, height, border, title, button)
 	let image[0] = text
 	return image
 endfunc
+
+
+"----------------------------------------------------------------------
+" search or jump
+"----------------------------------------------------------------------
+function! quickui#utils#search_or_jump(winid, cmd)
+	if a:cmd == '/' || a:cmd == '?'
+		let prompt = (a:cmd == '/')? '/' : '?'
+		" let prompt = (a:cmd == '/')? '(search): ' : '(search backwards): '
+		let t = quickui#core#input(prompt, '')
+		if t != '' && t != "\<c-c>"
+			try
+				silent call quickui#core#win_execute(a:winid, a:cmd . t)
+			catch /^Vim\%((\a\+)\)\=:E486:/
+				call quickui#utils#errmsg('E486: Pattern not find: '. t)
+			endtry
+			silent! call quickui#core#win_execute(a:winid, 'nohl')
+			call setwinvar(a:winid, '__quickui_search_cmd', a:cmd)
+			call setwinvar(a:winid, '__quickui_search_key', t)
+		endif
+	elseif a:cmd == ':'
+		let prompt = ':'
+		" let prompt = '(goto): '
+		let t = quickui#core#input(prompt, '')
+		if t != ''
+			call quickui#core#win_execute(a:winid, ':' . t)	
+		endif
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" search next
+"----------------------------------------------------------------------
+function! quickui#utils#search_next(winid, cmd)
+	let prev_cmd = getwinvar(a:winid, '__quickui_search_cmd', '')
+	let prev_key = getwinvar(a:winid, '__quickui_search_key', '')
+	if prev_key != ''
+		if a:cmd ==# 'n' || a:cmd == 'NEXT'
+			let cmd = (prev_cmd == '/')? '/' : '?'
+		else
+			let cmd = (prev_cmd == '/')? '?' : '/'
+		endif
+		try
+			silent call quickui#core#win_execute(a:winid, cmd . prev_key)
+		catch /^Vim\%((\a\+)\)\=:E486:/
+		endtry
+		noautocmd call quickui#core#win_execute(a:winid, 'nohl')
+	endif
+endfunc
+
 
 

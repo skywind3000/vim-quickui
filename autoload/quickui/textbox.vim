@@ -158,10 +158,20 @@ function! quickui#textbox#filter(winid, key)
 				return 1
 			endif
 		endif
+	elseif a:key == ':' || a:key == '/' || a:key == '?'
+		call quickui#utils#search_or_jump(a:winid, a:key)
+		noautocmd call quickui#utils#update_cursor(a:winid)
+		redraw
+		return 1
 	elseif has_key(keymap, a:key)
 		let key = keymap[a:key]
 		if key == "ENTER" || key == "ESC"
 			call popup_close(a:winid, 0)
+			return 1
+		elseif key == 'NEXT' || key == 'PREV'
+			call quickui#utils#search_next(a:winid, key)
+			noautocmd call quickui#utils#update_cursor(a:winid)
+			redraw
 			return 1
 		else
 			noautocmd call quickui#utils#scroll(a:winid, key)
@@ -275,10 +285,16 @@ function! s:nvim_create_textbox(textlist, opts)
 					endif
 				endif
 			endif
+		elseif ch == '/' || ch == '?' || ch == ':'
+			call quickui#utils#search_or_jump(winid, ch)
+			noautocmd call quickui#utils#update_cursor(winid)
 		elseif has_key(local.keymap, ch)
 			let key = local.keymap[ch]
 			if key == 'ENTER' || key == 'ESC'
 				break
+			elseif key == 'NEXT' || key == 'PREV'
+				call quickui#utils#search_next(winid, key)
+				noautocmd call quickui#utils#update_cursor(winid)
 			else
 				noautocmd call quickui#utils#scroll(winid, key)
 				noautocmd call quickui#utils#update_cursor(winid)
