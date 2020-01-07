@@ -18,6 +18,27 @@ Just see this GIF demonstration below:
 
 Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite accaptable for them.
 
+# Content 
+
+<!-- TOC -->
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Available Widgets](#available-widgets)
+    - [Menu](#menu)
+    - [Listbox](#listbox)
+    - [Textbox](#textbox)
+- [Tools](#tools)
+    - [Buffer switcher](#buffer-switcher)
+- [Customize](#customize)
+    - [How to change border style](#how-to-change-border-style)
+    - [How to change the color scheme](#how-to-change-the-color-scheme)
+    - [Specify color group precisely](#specify-color-group-precisely)
+- [Self-promotion](#self-promotion)
+- [Credit](#credit)
+
+<!-- /TOC -->
+
 ## Requirements
 
 - Vim: 8.2 or later.
