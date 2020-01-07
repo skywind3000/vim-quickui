@@ -492,4 +492,41 @@ function! quickui#utils#search_next(winid, cmd)
 endfunc
 
 
+"----------------------------------------------------------------------
+" size can be in '24' or '24%'
+"----------------------------------------------------------------------
+function! quickui#utils#size_parse(text, is_height)
+	if type(a:text) == v:t_number
+		return a:text
+	elseif type(a:text) == v:t_string
+		let text = trim(a:text)
+		if text =~ '%$'
+			let text = strpart(text, 0, len(text) - 1)
+			let ratio = str2nr(text)
+			if a:is_height == 0
+				let num = (&columns) * ratio / 100
+				return (num < &columns)? num : &columns
+			else
+				let num = (&lines) * ratio / 100
+				return (num < &lines)? num : &lines
+			endif
+		else
+			return str2nr(text)
+		endif
+	endif
+endfunc
+
+
+
+"----------------------------------------------------------------------
+" get default tools width
+"----------------------------------------------------------------------
+function! quickui#utils#tools_width()
+	let width = get(g:, 'quickui_tools_width', '60%')
+	let size = quickui#utils#size_parse(width, 0)
+	let minimal = (60 < &columns)? 60 : &columns
+	let size = (size < minimal)? minimal : size
+	return (size > &columns)? &columns : size
+endfunc
+
 

@@ -103,7 +103,7 @@ endfunc
 function! quickui#listbox#highlight_keys(winid, items)
 	let items = a:items
 	let index = 0
-	let cmdlist = ['syn clear']
+	let cmdlist = []
 	while index < items.nrows
 		let key = items.keys[index]
 		if key[1] >= 0
@@ -208,6 +208,7 @@ function! s:vim_create_listbox(textlist, opts)
 	let hwnd.code = 0
 	let hwnd.tag = ''
 	call popup_setoptions(winid, opts)
+	call win_execute(winid, 'syn clear')
 	if has_key(a:opts, 'syntax')
 		call win_execute(winid, 'set ft=' . fnameescape(a:opts.syntax))
 	endif
@@ -510,6 +511,8 @@ function! s:nvim_create_listbox(textlist, opts)
 	let hwnd.state = 1
 	let hwnd.code = 0
 	let hwnd.tag = ''
+	call quickui#core#win_execute(winid, 'setlocal nowrap')
+	call quickui#core#win_execute(winid, 'syn clear')
 	if has_key(a:opts, 'syntax')
 		let syntax = fnameescape(a:opts.syntax)
 		call quickui#core#win_execute(winid, 'set ft=' . syntax)

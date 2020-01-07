@@ -35,7 +35,7 @@ Display a dropdown menubar at top of the screen:
 
 ![](images/mainmenu.png)
 
-**Keymaps**:
+**Usage**:
 
 - `h` / `CTRL+h` / `LEFT`: move left.
 - `l` / `CTRL+l` / `RIGHT`: move right.
@@ -133,7 +133,7 @@ Can display an array of string items in the popup window and can be used to pick
 - Search item with `/` or `?` command.
 - Jump to line with `:` command.
 
-**Keymaps**:
+**Usage**:
 
 - `j` / `CTRL+j` / `UP`: move up.
 - `k` / `CTRL+k` / `DOWN`: move down.
@@ -237,7 +237,6 @@ This function can display vim error messages (`:messages`) in the text window:
 
 Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list them in the command line by `:messages`.
 
-
 ## Tools
 
 Tools are build upon basic widgets.
@@ -252,7 +251,12 @@ or
    
     call quickui#tools#list_buffer('tabedit')
 
-Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit.
+Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit:
+
+![](images/listbox.png)
+
+If there are many buffers listed, you can use `/` or `?` to search, and `n` or `N` to jump to the next / previous match.
+
 
 ## Customize
 
