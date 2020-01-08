@@ -344,7 +344,7 @@ I even imitated Turbo C++ and made my own editor when I moved to Watcom C++:
 
 Because I didn't own a proper editor/IDE for Watcom C++ at that time.
 
-After coming to windows, I tried a lot of GUI-editors, from UltraEdit, editplus to NotePad++, from gedit to geany, none of them could fully satisfy me. Every day was busy, tired to learn new IDEs/editors or new frameworks, I even forgot the true joy of programming. Eventually I met vim, and soon fell in love with it.
+After coming to windows, I tried a lot of GUI-editors, from UltraEdit, editplus to NotePad++, from gedit to geany, none of them could fully satisfy me. Every day I was busy, tired to learn new IDEs/editors or new frameworks, I even forgot the true joy of programming. Eventually I met vim, and soon fell in love with it.
 
 As Vim is evolving nowadays, due to the effort of Bram, 8.2 released. Finally I realise, maybe, it is possible to bring some cool things from 25 years ago to vim now. Maybe I can have a Borland/Turbo C++ flavor vim in my everyday work just like I was learning making PC games in the golden 1990s as a middle school student.
 
