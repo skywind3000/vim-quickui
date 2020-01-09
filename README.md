@@ -141,7 +141,7 @@ Then you can open the menu by pressing space twice. If the 4th parameter `filety
 call quickui#menu#install('&C/C++', [
             \ [ '&Compile', 'echo 1' ],
             \ [ '&Run', 'echo 2' ],
-            \ ], 500, 'c,cpp')
+            \ ], -1, 'c,cpp')
 ```
 
 This `C/C++` menu will be visible only if the `filetype` of current buffer is `c` or `cpp`.
