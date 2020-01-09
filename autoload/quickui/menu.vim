@@ -58,6 +58,7 @@ function! quickui#menu#register(section, entry, command, help)
 			let index += 1
 		endfor
 		let current[a:section] = {'name':a:section, 'weight':0, 'items':[]}
+		let current[a:section].ft = ''
 		let current[a:section].weight = s:namespace[s:name].weight
 		let s:namespace[s:name].weight += 10
 	endif
@@ -140,6 +141,9 @@ function! quickui#menu#install(section, content, ...)
 	if a:0 > 0 && has_key(current, a:section)
 		let current[a:section].weight = a:1
 	endif
+	if a:0 > 1 && has_key(current, a:section)
+		let current[a:section].ft = a:2
+	endif
 endfunc
 
 
@@ -150,6 +154,17 @@ function! quickui#menu#change_weight(section, weight)
 	let current = s:namespace[s:name].config
 	if has_key(current, a:section)
 		let current[a:section].weight = a:weight
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" change file types
+"----------------------------------------------------------------------
+function! quickui#menu#change_ft(section, ft)
+	let current = s:namespace[s:name].config
+	if has_key(current, a:section)
+		let current[a:section].ft = a:ft
 	endif
 endfunc
 
@@ -200,6 +215,12 @@ function! quickui#menu#available(name)
 	let menus = []
 	for name in keys(current)
 		let menu = current[name]
+		if menu.ft != ''
+			let fts = split(menu.ft, ',')
+			if index(fts, &ft) < 0
+				continue
+			endif
+		endif
 		if len(menu.items) > 0
 			let menus += [[menu.weight, menu.name]]
 		endif

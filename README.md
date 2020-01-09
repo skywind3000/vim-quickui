@@ -76,7 +76,7 @@ Note: `hjkl` may be overried by user hotkeys, so `CTRL`+`hjkl` or arrow keys can
 register menu entries:
 
 ```VimL
-call quickui#menu#install(section, items [, weight])
+call quickui#menu#install(section, items [, weight [, filetypes]])
 ```
 
 display the menu:
@@ -118,7 +118,7 @@ call quickui#menu#install("&Option", [
 			\ ['Set &Paste %{&paste? "Off":"On"}', 'set paste!'],
 			\ ])
 
-" register HELP menu with weight 1000
+" register HELP menu with weight 10000
 call quickui#menu#install('H&elp', [
 			\ ["&Cheatsheet", 'help index', ''],
 			\ ['T&ips', 'help tips', ''],
@@ -135,7 +135,16 @@ let g:quickui_show_tip = 1
 noremap <space><space> :call quickui#menu#open()<cr>
 ```
 
-Then you can open the menu by pressing space twice.
+Then you can open the menu by pressing space twice. If the 4th parameter `filetypes` is provided as a comma separated list, the menu will display only if the current file type can be matched in the list.
+
+```VimL
+call quickui#menu#install('&C/C++', [
+            \ [ '&Compile', 'echo 1' ],
+            \ [ '&Run', 'echo 2' ],
+            \ ], 500, 'c,cpp')
+```
+
+This `C/C++` menu will be visible only if the `filetype` of current buffer is `c` or `cpp`.
 
 ### Listbox
 
