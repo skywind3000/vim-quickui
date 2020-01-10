@@ -146,9 +146,25 @@ call quickui#menu#install('&C/C++', [
 
 This `C/C++` menu will be visible only if the `filetype` of current buffer is `c` or `cpp`.
 
+You can have multiple menu namespaces at the same time, manipulate them with:
+
+```VimL
+" change current namespace to abc
+call quickui#menu#switch('abc')
+
+" reset current namespace (abc)
+call quickui#menu#reset()
+
+" populate the menu in current namespace (abc)
+call quickui#menu#install(...)
+
+" open the menu in namespace abc
+call quickui#menu#open('abc')
+```
+
 ### Listbox
 
-Can display an array of string items in the popup window and can be used to pick up an item.
+When you have hundred items to deal with, menu is not enough to hold them. Then you will need a listbox.
 
 ![](images/listbox.png)
 
