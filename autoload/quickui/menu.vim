@@ -215,11 +215,18 @@ endfunc
 function! quickui#menu#available(name)
 	let current = s:namespace[a:name].config
 	let menus = []
+	let callback = get(g:, 'quickui_menu_filter', '')
+	let F = (callback != '')? function(callback) : ''
 	for name in keys(current)
 		let menu = current[name]
 		if menu.ft != ''
 			let fts = split(menu.ft, ',')
 			if index(fts, &ft) < 0
+				continue
+			endif
+		endif
+		if callback != ''
+			if F(menu.name) == 0
 				continue
 			endif
 		endif
