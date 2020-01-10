@@ -162,6 +162,8 @@ call quickui#menu#install(...)
 call quickui#menu#open('abc')
 ```
 
+The default menus is located in the `system` namespace.
+
 ### Listbox
 
 When you have hundred items to deal with, menu is not enough to hold them. Then you will need a listbox.
