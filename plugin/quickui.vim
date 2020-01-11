@@ -97,5 +97,12 @@ call s:hilink('QuickKey', 'QuickDefaultKey')
 call s:hilink('QuickOff', 'QuickDefaultDisable')
 call s:hilink('QuickHelp', 'QuickDefaultHelp')
 
+if !hlexists('QuickPreview')
+	if &background == 'dark'
+		hi! QuickPreview ctermbg=237 guibg=#3c3836
+	else
+		hi! QuickPreview ctermbg=237 guibg=#3c3836
+	endif
+endif
 
 

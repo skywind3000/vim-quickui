@@ -381,6 +381,7 @@ let s:border_styles = {}
 let s:border_styles[1] = quickui#core#border_extract('+-+|-|+-+++')
 let s:border_styles[2] = quickui#core#border_extract('┌─┐│─│└─┘├┤')
 let s:border_styles[3] = quickui#core#border_extract('╔═╗║─║╚═╝╟╢')
+let s:border_styles[4] = quickui#core#border_extract('/-\|-|\-/++')
 
 let s:border_ascii = quickui#core#border_extract('+-+|-|+-+++')
 
@@ -464,9 +465,17 @@ function! quickui#core#around_cursor(width, height)
 			return [row, col]
 		endif
 	endif
-	let row = cursor_pos[0] + 1
-	let col = cursor_pos[1] + 1
-	return quickui#core#screen_fit(row, col, a:height, a:height)
+	if cursor_pos[0] + a:height + 2 < &line
+		let row = cursor_pos[0] + 1
+	else
+		let row = cursor_pos[0] - a:height
+	endif
+	if cursor_pos[1] + a:width + 2 < &columns
+		let col = cursor_pos[1] + 1
+	else
+		let col = cursor_pos[1] - a:width
+	endif
+	return quickui#core#screen_fit(row, col, a:width, a:height)
 endfunc
 
 
