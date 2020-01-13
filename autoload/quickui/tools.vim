@@ -253,7 +253,7 @@ function! quickui#tools#preview_quickfix(...)
 	endif
 	let index = (a:0 > 0)? a:1 : line('.')
 	if index < 0 || index >= len(obj.items)
-		call quickui#utils#errmsg('quickfix item out of index')
+		call quickui#utils#errmsg('No information in this line')
 		return -2
 	endif
 	let item = obj.items[index - 1]

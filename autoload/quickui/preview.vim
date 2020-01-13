@@ -63,6 +63,7 @@ function! quickui#preview#display(filename, cursor, opts)
 	endif
 	let s:private.state = 0
 	silent let bid = bufadd(a:filename)
+	silent call bufload(bid)
 	let winid = -1
 	let title = has_key(a:opts, 'title')? (' ' . a:opts.title .' ') : ''
 	let w = get(a:opts, 'w', -1)
@@ -116,11 +117,6 @@ function! quickui#preview#display(filename, cursor, opts)
 			let background = nvim_open_win(nbid, 0, op)
 			call nvim_win_set_option(background, 'winhl', 'Normal:'. color)
 			let s:private.background = background
-		endif
-		" call quickui#core#win_execute(winid, 'syntax on')
-		if has_key(a:opts, 'neovim_ft')
-			let cmd = 'setlocal ft=' . fnameescape(a:opts.neovim_ft)
-			call quickui#core#win_execute(winid, cmd)
 		endif
 	endif
 	let cmdlist = ['setlocal signcolumn=no norelativenumber']
@@ -201,18 +197,6 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" guess filetype
-"----------------------------------------------------------------------
-let s:ft_guess = {'py':'python', 'c':'cpp', 'cpp':'cpp', 'cc':'cpp',
-			\ 'h':'cpp', 'hh':'cpp', 'sh': 'sh', 'lua': 'lua',
-			\ 'go':'go', 'java': 'java', 'xml':'xml', 'html':'html',
-			\ 'js':'javascript', 'cmd':'dosbatch', 'bat':'dosbatch',
-			\ 'txt': 'text', 'text':'text', 'json':'json', 'pyw':'python',
-			\ 'as': 'actionscript', 'php':'php', 'pl':'perl',
-			\ }
-
-
-"----------------------------------------------------------------------
 " preview file
 "----------------------------------------------------------------------
 function! quickui#preview#open(filename, ...)
@@ -229,14 +213,6 @@ function! quickui#preview#open(filename, ...)
 	let name = fnamemodify(a:filename, ':p:t')
 	let opts.title = 'Preview: ' . name
 	let opts.persist = (a:0 >= 2)? a:2 : 0
-	if has('nvim')
-		let extname = tolower(fnamemodify(a:filename, ':p:e'))
-		if has_key(s:ft_guess, extname)
-			let opts.neovim_ft = s:ft_guess[extname]
-		else
-			let opts.neovim_ft = &ft
-		endif
-	endif
 	return quickui#preview#display(a:filename, lnum, opts)
 endfunc
 
