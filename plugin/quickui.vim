@@ -101,7 +101,7 @@ if !hlexists('QuickPreview')
 	if &background == 'dark'
 		hi! QuickPreview ctermbg=237 guibg=#3c3836
 	else
-		hi! QuickPreview ctermbg=237 guibg=#3c3836
+		hi! QuickPreview ctermbg=12 guibg=#dddddd
 	endif
 endif
 

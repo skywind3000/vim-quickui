@@ -228,3 +228,45 @@ function! quickui#tools#display_messages()
 endfunc
 
 
+"----------------------------------------------------------------------
+" preview quickfix
+"----------------------------------------------------------------------
+function! quickui#tools#preview_quickfix(...)
+	if quickui#preview#visible()
+		call quickui#preview#close()
+		return 0
+	endif
+	if &bt != 'quickfix'
+		call quickui#utils#errmsg('Not in quickfix window !')
+		return -1
+	endif
+	if !exists('b:__quickui_qf__')
+		let b:__quickui_qf__ = {}
+	endif
+	let obj = b:__quickui_qf__
+	if !has_key(obj, 'version')
+		let obj.version = -1
+	endif
+	if b:changedtick != obj.version
+		let obj.items = getqflist()
+		let obj.version = b:changedtick
+	endif
+	let index = (a:0 > 0)? a:1 : line('.')
+	if index < 0 || index >= len(obj.items)
+		call quickui#utils#errmsg('quickfix item out of index')
+		return -2
+	endif
+	let item = obj.items[index - 1]
+	if item.valid == 0
+		return -3
+	endif
+	if item.bufnr <= 0
+		return -4
+	endif
+	let name = bufname(item.bufnr)
+	call quickui#preview#open(name, item.lnum)
+	" echom 'lnum:'. item.lnum
+endfunc
+
+
+
