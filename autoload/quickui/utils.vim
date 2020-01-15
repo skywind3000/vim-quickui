@@ -384,7 +384,7 @@ endfunc
 function! quickui#utils#get_cursor(winid)
 	let g:quickui#utils#__cursor_index__ = -1
 	let cmd = 'let g:quickui#utils#__cursor_index__ = line(".")'
-	call quickui#core#win_execute(a:winid, cmd)
+	noautocmd call quickui#core#win_execute(a:winid, cmd)
 	return g:quickui#utils#__cursor_index__
 endfunc
 

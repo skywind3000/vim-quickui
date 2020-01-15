@@ -148,7 +148,7 @@ function! s:vim_create_listbox(textlist, opts)
 	if has_key(a:opts, 'line')
 		let opts.line = a:opts.line
 	else
-		let limit1 = (&lines - 2) * 80 / 100
+		let limit1 = (&lines - 2) * 90 / 100
 		let limit2 = (&lines - 2)
 		if h + 4 < limit1
 			let opts.line = (limit1 - h) / 2
@@ -245,6 +245,7 @@ function! quickui#listbox#callback(winid, code)
 	endif
 	let hwnd.state = 0
 	let hwnd.code = code
+	let g:quickui#listbox#cursor = quickui#utils#get_cursor(a:winid) - 1
 	call quickui#core#popup_clear(a:winid)
 	silent! call popup_hide(a:winid)
 	let g:quickui#listbox#current = hwnd
@@ -421,6 +422,11 @@ function! quickui#listbox#inputlist(textlist, opts)
 		endif
 	endwhile
 	" echo 'size: '. winheight(winid)
+	if hr > 0
+		call quickui#core#win_execute(winid, ':' . (hr + 1))
+		redraw
+	endif
+	let g:quickui#listbox#cursor = quickui#utils#get_cursor(winid) - 1
 	call quickui#listbox#close(hwnd)
 	return hr
 endfunc
@@ -455,7 +461,7 @@ function! s:nvim_create_listbox(textlist, opts)
 	if has_key(a:opts, 'line')
 		let opts.row = a:opts.line - 1
 	else
-		let limit1 = (&lines - 2) * 80 / 100
+		let limit1 = (&lines - 2) * 90 / 100
 		let limit2 = (&lines - 2)
 		if h + 4 < limit1
 			let opts.row = (limit1 - h) / 2 - 1
@@ -575,6 +581,7 @@ function! s:nvim_create_listbox(textlist, opts)
 	if retval > 0
 		call quickui#core#win_execute(winid, ':' . (retval + 1))
 	endif
+	let g:quickui#listbox#cursor = quickui#utils#get_cursor(winid) - 1
 	call nvim_win_close(winid, 0)
 	if background >= 0
 		call nvim_win_close(background, 0)
