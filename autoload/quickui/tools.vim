@@ -252,7 +252,7 @@ function! quickui#tools#preview_quickfix(...)
 		let obj.version = b:changedtick
 	endif
 	let index = (a:0 > 0)? a:1 : line('.')
-	if index < 0 || index >= len(obj.items)
+	if index < 1 || index > len(obj.items)
 		call quickui#utils#errmsg('No information in this line')
 		return -2
 	endif
