@@ -16,7 +16,7 @@ Just see this GIF demonstration below:
 
 ![](images/screenshot.gif)
 
-Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite accaptable for them.
+Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite acceptable for them.
 
 # Content 
 
