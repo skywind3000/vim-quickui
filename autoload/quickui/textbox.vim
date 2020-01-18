@@ -109,10 +109,10 @@ function! s:vim_create_textbox(textlist, opts)
 		call win_execute(winid, 'setlocal number')
 	endif
 	call popup_setoptions(winid, opts)
-	call quickui#utils#update_cursor(winid)
 	if has_key(a:opts, 'command')
 		call quickui#core#win_execute(winid, a:opts.command)
 	endif
+	call quickui#utils#update_cursor(winid)
 	call popup_show(winid)
 	redraw
 	return winid
@@ -259,15 +259,15 @@ function! s:nvim_create_textbox(textlist, opts)
 	call quickui#core#win_execute(winid, init)
 	let highlight = 'Normal:'.color.',NonText:'.color.',EndOfBuffer:'.color
     call nvim_win_set_option(winid, 'winhl', highlight)
+	if has_key(a:opts, 'command')
+		call quickui#core#win_execute(winid, a:opts.command)
+	endif
 	noautocmd call quickui#utils#update_cursor(winid)
 	let local = {}
 	let local.winid = winid
 	let local.keymap = quickui#utils#keymap()
 	let local.keymap['x'] = 'ESC'
 	let local.opts = deepcopy(a:opts)
-	if has_key(a:opts, 'command')
-		call quickui#core#win_execute(winid, a:opts.command)
-	endif
 	noautocmd redraw
 	while 1
 		noautocmd redraw!
