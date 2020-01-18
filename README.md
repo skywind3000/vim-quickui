@@ -146,23 +146,13 @@ call quickui#menu#install('&C/C++', [
 
 This `C/C++` menu will be visible only if the `filetype` of current buffer is `c` or `cpp`.
 
-You can have multiple menu namespaces at the same time, manipulate them with:
+As we are living in multiverse, and menus can be separated in [multiple namespaces](https://github.com/skywind3000/vim-quickui/wiki/Menu-Namespaces) too. The `quickui#menu#open` function can actually take one more argument like:
 
 ```VimL
-" change current namespace to abc
-call quickui#menu#switch('abc')
-
-" reset current namespace (abc)
-call quickui#menu#reset()
-
-" populate the menu in current namespace (abc)
-call quickui#menu#install(...)
-
-" open the menu in namespace abc
 call quickui#menu#open('abc')
 ```
 
-The default menus is located in the `system` namespace.
+If it is invoked with an argument "abc", menus in the namespace "abc" will display immediately. If this argument is omitted, the default namespace "system" will be used.
 
 ### Listbox
 
