@@ -305,10 +305,10 @@ function! quickui#tools#display_help(tag)
 	let content = readfile(name)
 	let opts = {'syntax':'help', 'color':'QuickPreview', 'close':'button'}
 	let opts.title = 'Help: ' . fnamemodify(name, ':t')
-	let g:quickui#tools#hint = command
-	let opts.command = ['exec g:quickui#tools#hint']
+	let g:quickui#tools#hint = item[1]
+	let opts.command = ['silent! exec g:quickui#tools#hint']
 	let opts.command += ["exec 'nohl'"]
-	let opts.command += ["normal zz\<c-E>"]
+	let opts.command += ["normal zz"]
 	let opts.w = 80
 	" echom opts
 	let winid = quickui#textbox#open(content, opts)
