@@ -1,4 +1,4 @@
-# 1. What Is It ?
+# What Is It ?
 
 There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:
 
@@ -18,7 +18,7 @@ Just see this GIF demonstration below:
 
 Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite acceptable for them.
 
-# 2. Content 
+# Content 
 
 <!-- TOC -->
 
@@ -40,18 +40,18 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 <!-- /TOC -->
 
-## 2.1. Requirements
+## Requirements
 
 - Vim: 8.2 or later.
 - NeoVim: 0.4.0 or later.
 
-## 2.2. Installation
+## Installation
 
     Plug 'skywind3000/vim-quickui'
 
-## 2.3. Available Widgets
+## Available Widgets
 
-### 2.3.1. Menu
+### Menu
 
 Display a dropdown menubar at top of the screen:
 
@@ -155,7 +155,7 @@ call quickui#menu#open('abc')
 
 If it is invoked with an argument "abc", menus in the namespace "abc" will display immediately. If this argument is omitted, the default namespace "system" will be used.
 
-### 2.3.2. Listbox
+### Listbox
 
 When you have hundred items to deal with, menu is not enough to hold them. Then you will need a listbox.
 
@@ -229,7 +229,7 @@ echo quickui#listbox#inputlist(linelist, {'title':'select'})
 
 The key difference between `open` and `inputlist` is `open` will return immediately to vim's event loop while `inputlist` won't return until you select an item or press `ESC`.
 
-### 2.3.3. Textbox
+### Textbox
 
 Textbox is used to display arbitrary text in a popup window.
 
@@ -276,11 +276,11 @@ This function can display vim error messages (`:messages`) in the text window:
 
 Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list them in the command line by `:messages`.
 
-## 2.4. Tools
+## Tools
 
 Tools are build upon basic widgets.
 
-### 2.4.1. Buffer switcher
+### Buffer switcher
 
 There is a builtin buffer switcher using `listbox`, open it by:
 
@@ -297,7 +297,7 @@ Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to 
 If there are many buffers listed, you can use `/` or `?` to search, and `n` or `N` to jump to the next / previous match.
 
 
-### 2.4.2. Function list
+### Function list
 
 Function list can be actived by:
 
@@ -310,9 +310,9 @@ The cursor will stay in the current function initially:
 navigate and press enter you can jump to another function. This feature requires `ctags` in you `$PATH`.
 
 
-## 2.5. Customize
+## Customize
 
-### 2.5.1. How to change border style
+### How to change border style
 
 Change border characters.
 
@@ -330,7 +330,7 @@ Change border characters.
 
 ![](images/border3.png)
 
-### 2.5.2. How to change the color scheme
+### How to change the color scheme
 
 To change the color scheme, you can set the option below:
 
@@ -343,7 +343,7 @@ Avaliables color schemes:
 ![](images/colors.png)
 
 
-### 2.5.3. Specify color group precisely
+### Specify color group precisely
 
 If none of the builtin color schemes satisfy your need, you can define the color groups your self in your `.vimrc` before enter vim (`VimEnter` event).
 
@@ -365,7 +365,7 @@ hi! QuickOff ctermfg=59 guifg=#75715e
 hi! QuickHelp ctermfg=247 guifg=#959173
 ```
 
-## 2.6. Who Am I ?
+## Who Am I ?
 
 My name is Lin Wei, an open source believer and vim enthusiast. I started learning programming in early 1990s. Borland's Turbo Pascal/C++ was the most popular IDE at that time and I really enjoyed the old days, back home from school, powered on my computer, started Turbo c++ 3.1 and studied how to make a game in MS-DOS.
 
@@ -381,7 +381,7 @@ As Vim is evolving nowadays, due to the effort of Bram, 8.2 released. Finally I 
 
 It is time for me to bring these ideas to reality, just start from this plugin.
 
-## 2.7. Credit
+## Credit
 
 like vim-quickui? Follow the repository on [GitHub](https://github.com/skywind3000/vim-quickui) and vote for it on [vim.org](https://www.vim.org/scripts/script.php?script_id=5845). And if you're feeling especially charitable, follow skywind3000 on [Twitter](https://twitter.com/skywind3000) and [GitHub](https://github.com/skywind3000).
 
