@@ -307,7 +307,7 @@ The cursor will stay in the current function initially:
 
 ![](images/list-function.png)
 
-navigate and press enter you can jump to another function. This feature requires `ctags` in you `$PATH`.
+Navigate and press enter to jump to the selected function. This feature requires `ctags` in you `$PATH`.
 
 
 ## Customize
