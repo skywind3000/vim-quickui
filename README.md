@@ -31,6 +31,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
 - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
     - [Function list](#function-list)
+    - [Help viewer](#help-viewer)
 - [Customize](#customize)
     - [How to change border style](#how-to-change-border-style)
     - [How to change the color scheme](#how-to-change-the-color-scheme)
@@ -308,6 +309,18 @@ The cursor will stay in the current function initially:
 ![](images/list-function.png)
 
 Navigate and press enter to jump to the selected function. This feature requires `ctags` in you `$PATH`.
+
+### Help viewer
+
+Use `textbox` to display vim help in a popup window:
+
+    call quickui#tools#display_help('index')
+
+See the screenshot:
+
+![](images/display-help.png)
+
+The only one argument in `display_help` is the help tag name. With this tool, you can read the help text anytime, without creating a new split window.
 
 
 ## Customize
