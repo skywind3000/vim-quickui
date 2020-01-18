@@ -96,6 +96,9 @@ function! s:vim_create_textbox(textlist, opts)
 	if has_key(a:opts, 'bordercolor')
 		let opts.borderhighlight = repeat([a:opts.bordercolor], 4)
 	endif
+	if has_key(a:opts, 'tabstop')
+		call win_execute(winid, 'setlocal tabstop=' . get(a:opts, 'tabstop', 4))
+	endif
 	if has_key(a:opts, 'syntax')
 		call win_execute(winid, 'set ft=' . fnameescape(a:opts.syntax))
 	endif
@@ -105,9 +108,11 @@ function! s:vim_create_textbox(textlist, opts)
 	if get(a:opts, 'number', 0) != 0
 		call win_execute(winid, 'setlocal number')
 	endif
-	call win_execute(winid, 'setlocal tabstop=' . get(a:opts, 'tabstop', 4))
 	call popup_setoptions(winid, opts)
 	call quickui#utils#update_cursor(winid)
+	if has_key(a:opts, 'command')
+		call quickui#core#win_execute(winid, a:opts.command)
+	endif
 	call popup_show(winid)
 	redraw
 	return winid
@@ -226,7 +231,9 @@ function! s:nvim_create_textbox(textlist, opts)
 		call nvim_win_set_option(background, 'winhl', 'Normal:'. color)
 	endif
 	let init = ['syn clear']
-	let init += ['setlocal tabstop='. get(a:opts, 'tabstop', 4)]
+	if has_key(a:opts, 'tabstop')
+		let init += ['setlocal tabstop='. get(a:opts, 'tabstop', 4)]
+	endif
 	let init += ['setlocal signcolumn=no']
 	let init += ['setlocal scrolloff=0']
 	let init += ['setlocal wrap']
@@ -258,6 +265,9 @@ function! s:nvim_create_textbox(textlist, opts)
 	let local.keymap = quickui#utils#keymap()
 	let local.keymap['x'] = 'ESC'
 	let local.opts = deepcopy(a:opts)
+	if has_key(a:opts, 'command')
+		call quickui#core#win_execute(winid, a:opts.command)
+	endif
 	noautocmd redraw
 	while 1
 		noautocmd redraw!

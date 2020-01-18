@@ -270,3 +270,47 @@ endfunc
 
 
 
+"----------------------------------------------------------------------
+" display vim help in popup
+"----------------------------------------------------------------------
+function! quickui#tools#display_help(tag)
+	if !exists('s:help_tags')
+		let fn = expand('$VIMRUNTIME/doc/tags')
+		if filereadable(fn)
+			let content = readfile(fn)
+			let s:help_tags = {}
+			for line in content
+				let parts = split(line, "\t")
+				if len(parts) >= 3
+					let s:help_tags[parts[0]] = [parts[1], parts[2]]
+				endif
+			endfor
+		endif
+	endif
+	if !exists('s:help_tags')
+		call quickui#utils#errmsg('Sorry, not find help tags in $VIMRUNTIME')
+		return -1
+	endif
+	if !has_key(s:help_tags, a:tag)
+		call quickui#utils#errmsg('E149: Sorry, no help for '. a:tag)
+		return -2
+	endif
+	let item = s:help_tags[a:tag]
+	let name = expand($VIMRUNTIME . '/doc/' . item[0])
+	let command = item[1]
+	if !filereadable(name)
+		call quickui#utils#errmsg('E484: Sorry, cannot open file '.name)
+		return -3
+	endif
+	let content = readfile(name)
+	let opts = {'syntax':'help', 'color':'QuickPreview', 'close':'button'}
+	let opts.title = 'Help: ' . fnamemodify(name, ':t')
+	let opts.command = [command]
+	let opts.w = 80
+	" echom opts
+	let winid = quickui#textbox#open(content, opts)
+	call win_execute(winid, command)
+	return 0
+endfunc
+
+
