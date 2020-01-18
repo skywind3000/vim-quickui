@@ -297,7 +297,7 @@ function! quickui#tools#display_help(tag)
 	endif
 	let item = s:help_tags[a:tag]
 	let name = expand($VIMRUNTIME . '/doc/' . item[0])
-	let command = item[1]
+	let command = substitute(item[1], '\*', '', 'g')
 	if !filereadable(name)
 		call quickui#utils#errmsg('E484: Sorry, cannot open file '.name)
 		return -3
@@ -305,11 +305,11 @@ function! quickui#tools#display_help(tag)
 	let content = readfile(name)
 	let opts = {'syntax':'help', 'color':'QuickPreview', 'close':'button'}
 	let opts.title = 'Help: ' . fnamemodify(name, ':t')
-	let opts.command = [command]
+	let opts.command = command
 	let opts.w = 80
 	" echom opts
 	let winid = quickui#textbox#open(content, opts)
-	call win_execute(winid, command)
+	" call win_execute(winid, command)
 	return 0
 endfunc
 
