@@ -99,7 +99,7 @@ call s:hilink('QuickHelp', 'QuickDefaultHelp')
 
 if !hlexists('QuickPreview')
 	if &background == 'dark'
-		hi! QuickPreview ctermbg=237 guibg=#3c3836
+		hi! QuickPreview ctermbg=237 guibg=#4c4846
 	else
 		hi! QuickPreview ctermbg=12 guibg=#dddddd
 	endif

@@ -27,6 +27,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
 - [Available Widgets](#available-widgets)
     - [Menu](#menu)
     - [Listbox](#listbox)
+    - [Context menu](#context-menu)
     - [Textbox](#textbox)
 - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
@@ -209,7 +210,21 @@ Open the listbox:
 quickui#listbox#open(content, opts)
 ```
 
-Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary.
+Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options, available options are:
+
+- `title`: title of the listbox.
+- `index`: initial cursor position, starts from 0.
+- `w`: listbox width.
+- `h`: listbox height.
+- `col`: screen position in columns, starts from 1.
+- `line`: screen position in lines, starts from 1.
+- `color`: background color, default to `QuickBG`.
+- `syntax`: the `filetype` apply to the `listbox`.
+- `callback`: a function (`"fn(code)"` form) which will be called after listbox closed (press Enter or ESC).
+
+All options are not compulsorily required and can be omitted. The `callback` function will be invoked with a parameter `code` which represent the selected item index. If you quit (`ESC`/`CTRL+[`) without making your selection, `code` will be `-1`.
+
+There is an internal variable `g:quickui#listbox#cursor` which stores the last cursor position (index) in the listbox. It can be used to restore previous location.
 
 **Sample code**:
 
@@ -229,14 +244,55 @@ It can also work like `inputlist()` function by using `quickui#listbox#inputlist
 
 ```VimL
 let linelist = [
-            \ "line 1",
-            \ "line 2",
-            \ "line 3" 
+            \ "line &1",
+            \ "line &2",
+            \ "line &3",
             \ ]
-echo quickui#listbox#inputlist(linelist, {'title':'select'})
+" restore last position in previous listbox
+let opts = {'index':g:quickui#listbox#cursor, 'title': 'select'}
+echo quickui#listbox#inputlist(linelist, opts)
 ```
 
 The key difference between `open` and `inputlist` is `open` will return immediately to vim's event loop while `inputlist` won't return until you select an item or press `ESC`.
+
+### Context menu
+
+Context menu imitates Windows context menu (triggered by your mouse right button), which will display around the cursor:
+
+![](images/context.png)
+
+It is usually used to present some commands that will do something with source code in the current line.
+
+**APIs**:
+
+open the context menu:
+
+```VimL
+quickui#context#open(content, opts)
+```
+
+Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options, has similar options in `listbox`.
+
+**Sample code**:
+
+```VimL
+let content = [
+            \ ["&Help Keyword\t\\ch", 'echo 100' ],
+            \ ["&Signature\t\\cs", 'echo 101'],
+            \ ['-'],
+            \ ["Find in &File\t\\cx", 'echo 200' ],
+            \ ["Find in &Project\t\\cp", 'echo 300' ],
+            \ ["Find in &Defintion\t\\cd", 'echo 400' ],
+            \ ["Search &References\t\\cr", 'echo 500'],
+            \ ['-'],
+            \ ["&Documentation\t\\cm", 'echo 600'],
+            \ ]
+" set cursor to the last position
+let opts = {'index':g:quickui#context#cursor}
+call quickui#context#open(content, opts)
+```
+
+You can define your own context menu and map it to `K` (override the original `keywordprg` command). And you will get a much more powerful `K` command then before.
 
 ### Textbox
 
@@ -284,6 +340,7 @@ This function can display vim error messages (`:messages`) in the text window:
 ![](images/messages.png)
 
 Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list them in the command line by `:messages`.
+
 
 ## Tools
 

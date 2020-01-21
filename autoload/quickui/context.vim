@@ -10,6 +10,14 @@
 " vim: set noet fenc=utf-8 ff=unix sts=4 sw=4 ts=4 :
 
 "----------------------------------------------------------------------
+" stats
+"----------------------------------------------------------------------
+
+" last position
+let g:quickui#context#cursor = -1
+
+
+"----------------------------------------------------------------------
 " compile
 "----------------------------------------------------------------------
 function! quickui#context#compile(items, border)
@@ -256,6 +264,7 @@ function! quickui#context#callback(winid, code)
 	endif
 	let g:quickui#context#code = code
 	let g:quickui#context#current = hwnd
+	let g:quickui#context#cursor = hwnd.index
 	let redrawed = 0
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
@@ -593,6 +602,7 @@ function! s:nvim_create_context(textlist, opts)
 	endif
 	let g:quickui#context#code = retval
 	let g:quickui#context#current = hwnd
+	let g:quickui#context#cursor = hwnd.index
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
 		call F(retval)

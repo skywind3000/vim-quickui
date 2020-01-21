@@ -252,7 +252,7 @@ function! quickui#tools#preview_quickfix(...)
 		let obj.version = b:changedtick
 	endif
 	let index = (a:0 > 0)? a:1 : line('.')
-	if index < 0 || index >= len(obj.items)
+	if index < 1 || index > len(obj.items)
 		call quickui#utils#errmsg('No information in this line')
 		return -2
 	endif
@@ -268,5 +268,51 @@ function! quickui#tools#preview_quickfix(...)
 	" echom 'lnum:'. item.lnum
 endfunc
 
+
+
+"----------------------------------------------------------------------
+" display vim help in popup
+"----------------------------------------------------------------------
+function! quickui#tools#display_help(tag)
+	if !exists('s:help_tags')
+		let fn = expand('$VIMRUNTIME/doc/tags')
+		if filereadable(fn)
+			let content = readfile(fn)
+			let s:help_tags = {}
+			for line in content
+				let parts = split(line, "\t")
+				if len(parts) >= 3
+					let s:help_tags[parts[0]] = [parts[1], parts[2]]
+				endif
+			endfor
+		endif
+	endif
+	if !exists('s:help_tags')
+		call quickui#utils#errmsg('Sorry, not find help tags in $VIMRUNTIME')
+		return -1
+	endif
+	if !has_key(s:help_tags, a:tag)
+		call quickui#utils#errmsg('E149: Sorry, no help for '. a:tag)
+		return -2
+	endif
+	let item = s:help_tags[a:tag]
+	let name = expand($VIMRUNTIME . '/doc/' . item[0])
+	let command = substitute(item[1], '\*', '', 'g')
+	if !filereadable(name)
+		call quickui#utils#errmsg('E484: Sorry, cannot open file '.name)
+		return -3
+	endif
+	let content = readfile(name)
+	let opts = {'syntax':'help', 'color':'QuickPreview', 'close':'button'}
+	let opts.title = 'Help: ' . fnamemodify(name, ':t')
+	let g:quickui#tools#hint = item[1]
+	let opts.command = ['silent! exec g:quickui#tools#hint']
+	let opts.command += ["exec 'nohl'"]
+	let opts.command += ["normal zz"]
+	let opts.w = 80
+	" echom opts
+	let winid = quickui#textbox#open(content, opts)
+	return 0
+endfunc
 
 
