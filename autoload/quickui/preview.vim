@@ -225,8 +225,9 @@ function! quickui#preview#open(filename, ...)
 	let opts.h = get(g:, 'quickui_preview_h', g:quickui#style#preview_h)
 	let opts.number = get(g:, 'quickui_preview_num', display_num)
 	let name = fnamemodify(a:filename, ':p:t')
-	let opts.title = 'Preview: ' . name
-	let opts.persist = (a:0 >= 2)? a:2 : 0
+	let title = (a:0 >= 3)? (' ' . a:3) : ''
+	let opts.title = 'Preview: ' . name . title
+	let opts.persist = (a:0 >= 2)? a:2 : 0 
 	return quickui#preview#display(a:filename, lnum, opts)
 endfunc
 
