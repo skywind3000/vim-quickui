@@ -425,7 +425,7 @@ This feature requires ctags databases are loaded correctly in vim. A plugin [gut
 
 ### Preview quickfix
 
-If you have many items in the quickfix window, instead of open then one by one, you are able to press `p` in the quickfix window and preview them in the popup:
+If you have many items in the quickfix window, instead of open them one by one, you are able to press `p` in the quickfix window and preview them in the popup:
 
 ```VimL
 augroup MyQuickfixPreview
