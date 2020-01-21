@@ -29,6 +29,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
     - [Listbox](#listbox)
     - [Context menu](#context-menu)
     - [Textbox](#textbox)
+    - [Preview window](#preview-window)
 - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
     - [Function list](#function-list)
@@ -333,6 +334,21 @@ This function can display vim error messages (`:messages`) in the text window:
 
 Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list them in the command line by `:messages`.
 
+### Preview window
+
+Preview window is used to replace traditional `pedit` command and can be used to display certain file in a small popup window around your cursor:
+
+![](images/preview.png)
+
+You can open the preview window by:
+
+```VimL
+quickui#preview#open(filename, lnum)
+```
+
+It will not interfere your work, and will immediately close if you move your cursor around. The second parameter `lnum` is a line number, and if you set it above zero, the certain line in the source will be highlighted.
+
+Usually the syntax highlighting and cursorline will help you when you are using it to peek symbol definitions.
 
 ## Tools
 
