@@ -300,7 +300,7 @@ function! quickui#tools#preview_tag(tagname)
 		endif
 	endif
 	if len(ptag.taglist) == 0
-		call quickui#utils#errmsg('E257: preview: tag not find "' . a:tagname . '"')
+		call quickui#utils#errmsg('E257: preview: tag not find "' . tagname . '"')
 		return 1
 	endif
 	if ptag.index >= len(ptag.taglist) || ptag.index < 0
