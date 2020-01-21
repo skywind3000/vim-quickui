@@ -431,11 +431,10 @@ If you have many items in the quickfix window, instead of open them one by one, 
 augroup MyQuickfixPreview
   au!
   au FileType qf noremap <silent><buffer> p :call quickui#tools#preview_quickfix()<cr>
-  au FileType qf noremap <silent><buffer> P :call quickui#preview#close()<cr>
 augroup END
 ```
 
-This piece of code setup a `p` keymap in your quickfix window to preview items, and an upper case `P` to close the preview window.
+This piece of code setup a `p` keymap in your quickfix window to preview items, and press `p` again to close the preview window.
 
 ## Customize
 
