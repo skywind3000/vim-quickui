@@ -34,6 +34,8 @@ Trying to share my configuration to my friends, I found that they did't have pat
     - [Buffer switcher](#buffer-switcher)
     - [Function list](#function-list)
     - [Help viewer](#help-viewer)
+    - [Preview tag](#preview-tag)
+    - [Preview quickfix](#preview-quickfix)
 - [Customize](#customize)
     - [How to change border style](#how-to-change-border-style)
     - [How to change the color scheme](#how-to-change-the-color-scheme)
@@ -350,6 +352,14 @@ It will not interfere your work, and will immediately close if you move your cur
 
 Usually the syntax highlighting and cursorline will help you when you are using it to peek symbol definitions.
 
+User can scroll the content in the preview window by:
+
+```VimL
+quickui#preview#scroll(offset)
+```
+
+Parameter `offset` is an integer, above zero to scroll down and below zero to scroll up.
+
 ## Tools
 
 Tools are build upon basic widgets.
@@ -395,6 +405,37 @@ See the screenshot:
 
 The only one argument in `display_help` is the help tag name. With this tool, you can read the help text anytime, without creating a new split window.
 
+### Preview tag
+
+Sometimes I just want a glimpse to the definition of the current word under cursor without actually open that file. So, the tag previewer was made for this:
+
+![](images/preview_tag.png)
+
+use it like:
+
+```VimL
+nnoremap <F3> :call quickui#tools#preview_tag('')<cr>
+```
+
+When you move the cursor around and press `<F3>`, the definition of current `<cword>` under cursor will display in the preview window. If there are multiple definitions, press `<F3>` again will circularly display the next one, and in the command line, you will see the details about how many definitions and source file name.
+
+Don't forget to use `quickui#preview#scroll` to scroll the content in the preview window if you want to see more.
+
+This feature requires ctags databases are loaded correctly in vim. A plugin [gutentags](https://github.com/ludovicchabant/vim-gutentags) can do it for you nicely in the background.
+
+### Preview quickfix
+
+If you have many items in the quickfix window, instead of open then one by one, you are able to press `p` in the quickfix window and preview them in the popup:
+
+```VimL
+augroup MyQuickfixPreview
+  au!
+  au FileType qf noremap <silent><buffer> p :call quickui#tools#preview_quickfix()<cr>
+  au FileType qf noremap <silent><buffer> P :call quickui#preview#close()<cr>
+augroup END
+```
+
+This piece of code setup a `p` keymap in your quickfix window to preview items, and an upper case `P` to close the preview window.
 
 ## Customize
 

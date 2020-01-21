@@ -197,6 +197,20 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" scroll preview window
+"----------------------------------------------------------------------
+function! quickui#preview#scroll(offset)
+	if s:private.state != 0
+		let winid = s:private.winid
+		if s:private.winid >= 0
+			noautocmd call quickui#utils#scroll(winid, a:offset)
+			noautocmd call quickui#utils#update_cursor(winid)
+		endif
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
 " preview file
 "----------------------------------------------------------------------
 function! quickui#preview#open(filename, ...)
