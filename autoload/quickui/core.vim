@@ -213,7 +213,7 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" object
+" tabpage instance
 "----------------------------------------------------------------------
 function! quickui#core#instance()
 	if exists('t:__quickui__')
@@ -221,6 +221,18 @@ function! quickui#core#instance()
 	endif
 	let t:__quickui__ = {}
 	return t:__quickui__
+endfunc
+
+
+"----------------------------------------------------------------------
+" buffer instance
+"----------------------------------------------------------------------
+function! quickui#core#object()
+	if exists('b:__quickui__')
+		return b:__quickui__
+	endif
+	let b:__quickui__ = {}
+	return b:__quickui__
 endfunc
 
 

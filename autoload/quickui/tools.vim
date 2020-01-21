@@ -269,6 +269,64 @@ function! quickui#tools#preview_quickfix(...)
 endfunc
 
 
+"----------------------------------------------------------------------
+" preview tag
+"----------------------------------------------------------------------
+function! quickui#tools#preview_tag(tagname)
+	let tagname = (a:tagname == '')? expand('<cword>') : a:tagname
+	if tagname == ''
+		call quickui#utils#errmsg('Error: empty tagname')
+		return 0
+	endif
+	let obj = quickui#core#object()
+	let reuse = 0
+	if has_key(obj, 'ptag')
+		let ptag = obj.ptag
+		if get(ptag, 'tagname', '') == tagname
+			let reuse = 1
+		endif
+	endif
+	if reuse == 0
+		let obj.ptag = {}
+		let ptag = obj.ptag
+		let ptag.taglist = quickui#tags#tagfind(tagname)
+		let ptag.tagname = tagname
+		let ptag.index = 0
+	else
+		let ptag = obj.ptag
+		let ptag.index += 1
+		if ptag.index >= len(ptag.taglist)
+			let ptag.index = 0
+		endif
+	endif
+	if len(ptag.taglist) == 0
+		call quickui#utils#errmsg('E257: preview: tag not find "' . a:tagname . '"')
+		return 1
+	endif
+	if ptag.index >= len(ptag.taglist) || ptag.index < 0
+		let ptag.index = 0
+	endif
+	let taginfo = ptag.taglist[ptag.index]
+	let filename = taginfo.filename
+	if !filereadable(filename)
+		call quickui#utils#errmsg('E484: Can not open file '.filename)
+		return 2
+	endif
+	if !has_key(taginfo, 'line')
+		call quickui#utils#errmsg('Error: no "line" information in your tags, regenerate with -n')
+		return 3
+	endif
+	call quickui#preview#open(filename, taginfo.line)
+	let text = taginfo.name
+	let text.= ' ('.(ptag.index + 1).'/'.len(ptag.taglist).') '
+	let text.= filename
+	if has_key(taginfo, 'line')
+		let text .= ':'.taginfo.line
+	endif
+	call quickui#utils#print(text, 1)
+	return 0
+endfunc
+
 
 "----------------------------------------------------------------------
 " display vim help in popup
@@ -314,5 +372,6 @@ function! quickui#tools#display_help(tag)
 	let winid = quickui#textbox#open(content, opts)
 	return 0
 endfunc
+
 
 
