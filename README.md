@@ -16,7 +16,7 @@ Just see this GIF demonstration below:
 
 ![](images/screenshot.gif)
 
-Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite accaptable for them.
+Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite acceptable for them.
 
 # Content 
 
@@ -31,6 +31,8 @@ Trying to share my configuration to my friends, I found that they did't have pat
     - [Textbox](#textbox)
 - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
+    - [Function list](#function-list)
+    - [Help viewer](#help-viewer)
 - [Customize](#customize)
     - [How to change border style](#how-to-change-border-style)
     - [How to change the color scheme](#how-to-change-the-color-scheme)
@@ -147,23 +149,13 @@ call quickui#menu#install('&C/C++', [
 
 This `C/C++` menu will be visible only if the `filetype` of current buffer is `c` or `cpp`.
 
-You can have multiple menu namespaces at the same time, manipulate them with:
+As we are living in multiverse, and menus can be separated in [multiple namespaces](https://github.com/skywind3000/vim-quickui/wiki/Menu-Namespaces) too. The `quickui#menu#open` function can actually take one more argument like:
 
 ```VimL
-" change current namespace to abc
-call quickui#menu#switch('abc')
-
-" reset current namespace (abc)
-call quickui#menu#reset()
-
-" populate the menu in current namespace (abc)
-call quickui#menu#install(...)
-
-" open the menu in namespace abc
 call quickui#menu#open('abc')
 ```
 
-The default menus is located in the `system` namespace.
+If it is invoked with an argument "abc", menus in the namespace "abc" will display immediately. If this argument is omitted, the default namespace "system" will be used.
 
 ### Listbox
 
@@ -361,6 +353,31 @@ Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to 
 ![](images/listbox.png)
 
 If there are many buffers listed, you can use `/` or `?` to search, and `n` or `N` to jump to the next / previous match.
+
+
+### Function list
+
+Function list can be actived by:
+
+    call quickui#tools#list_function()
+
+The cursor will stay in the current function initially:
+
+![](images/list-function.png)
+
+Navigate and press enter to jump to the selected function. This feature requires `ctags` in you `$PATH`.
+
+### Help viewer
+
+Use `textbox` to display vim help in a popup window:
+
+    call quickui#tools#display_help('index')
+
+See the screenshot:
+
+![](images/display-help.png)
+
+The only one argument in `display_help` is the help tag name. With this tool, you can read the help text anytime, without creating a new split window.
 
 
 ## Customize
