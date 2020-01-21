@@ -316,7 +316,7 @@ function! quickui#tools#preview_tag(tagname)
 		call quickui#utils#errmsg('Error: no "line" information in your tags, regenerate with -n')
 		return 3
 	endif
-	let text = ' ('.(ptag.index + 1).'/'.len(ptag.taglist).') '
+	let text = '('.(ptag.index + 1).'/'.len(ptag.taglist).')'
 	call quickui#preview#open(filename, taginfo.line, 0, text)
 	let text = taginfo.name
 	let text.= ' ('.(ptag.index + 1).'/'.len(ptag.taglist).') '
