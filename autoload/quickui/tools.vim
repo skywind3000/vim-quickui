@@ -324,7 +324,9 @@ function! quickui#tools#preview_tag(tagname)
 	if has_key(taginfo, 'line')
 		let text .= ':'.taginfo.line
 	endif
-	" call quickui#utils#print(text, 1)
+	if get(g:, 'quickui_preview_tag_msg', 0) != 0
+		call quickui#utils#print(text, 1, 1)
+	endif
 	return 0
 endfunc
 
