@@ -100,6 +100,9 @@ function! quickui#preview#display(filename, cursor, opts)
 		let opts.height = h
 		let opts.row = p[0]
 		let opts.col = p[1]
+		if has_key(a:opts, 'focusable')
+			let opts.focusable = a:opts.focusable
+		endif
 		let winid = nvim_open_win(bid, 0, opts)
 		let s:private.winid = winid
 		let high = 'Normal:'.color.',NonText:'.color.',EndOfBuffer:'.color
@@ -227,7 +230,8 @@ function! quickui#preview#open(filename, ...)
 	let name = fnamemodify(a:filename, ':p:t')
 	let title = (a:0 >= 3)? (' ' . a:3) : ''
 	let opts.title = 'Preview: ' . name . title
-	let opts.persist = (a:0 >= 2)? a:2 : 0 
+	let opts.persist = (a:0 >= 2)? a:2 : 0
+	let opts.focusable = get(g:, 'quickui_preview_focusable', 1)
 	return quickui#preview#display(a:filename, lnum, opts)
 endfunc
 
