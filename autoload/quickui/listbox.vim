@@ -141,7 +141,8 @@ function! s:vim_create_listbox(textlist, opts)
 	let hwnd.hotkey = items.keymap
 	let hwnd.opts = deepcopy(a:opts)
 	let hwnd.context = has_key(a:opts, 'context')? a:opts.context : {}
-	let w = has_key(a:opts, 'w')? a:opts.w + 2 : items.displaywidth
+	let border = get(a:opts, 'border', g:quickui#style#border)
+	let w = has_key(a:opts, 'w')? a:opts.w : items.displaywidth
 	let h = has_key(a:opts, 'h')? a:opts.h : items.nrows
 	if h + 6 > &lines
 		let h = &lines - 6
@@ -152,22 +153,25 @@ function! s:vim_create_listbox(textlist, opts)
 		let w = (w < 1)? 1 : w
 	endif
 	let opts = {"minwidth":w, "minheight":h, "maxwidth":w, "maxheight":h}
+	let ww = w + ((border != 0)? 2 : 0)
+	let hh = h + ((border != 0)? 2 : 0)
 	if has_key(a:opts, 'line')
 		let opts.line = a:opts.line
 	else
 		let limit1 = (&lines - 2) * 90 / 100
 		let limit2 = (&lines - 2)
 		if h + 4 < limit1
-			let opts.line = (limit1 - h) / 2
+			let opts.line = (limit1 - hh) / 2
 		else
-			let opts.line = (limit2 - h) / 2
+			let opts.line = (limit2 - hh) / 2
 		endif
 		let opts.line = (opts.line < 1)? 1 : opts.line
 	endif
 	if has_key(a:opts, 'col')
 		let opts.col = a:opts.col
 	else
-		let opts.col = (&columns - w) / 2
+		let opts.col = (&columns - ww) / 2
+		let opts.col = (opts.col < 1)? 1 : opts.col
 	endif
 	call popup_move(winid, opts)
 	call setwinvar(winid, '&wincolor', get(a:opts, 'color', 'QuickBG'))
@@ -180,7 +184,6 @@ function! s:vim_create_listbox(textlist, opts)
 		call win_execute(winid, ':' . moveto)
 		call win_execute(winid, 'call quickui#listbox#reposition()')
 	endif
-	let border = get(a:opts, 'border', g:quickui#style#border)
 	let opts = {'cursorline':1, 'drag':1, 'mapping':0}
 	if get(a:opts, 'manual', 0) == 0
 		let opts.filter = 'quickui#listbox#filter'
@@ -453,7 +456,8 @@ function! s:nvim_create_listbox(textlist, opts)
 	let hwnd.hotkey = items.keymap
 	let hwnd.opts = deepcopy(a:opts)
 	let hwnd.context = has_key(a:opts, 'context')? a:opts.context : {}
-	let w = has_key(a:opts, 'w')? a:opts.w + 2 : items.displaywidth
+	let border = get(a:opts, 'border', g:quickui#style#border)
+	let w = has_key(a:opts, 'w')? a:opts.w : items.displaywidth
 	let h = has_key(a:opts, 'h')? a:opts.h : items.nrows
 	if h + 6 > &lines
 		let h = &lines - 6
@@ -463,6 +467,8 @@ function! s:nvim_create_listbox(textlist, opts)
 		let w = &columns - 4
 		let w = (w < 1)? 1 : w
 	endif
+	let ww = w + ((border != 0)? 2 : 0)
+	let hh = h + ((border != 0)? 2 : 0)
 	let opts = {'width':w, 'height':h, 'focusable':1, 'style':'minimal'}
 	let opts.relative = 'editor'
 	if has_key(a:opts, 'line')
@@ -471,21 +477,26 @@ function! s:nvim_create_listbox(textlist, opts)
 		let limit1 = (&lines - 2) * 90 / 100
 		let limit2 = (&lines - 2)
 		if h + 4 < limit1
-			let opts.row = (limit1 - h) / 2 - 1
+			let opts.row = (limit1 - hh) / 2 - 1
 		else
-			let opts.row = (limit2 - h) / 2 - 1
+			let opts.row = (limit2 - hh) / 2 - 1
 		endif
 		let opts.row = (opts.row < 0)? 0 : opts.row
 	endif
 	if has_key(a:opts, 'col')
 		let opts.col = a:opts.col - 1
 	else
-		let opts.col = (&columns - w) / 2 - 1
+		let opts.col = (&columns - ww) / 2 - 1
+		let opts.col = (opts.col < 0)? 0 : opts.col
 	endif
 	let border = get(a:opts, 'border', g:quickui#style#border)
 	let background = -1
 	let hwnd.opts.color = get(a:opts, 'color', 'QuickBG')
 	let color = hwnd.opts.color
+	if border > 0 && get(g:, 'quickui_nvim_simulate_border', 1) != 0
+		let opts.row += 1
+		let opts.col += 1
+	endif
 	let winid = nvim_open_win(bid, 0, opts)
 	let button = (get(a:opts, 'close', '') == 'button')? 1 : 0
 	if border > 0 && get(g:, 'quickui_nvim_simulate_border', 1) != 0

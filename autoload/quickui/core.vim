@@ -312,19 +312,19 @@ endfunc
 function! quickui#core#win_execute(winid, command)
 	if g:quickui#core#has_popup != 0
 		if type(a:command) == v:t_string
-			call win_execute(a:winid, a:command)
+			keepalt call win_execute(a:winid, a:command)
 		elseif type(a:command) == v:t_list
-			call win_execute(a:winid, join(a:command, "\n"))
+			keepalt call win_execute(a:winid, join(a:command, "\n"))
 		endif
 	else
 		let current = nvim_get_current_win()
-		call nvim_set_current_win(a:winid)
+		keepalt call nvim_set_current_win(a:winid)
 		if type(a:command) == v:t_string
 			exec a:command
 		elseif type(a:command) == v:t_list
 			exec join(a:command, "\n")
 		endif
-		call nvim_set_current_win(current)
+		keepalt call nvim_set_current_win(current)
 	endif
 endfunc
 
@@ -341,6 +341,7 @@ function! quickui#core#neovim_buffer(name, textlist)
 		let bid = nvim_create_buf(v:false, v:true)
 		let s:buffer_cache[a:name] = bid
 	endif
+	call nvim_buf_set_option(bid, 'modifiable', v:true)
 	call nvim_buf_set_lines(bid, 0, -1, v:true, a:textlist)
 	return bid
 endfunc
@@ -503,6 +504,19 @@ function! quickui#core#input(prompt, text)
 	endtry
 	call inputrestore()
 	return t
+endfunc
+
+
+"----------------------------------------------------------------------
+" safe change dir
+"----------------------------------------------------------------------
+function! quickui#core#chdir(path)
+	if has('nvim')
+		let cmd = haslocaldir()? 'lcd' : (haslocaldir(-1, 0)? 'tcd' : 'cd')
+	else
+		let cmd = haslocaldir()? ((haslocaldir() == 1)? 'lcd' : 'tcd') : 'cd'
+	endif
+	silent execute cmd . ' '. fnameescape(a:path)
 endfunc
 
 

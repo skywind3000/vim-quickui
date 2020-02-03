@@ -355,6 +355,7 @@ function! quickui#utils#center(winid)
 		let opts.line = (limit2 - h) / 2
 	endif
 	let opts.col = (&columns - w) / 2
+	let opts.col = (opts.col < 1)? 1 : (opts.col)
 	let hr = quickui#core#screen_fit(opts.line, opts.col, w, h)
 	let opts.col = hr[1]
 	let opts.line = hr[0]

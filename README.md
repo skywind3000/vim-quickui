@@ -30,6 +30,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
     - [Context menu](#context-menu)
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
+    - [Terminal](#terminal)
 - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
     - [Function list](#function-list)
@@ -359,6 +360,44 @@ quickui#preview#scroll(offset)
 ```
 
 Parameter `offset` is an integer, above zero to scroll down and below zero to scroll up.
+
+### Terminal
+
+The `terminal` widget can allow you open a terminal in the popup window:
+
+```VimL
+quickui#terminal#open(cmd, opts)
+```
+
+Parameter `cmd` can be a string or a list, and `opts` is a dictionary of options, available options are:
+
+| Option | Type | Default | Description |
+|-|-|-|-|
+| w | Number | 80 | terminal window width |
+| h | Number | 24 | terminal window height |
+| col | Number | `unset` | window horizontal position |
+| line | Number | `unset` | window vertical position |
+| border | Number | 1 | use `0` for no border |
+| title | String | `unset` | window title |
+| callback | String/Function | `unset` | a function with one argument to receive exit code when terminal exit |
+
+**Sample code**:
+
+```VimL
+function! TermExit(code)
+    echom "terminal exit code: ". a:code
+endfunc
+
+let opts = {'w':60, 'h':8, 'callback':'TermExit'}
+let opts.title = 'Terminal Popup'
+call quickui#terminal#open('python', opts)
+```
+
+When you run it, it will run `python` in a popup window:
+
+![](images/terminal.png)
+
+This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to run various tui programs in a dialog window.
 
 ## Tools
 

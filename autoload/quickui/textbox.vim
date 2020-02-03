@@ -204,6 +204,11 @@ function! s:nvim_create_textbox(textlist, opts)
 	let opts.height = get(a:opts, 'h', 24)
 	let opts.row = get(a:opts, 'line', 1) - 1
 	let opts.col = get(a:opts, 'col', 1) - 1
+	let border = get(a:opts, 'border', g:quickui#style#border)
+	if border > 0 && get(g:, 'quickui_nvim_simulate_border', 1) != 0
+		let opts.row += 1
+		let opts.col += 1
+	endif
 	let winid = nvim_open_win(bid, 0, opts)
 	if has_key(a:opts, 'line') == 0 && has_key(a:opts, 'col') == 0
 		call quickui#utils#center(winid)
@@ -212,7 +217,6 @@ function! s:nvim_create_textbox(textlist, opts)
     call nvim_win_set_option(winid, 'winhl', 'Normal:'. color)
 	let opts.w = nvim_win_get_width(winid)
 	let opts.h = nvim_win_get_height(winid)
-	let border = get(a:opts, 'border', g:quickui#style#border)
 	let button = (get(a:opts, 'close', '') == 'button')? 1 : 0
 	let background = -1
 	if border > 0 && get(g:, 'quickui_nvim_simulate_border', 1) != 0
