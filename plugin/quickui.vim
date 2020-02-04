@@ -47,7 +47,7 @@ function! QuickThemeChange(theme)
 		hi! QuickDefaultHelp ctermfg=247 guifg=#959173
 	elseif a:theme == 'colorscheme' || a:theme == 'system' || a:theme == 'vim'
 		hi! link QuickDefaultBackground Pmenu
-		hi! link QuickDefaultKey PmenuSel
+		hi! link QuickDefaultSel PmenuSel
 		hi! link QuickDefaultKey Title
 		hi! link QuickDefaultDisable Comment
 		hi! link QuickDefaultHelp Conceal
