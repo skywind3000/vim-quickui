@@ -183,12 +183,12 @@ endfunc
 "----------------------------------------------------------------------
 function! s:python_system(cmd, version)
 	if has('nvim')
-		return system(a:cmd)
+		let hr = system(a:cmd)
 	elseif has('win32') || has('win64') || has('win95') || has('win16')
-		if a:version < 0
-			return system(a:cmd)
-		elseif has('python3') == 0 && has('python') == 0
-			return system(a:cmd)
+		if a:version < 0 || (has('python3') == 0 && has('python2') == 0)
+			let hr = system(a:cmd)
+			let s:shell_error = v:shell_error
+			return hr
 		elseif a:version == 3
 			let pyx = 'py3 '
 			let python_eval = 'py3eval'
@@ -206,12 +206,16 @@ function! s:python_system(cmd, version)
 		exec pyx . '__pp = subprocess.Popen(**__argv)'
 		exec pyx . '__return_text = __pp.stdout.read()'
 		exec pyx . '__pp.stdout.close()'
-		exec pyx . '__pp.wait()'
+		exec pyx . '__return_code = __pp.wait()'
 		exec 'let l:hr = '. python_eval .'("__return_text")'
+		exec 'let l:pc = '. python_eval .'("__return_code")'
+		let s:shell_error = l:pc
 		return l:hr
 	else
-		return system(a:cmd)
+		let hr = system(a:cmd)
 	endif
+	let s:shell_error = v:shell_error
+	return hr
 endfunc
 
 
@@ -219,7 +223,9 @@ endfunc
 " execute external program and return its output
 "----------------------------------------------------------------------
 function! quickui#utils#system(cmd)
-	return s:python_system(a:cmd, get(g:, 'quickui_python', 0))
+	let hr = s:python_system(a:cmd, get(g:, 'quickui_python', 0))
+	let g:quickui#utils#shell_error = s:shell_error
+	return hr
 endfunc
 
 
@@ -284,6 +290,7 @@ function! quickui#utils#movement(offset)
 	let winline = winline()
 	let curline = line('.')
 	let topline = curline - winline + 1
+	let topline = (topline < 1)? 1 : topline
 	let botline = topline + height - 1
 	let offset = 0
 	if type(a:offset) == v:t_number
@@ -377,6 +384,7 @@ function! quickui#utils#show_cursor(winid, row)
 	let winline = winline()
 	let curline = line('.')
 	let topline = curline - winline + 1
+	let topline = (topline < 1)? 1 : topline
 	let botline = topline + height - 1
 	let w:__quickui_line__ = get(w:, '__quickui_line__', -1)
 	if a:row >= topline && a:row <= botline

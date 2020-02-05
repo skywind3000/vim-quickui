@@ -69,8 +69,8 @@ function! s:vim_create_textbox(textlist, opts)
 	let opts.title = has_key(a:opts, 'title')? ' ' . a:opts.title . ' ' : ''
 	let opts.padding = [0,1,0,1]
 	let opts.close = 'button'
-	let opts.filter = 'quickui#textbox#filter'
-	let opts.callback = 'quickui#textbox#exit'
+	let opts.filter = function('s:popup_filter')
+	let opts.callback = function('s:popup_exit')
 	let opts.resize = get(a:opts, 'resize', 0)
 	let opts.highlight = get(a:opts, 'color', 'QuickBG')
 	if has_key(a:opts, 'index')
@@ -108,7 +108,11 @@ function! s:vim_create_textbox(textlist, opts)
 	if get(a:opts, 'number', 0) != 0
 		call win_execute(winid, 'setlocal number')
 	endif
+	if cursor < 0
+		call win_execute(winid, 'setlocal nocursorline')
+	endif
 	call popup_setoptions(winid, opts)
+	call win_execute(winid, 'setlocal scrolloff=0')
 	if has_key(a:opts, 'command')
 		call quickui#core#win_execute(winid, a:opts.command)
 	endif
@@ -130,7 +134,7 @@ endfunc
 "----------------------------------------------------------------------
 " exit and quit
 "----------------------------------------------------------------------
-function! quickui#textbox#exit(winid, code)
+function! s:popup_exit(winid, code)
 	let topline = quickui#utils#get_topline(a:winid)
 	let g:quickui#textbox#topline = topline
 	let local = quickui#core#popup_local(a:winid)
@@ -146,7 +150,7 @@ endfunc
 "----------------------------------------------------------------------
 " filter
 "----------------------------------------------------------------------
-function! quickui#textbox#filter(winid, key)
+function! s:popup_filter(winid, key)
 	let local = quickui#core#popup_local(a:winid)
 	let keymap = local.keymap
 	if a:key == "\<ESC>" || a:key == "\<C-C>" || a:key == "\<cr>"

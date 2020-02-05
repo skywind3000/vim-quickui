@@ -147,8 +147,8 @@ function! s:vim_create_context(textlist, opts)
 	let local = quickui#core#popup_local(winid)
 	let local.hwnd = hwnd
 	if get(a:opts, 'manual', 0) == 0
-		let opts.callback = 'quickui#context#callback'
-		let opts.filter = 'quickui#context#filter'
+		let opts.callback = function('s:popup_exit')
+		let opts.filter = function('s:popup_filter')
 	endif
 	if has_key(a:opts, 'zindex')
 		let opts.zindex = a:opts.zindex
@@ -245,7 +245,7 @@ endfunc
 "----------------------------------------------------------------------
 " handle exit code
 "----------------------------------------------------------------------
-function! quickui#context#callback(winid, code)
+function! s:popup_exit(winid, code)
 	let local = quickui#core#popup_local(a:winid)
 	if !has_key(local, 'hwnd')
 		return 0
@@ -287,7 +287,7 @@ endfunc
 "----------------------------------------------------------------------
 " key processing
 "----------------------------------------------------------------------
-function! quickui#context#filter(winid, key)
+function! s:popup_filter(winid, key)
 	let local = quickui#core#popup_local(a:winid)
 	let hwnd = local.hwnd
 	let winid = hwnd.winid

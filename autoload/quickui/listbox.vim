@@ -107,7 +107,7 @@ endfunc
 "----------------------------------------------------------------------
 " highlight keys
 "----------------------------------------------------------------------
-function! quickui#listbox#highlight_keys(winid, items)
+function! s:highlight_keys(winid, items)
 	let items = a:items
 	let index = 0
 	let cmdlist = []
@@ -186,8 +186,8 @@ function! s:vim_create_listbox(textlist, opts)
 	endif
 	let opts = {'cursorline':1, 'drag':1, 'mapping':0}
 	if get(a:opts, 'manual', 0) == 0
-		let opts.filter = 'quickui#listbox#filter'
-		let opts.callback = 'quickui#listbox#callback'
+		let opts.filter = function('s:popup_filter')
+		let opts.callback = function('s:popup_exit')
 	endif
 	let opts.border = [0,0,0,0,0,0,0,0,0]
 	if border > 0
@@ -223,7 +223,7 @@ function! s:vim_create_listbox(textlist, opts)
 		call win_execute(winid, 'set ft=' . fnameescape(a:opts.syntax))
 	endif
 	" call s:highlight_keys(winid, items)
-	call quickui#listbox#highlight_keys(winid, items)
+	call s:highlight_keys(winid, items)
 	call popup_show(winid)
 	return hwnd
 endfunc
@@ -244,7 +244,7 @@ endfunc
 "----------------------------------------------------------------------
 " handle exit code
 "----------------------------------------------------------------------
-function! quickui#listbox#callback(winid, code)
+function! s:popup_exit(winid, code)
 	let local = quickui#core#popup_local(a:winid)
 	let hwnd = local.hwnd
 	let code = a:code
@@ -276,7 +276,7 @@ endfunc
 "----------------------------------------------------------------------
 " key processing
 "----------------------------------------------------------------------
-function! quickui#listbox#filter(winid, key)
+function! s:popup_filter(winid, key)
 	let local = quickui#core#popup_local(a:winid)
 	let hwnd = local.hwnd
 	let keymap = hwnd.keymap
@@ -541,7 +541,7 @@ function! s:nvim_create_listbox(textlist, opts)
 		let syntax = fnameescape(a:opts.syntax)
 		call quickui#core#win_execute(winid, 'set ft=' . syntax)
 	endif
-	call quickui#listbox#highlight_keys(winid, items)
+	call s:highlight_keys(winid, items)
 	call quickui#core#win_execute(winid, "setlocal cursorline scrolloff=0")
 	let retval = -1
 	while 1
