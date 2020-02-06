@@ -361,6 +361,8 @@ It will not interfere your work, and will immediately close if you move your cur
 
 Usually the syntax highlighting and cursorline will help you when you are using it to peek symbol definitions.
 
+The `filename` argument can be provided as a list of strings, if so, preview window will display the content of the list, and `syntax` filed in the `opts` argument can be used for highlighting.
+
 User can scroll the content in the preview window by:
 
 ```VimL
