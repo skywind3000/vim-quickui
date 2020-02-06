@@ -53,11 +53,16 @@ function! quickui#tools#buffer_switch(bid)
 	elseif code == '1'
 		exec 'b '. a:bid
 	elseif code == '2'
-		exec 'vs '. fnameescape(name)
+		exec 'vs'
+		exec 'b '. a:bid
 	elseif code == '3'
-		exec 'tabe '. fnameescape(name)
+		exec 'split'
+		exec 'b '. a:bid
 	elseif code == '4'
-		exec 'FileSwitch tabe ' . fnameescape(name)
+		exec 'tab split'
+		exec 'b '. a:bid
+	elseif code == '5'
+		exec 'tab drop ' . fnameescape(name)
 	endif
 endfunc
 
@@ -101,8 +106,9 @@ function! quickui#tools#list_buffer(switch)
 	let opts.keymap = {}
 	let opts.keymap["\<c-e>"] = 'TAG:1'
 	let opts.keymap["\<c-]>"] = 'TAG:2'
-	let opts.keymap["\<c-t>"] = 'TAG:3'
-	let opts.keymap["\<c-g>"] = 'TAG:4'
+	let opts.keymap["\<c-x>"] = 'TAG:3'
+	let opts.keymap["\<c-t>"] = 'TAG:4'
+	let opts.keymap["\<c-g>"] = 'TAG:5'
 	if exists('g:quickui_tools_width')
 		let opts.w = quickui#utils#tools_width()
 	endif
@@ -264,7 +270,8 @@ function! quickui#tools#preview_quickfix(...)
 		return -4
 	endif
 	let name = bufname(item.bufnr)
-	call quickui#preview#open(name, item.lnum)
+	let opts = {'cursor':item.lnum}
+	call quickui#preview#open(name, opts)
 	" echom 'lnum:'. item.lnum
 endfunc
 
@@ -317,7 +324,8 @@ function! quickui#tools#preview_tag(tagname)
 		return 3
 	endif
 	let text = '('.(ptag.index + 1).'/'.len(ptag.taglist).')'
-	call quickui#preview#open(filename, taginfo.line, 0, text)
+	let opts = {'cursor':taginfo.line, 'title':text}
+	call quickui#preview#open(filename, opts)
 	let text = taginfo.name
 	let text.= ' ('.(ptag.index + 1).'/'.len(ptag.taglist).') '
 	let text.= filename

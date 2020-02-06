@@ -343,6 +343,8 @@ function! quickui#core#neovim_buffer(name, textlist)
 	endif
 	call nvim_buf_set_option(bid, 'modifiable', v:true)
 	call nvim_buf_set_lines(bid, 0, -1, v:true, a:textlist)
+	call setbufvar(bid, 'current_syntax', '')
+	call setbufvar(bid, '&filetype', '')
 	return bid
 endfunc
 

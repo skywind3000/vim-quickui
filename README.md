@@ -346,10 +346,18 @@ Preview window is used to replace traditional `pedit` command and can be used to
 You can open the preview window by:
 
 ```VimL
-quickui#preview#open(filename, lnum)
+quickui#preview#open(filename, opts)
 ```
 
-It will not interfere your work, and will immediately close if you move your cursor around. The second parameter `lnum` is a line number, and if you set it above zero, the certain line in the source will be highlighted.
+It will not interfere your work, and will immediately close if you move your cursor around. The second parameter `opts` is a dictionary with options, available options are:
+
+| Option | Type | Default | Description |
+|-|-|-|-|
+| cursor | Number | -1 | if you set it above zero, the certain line  will be highlighted (use cursorline). |
+| number | Number | 1 | set to zero to disable line number |
+| syntax | String | `unset` | additional syntax file type, eg: `cpp` or `python` |
+| title | String | `unset` | additional title for preview window |
+| persist | Number | 0 | By default the preview window will be closed automatically when `CursorMove` happens, set to 1 to close it manually by `quickui#preview#close()` |
 
 Usually the syntax highlighting and cursorline will help you when you are using it to peek symbol definitions.
 

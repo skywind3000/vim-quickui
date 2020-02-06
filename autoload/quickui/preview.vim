@@ -55,15 +55,19 @@ endfunc
 "----------------------------------------------------------------------
 " create preview window
 "----------------------------------------------------------------------
-function! quickui#preview#display(filename, cursor, opts)
+function! quickui#preview#display(content, opts)
 	call quickui#preview#close()
-	if !filereadable(a:filename)
-		call quickui#utils#errmsg('E212: Can not open file: '. a:filename)
+	if type(a:content) == v:t_string && filereadable(a:content) == 0
+		call quickui#utils#errmsg('E212: Can not open file: '. a:content)
 		return -1
 	endif
 	let s:private.state = 0
-	silent let bid = bufadd(a:filename)
-	silent call bufload(bid)
+	if type(a:content) == v:t_string
+		silent let source = bufadd(a:content)
+		silent call bufload(source)
+	elseif type(a:content) == v:t_list
+		let source = a:content
+	endif
 	let winid = -1
 	let title = has_key(a:opts, 'title')? (' ' . a:opts.title .' ') : ''
 	let w = get(a:opts, 'w', -1)
@@ -75,7 +79,7 @@ function! quickui#preview#display(filename, cursor, opts)
 	let color = get(a:opts, 'color', 'QuickPreview')
 	let p = s:around_cursor(w + (border? 2 : 0), h + (border? 2 : 0))
 	if has('nvim') == 0
-		let winid = popup_create(bid, {'wrap':1, 'mapping':0, 'hidden':1})
+		let winid = popup_create(source, {'wrap':1, 'mapping':0, 'hidden':1})
 		let opts = {'maxwidth':w, 'maxheight':h, 'minwidth':w, 'minheight':h}
 		call popup_move(winid, opts)
 		let opts = {'close':'button', 'title':title}
@@ -89,7 +93,7 @@ function! quickui#preview#display(filename, cursor, opts)
 		let opts.drag = 1
 		let opts.line = p[0]
 		let opts.col = p[1]
-		let opts.callback = 'quickui#preview#callback'
+		let opts.callback = function('s:popup_exit')
 		" let opts.fixed = 'true'
 		call popup_setoptions(winid, opts)
 		let s:private.winid = winid
@@ -102,6 +106,11 @@ function! quickui#preview#display(filename, cursor, opts)
 		let opts.col = p[1]
 		if has_key(a:opts, 'focusable')
 			let opts.focusable = a:opts.focusable
+		endif
+		if type(source) == v:t_number
+			let bid = source
+		else
+			let bid = quickui#core#neovim_buffer('preview', source)
 		endif
 		let winid = nvim_open_win(bid, 0, opts)
 		let s:private.winid = winid
@@ -128,13 +137,14 @@ function! quickui#preview#display(filename, cursor, opts)
 	else
 		let cmdlist += ['setlocal number']
 	endif
-	if a:cursor > 0
-		let cmdlist += ['normal! gg' . a:cursor . 'Gzz']
+	let cursor = get(a:opts, 'cursor', -1)
+	if cursor > 0
+		let cmdlist += ['exec "normal! gg' . cursor . 'Gzz"']
 	endif
 	if has_key(a:opts, 'syntax')
-		let cmdlist += ['set ft=' . fnameescape(a:opts.syntax) ]
+		let cmdlist += ['setl ft=' . fnameescape(a:opts.syntax) ]
 	endif
-	call setbufvar(winbufnr(winid), '__quickui_cursor__', a:cursor)
+	call setbufvar(winbufnr(winid), '__quickui_cursor__', cursor)
 	call quickui#core#win_execute(winid, cmdlist)
 	call quickui#utils#update_cursor(winid)
 	let s:private.state = 1
@@ -150,10 +160,8 @@ endfunc
 "----------------------------------------------------------------------
 " exit callback
 "----------------------------------------------------------------------
-function! quickui#preview#callback(winid, code)
-	if has('nvim') == 0
-		let s:private.winid = -1
-	endif
+function! s:popup_exit(winid, code)
+	let s:private.winid = -1
 	let s:private.state = 0
 endfunc
 
@@ -216,23 +224,30 @@ endfunc
 "----------------------------------------------------------------------
 " preview file
 "----------------------------------------------------------------------
-function! quickui#preview#open(filename, ...)
-	if !filereadable(a:filename)
-		call quickui#utils#errmsg('E484: Cannot open file ' . a:filename)
+function! quickui#preview#open(content, opts)
+	call quickui#preview#close()
+	if type(a:content) == v:t_string && filereadable(a:content) == 0
+		call quickui#utils#errmsg('E484: Cannot open file ' . a:content)
 		return -1
 	endif
-	let lnum = (a:0 >= 1)? a:1 : -1
-	let display_num = g:quickui#style#preview_number
 	let opts = {}
 	let opts.w = get(g:, 'quickui_preview_w', g:quickui#style#preview_w)
 	let opts.h = get(g:, 'quickui_preview_h', g:quickui#style#preview_h)
-	let opts.number = get(g:, 'quickui_preview_num', display_num)
-	let name = fnamemodify(a:filename, ':p:t')
-	let title = (a:0 >= 3)? (' ' . a:3) : ''
-	let opts.title = 'Preview: ' . name . title
-	let opts.persist = (a:0 >= 2)? a:2 : 0
+	let opts.number = get(a:opts, 'number', g:quickui#style#preview_number)
+	let opts.cursor = get(a:opts, 'cursor', -1)
+	let title = has_key(a:opts, 'title')? (' ' .. a:opts.title) : ''
+	if type(a:content) == v:t_string
+		let name = fnamemodify(a:content, ':p:t')
+		let opts.title = 'Preview: ' . name . title
+	else
+		let opts.title = 'Preview' .. ((title == '')? '' : (':' .. title))
+	endif
+	let opts.persist = get(a:opts, 'persist', 0)
 	let opts.focusable = get(g:, 'quickui_preview_focusable', 1)
-	return quickui#preview#display(a:filename, lnum, opts)
+	if has_key(a:opts, 'syntax')
+		let opts.syntax = a:opts.syntax
+	endif
+	return quickui#preview#display(a:content, opts)
 endfunc
 
 
