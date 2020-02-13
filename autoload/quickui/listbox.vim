@@ -3,7 +3,7 @@
 " listbox.vim - 
 "
 " Created by skywind on 2019/12/20
-" Last Modified: 2019/12/20 15:31:14
+" Last Modified: 2020/02/13 16:26
 "
 "======================================================================
 
@@ -267,7 +267,13 @@ function! s:popup_exit(winid, code)
 		let cmd = hwnd.items.cmds[code]
 		if cmd != ''
 			redraw
-			exec cmd
+			try
+				exec cmd
+			catch /.*/
+				echohl Error
+				echom v:exception
+				echohl None
+			endtry
 		endif
 	endif
 endfunc
@@ -614,7 +620,13 @@ function! s:nvim_create_listbox(textlist, opts)
 	if retval >= 0 && retval < hwnd.items.nrows
 		let cmd = hwnd.items.cmds[retval]
 		if cmd != ''
-			exec cmd
+			try
+				exec cmd
+			catch /.*/
+				echohl Error
+				echom v:exception
+				echohl None
+			endtry
 		endif
 	endif
 	return retval

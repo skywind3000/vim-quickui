@@ -150,12 +150,14 @@ function! quickui#tools#list_function()
 	let maxsize = (&columns) * 60 / 100
 	let maxheight = (&lines) * 60 / 100
 	let maxwidth = 0
+	let indents = get(g:, 'quickui_tags_indent', {})
 	for item in items
 		if ln >= item.line
 			let cursor = index
 		endif
 		let index += 1
-		let text = '' . item.mode . '' . "   \t" . item.text
+		let space = get(indents, item.mode, '')
+		let text = '' . item.mode . '' . "   \t" . space . item.text
 		let text = text . '  [:' . item.line . ']'
 		let maxwidth = (maxwidth < len(text))? len(text) : maxwidth
 		let text = substitute(text, '&', '&&', 'g')

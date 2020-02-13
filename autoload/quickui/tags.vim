@@ -320,6 +320,9 @@ function! quickui#tags#ctags_function(bid, ft)
 		call writefile(content, srcname)
 		unlet content
 	endif
+	if exists('g:quickui_tags_list')
+		let extras = get(g:quickui_tags_list, ft, extras)
+	endif
 	let cmd = ctags . ' -n -u --fields=k ' . extras . ' -f- '
 	let output = quickui#utils#system(cmd . '"' . srcname . '"')
 	if modified

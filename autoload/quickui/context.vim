@@ -3,7 +3,7 @@
 " context.vim - 
 "
 " Created by skywind on 2019/12/19
-" Last Modified: 2019/12/19 15:21:18
+" Last Modified: 2020/02/13 16:24
 "
 "======================================================================
 
@@ -286,7 +286,13 @@ function! s:popup_exit(winid, code)
 		if item.is_sep == 0 && item.enable != 0
 			if item.cmd != ''
 				redraw
-				exec item.cmd
+				try
+					exec item.cmd
+				catch /.*/
+					echohl Error
+					echom v:exception
+					echohl None
+				endtry
 			endif
 		endif
 	endif
@@ -630,7 +636,13 @@ function! s:nvim_create_context(textlist, opts)
 		if item.is_sep == 0 && item.enable != 0
 			if item.cmd != ''
 				redraw
-				exec item.cmd
+				try
+					exec item.cmd
+				catch /.*/
+					echohl Error
+					echom v:exception
+					echohl None
+				endtry
 			endif
 		endif
 	endif
