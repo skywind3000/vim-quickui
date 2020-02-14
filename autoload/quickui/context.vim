@@ -16,8 +16,6 @@
 " last position
 let g:quickui#context#cursor = -1
 
-" save positions
-let s:previous_cursor = {}
 
 
 "----------------------------------------------------------------------
@@ -105,11 +103,6 @@ function! s:vim_create_context(textlist, opts)
 	let hwnd.winid = winid
 	let hwnd.index = get(a:opts, 'index', -1)
 	let hwnd.opts = deepcopy(a:opts)
-	if has_key(hwnd.opts, 'savepos')
-		if has_key(s:previous_cursor, hwnd.opts.savepos)
-			let hwnd.index = get(s:previous_cursor, hwnd.opts.savepos, 0)
-		endif
-	endif
 	let opts = {'minwidth':w, 'maxwidth':w, 'minheight':h, 'maxheight':h}
 	if has_key(a:opts, 'line') && has_key(a:opts, 'col')
 		let opts.line = a:opts.line
@@ -273,9 +266,6 @@ function! s:popup_exit(winid, code)
 	let g:quickui#context#current = hwnd
 	let g:quickui#context#cursor = hwnd.index
 	let redrawed = 0
-	if has_key(hwnd.opts, 'savepos')
-		let s:previous_cursor[hwnd.opts.savepos] = hwnd.index
-	endif
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
 		call F(code)
@@ -507,11 +497,6 @@ function! s:nvim_create_context(textlist, opts)
 	let h = hwnd.height
 	let hwnd.index = get(a:opts, 'index', -1)
 	let hwnd.opts = deepcopy(a:opts)
-	if has_key(hwnd.opts, 'savepos')
-		if has_key(s:previous_cursor, hwnd.opts.savepos)
-			let hwnd.index = get(s:previous_cursor, hwnd.opts.savepos, 0)
-		endif
-	endif
 	let opts = {'width':w, 'height':h, 'focusable':1, 'style':'minimal'}
 	let opts.relative = 'editor'
 	if has_key(a:opts, 'line') && has_key(a:opts, 'col')
@@ -624,9 +609,6 @@ function! s:nvim_create_context(textlist, opts)
 	let g:quickui#context#code = retval
 	let g:quickui#context#current = hwnd
 	let g:quickui#context#cursor = hwnd.index
-	if has_key(hwnd.opts, 'savepos')
-		let s:previous_cursor[hwnd.opts.savepos] = hwnd.index
-	endif
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
 		call F(retval)
@@ -653,7 +635,7 @@ endfunc
 "----------------------------------------------------------------------
 " reduce with file types
 "----------------------------------------------------------------------
-function! s:reduce_items(textlist)
+function! quickui#context#reduce_items(textlist)
 	let output = []
 	let state = 1
 	let index = 0
@@ -697,9 +679,6 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#context#open(textlist, opts)
 	let textlist = a:textlist
-	if get(a:opts, 'reduce', 0) != 0
-		let textlist = s:reduce_items(a:textlist)
-	endif
 	if g:quickui#core#has_nvim == 0
 		return s:vim_create_context(textlist, a:opts)
 	else
