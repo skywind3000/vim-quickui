@@ -390,3 +390,37 @@ endfunc
 
 
 
+"----------------------------------------------------------------------
+" save curses help
+"----------------------------------------------------------------------
+let s:previous_cursor = {}
+
+function! s:remember_cursor_context(code)
+	let hwnd = g:quickui#context#current
+	let name = hwnd.opts.keep_name
+	let s:previous_cursor[name] = g:quickui#context#cursor
+endfunc
+
+function! s:remember_cursor_listbox(code)
+	let hwnd = g:quickui#listbox#current
+	let name = hwnd.opts.keep_name
+	let s:previous_cursor[name] = g:quickui#listbox#cursor
+endfunc
+
+function! quickui#tools#clever_context(name, content, opts)
+	let opts = deepcopy(a:opts)
+	let opts.index = get(s:previous_cursor, a:name, -1)
+	let opts.keep_name = a:name
+	let opts.callback = function('s:remember_cursor_context')
+	let content = quickui#context#reduce_items(a:content)
+	call quickui#context#open(content, opts)
+endfunc
+
+function! quickui#tools#clever_listbox(name, content, opts)
+	let opts = deepcopy(a:opts)
+	let opts.index = get(s:previous_cursor, a:name, -1)
+	let opts.keep_name = a:name
+	let opts.callback = function('s:remember_cursor_listbox')
+	call quickui#listbox#open(a:content, opts)
+endfunc
+
