@@ -17,6 +17,6 @@ let g:quickui#style#tip_head = '[tip]'
 let g:quickui#style#preview_w = 85
 let g:quickui#style#preview_h = 10
 let g:quickui#style#preview_number = 1
-
+let g:quickui#style#preview_bordercolor = ''
 
 

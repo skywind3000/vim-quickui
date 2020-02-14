@@ -69,7 +69,10 @@ function! quickui#preview#display(content, opts)
 		let source = a:content
 	endif
 	let winid = -1
-	let title = has_key(a:opts, 'title')? (' ' . a:opts.title .' ') : ''
+	let title = ''
+	if has_key(a:opts, 'title') && (a:opts.title != '')
+		let title = ' ' . a:opts.title .' '
+	endif
 	let w = get(a:opts, 'w', -1)
 	let h = get(a:opts, 'h', -1)
 	let w = (w < 0)? 50 : w
@@ -82,7 +85,7 @@ function! quickui#preview#display(content, opts)
 		let winid = popup_create(source, {'wrap':1, 'mapping':0, 'hidden':1})
 		let opts = {'maxwidth':w, 'maxheight':h, 'minwidth':w, 'minheight':h}
 		call popup_move(winid, opts)
-		let opts = {'close':'button', 'title':title}
+		let opts = {'close':'button'}
 		let opts.border = border? [1,1,1,1,1,1,1,1,1] : repeat([0], 9)
 		let opts.resize = 0
 		let opts.highlight = color
@@ -93,8 +96,15 @@ function! quickui#preview#display(content, opts)
 		let opts.drag = 1
 		let opts.line = p[0]
 		let opts.col = p[1]
+		if title != ''
+			let opts.title = title
+		endif
 		let opts.callback = function('s:popup_exit')
 		" let opts.fixed = 'true'
+		if has_key(a:opts, 'bordercolor')
+			let c = a:opts.bordercolor
+			let opts.borderhighlight = [c, c, c, c]	
+		endif
 		call popup_setoptions(winid, opts)
 		let s:private.winid = winid
 		call popup_show(winid)
@@ -126,8 +136,9 @@ function! quickui#preview#display(content, opts)
 			let pos = nvim_win_get_config(winid)
 			let op.row = pos.row - 1
 			let op.col = pos.col - 1
+			let bordercolor = get(a:opts, 'bordercolor', color)
 			let background = nvim_open_win(nbid, 0, op)
-			call nvim_win_set_option(background, 'winhl', 'Normal:'. color)
+			call nvim_win_set_option(background, 'winhl', 'Normal:'. bordercolor)
 			let s:private.background = background
 		endif
 	endif
@@ -241,6 +252,9 @@ function! quickui#preview#open(content, opts)
 		let opts.title = 'Preview: ' . name . title
 	else
 		let opts.title = 'Preview' .. ((title == '')? '' : (':' .. title))
+	endif
+	if g:quickui#style#preview_bordercolor != ''
+		let opts.bordercolor = g:quickui#style#preview_bordercolor
 	endif
 	let opts.persist = get(a:opts, 'persist', 0)
 	let opts.focusable = get(g:, 'quickui_preview_focusable', 1)

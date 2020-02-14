@@ -3,7 +3,7 @@
 " listbox.vim - 
 "
 " Created by skywind on 2019/12/20
-" Last Modified: 2020/02/13 16:26
+" Last Modified: 2020/02/14 21:06
 "
 "======================================================================
 
@@ -194,9 +194,11 @@ function! s:vim_create_listbox(textlist, opts)
 		let opts.borderchars = quickui#core#border_vim(border)
 		let opts.border = [1,1,1,1,1,1,1,1,1]
 	endif
-	let opts.title = has_key(a:opts, 'title')? ' ' . a:opts.title . ' ' : ''
+	if has_key(a:opts, 'title') && (a:opts.title != '')
+		let opts.title = ' ' . a:opts.title . ' '
+	endif
 	let opts.padding = [0,1,0,1]
-	if has_key(a:opts, 'close')
+	if has_key(a:opts, 'close') && (a:opts.close != '')
 		let opts.close = a:opts.close
 	endif
 	let local = quickui#core#popup_local(winid)
@@ -217,6 +219,10 @@ function! s:vim_create_listbox(textlist, opts)
 	let hwnd.state = 1
 	let hwnd.code = 0
 	let hwnd.tag = ''
+	if has_key(hwnd.opts, 'bordercolor')
+		let c = hwnd.opts.bordercolor
+		let opts.borderhighlight = [c, c, c, c]	
+	endif
 	call popup_setoptions(winid, opts)
 	call win_execute(winid, 'syn clear')
 	if has_key(a:opts, 'syntax')
@@ -514,8 +520,9 @@ function! s:nvim_create_listbox(textlist, opts)
 		let op.height = h + 2
 		let op.row = opts.row - 1
 		let op.col = opts.col - 1
+		let bordercolor = get(a:opts, 'bordercolor', color)
 		let background = nvim_open_win(nbid, 0, op)
-		call nvim_win_set_option(background, 'winhl', 'Normal:'. color)
+		call nvim_win_set_option(background, 'winhl', 'Normal:'. bordercolor)
 	endif
 	let hwnd.winid = winid
     call nvim_win_set_option(winid, 'winhl', 'Normal:'. color)

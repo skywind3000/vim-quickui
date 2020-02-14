@@ -3,7 +3,7 @@
 " textbox.vim - 
 "
 " Created by skywind on 2019/12/27
-" Last Modified: 2020/01/02 04:21
+" Last Modified: 2020/02/14 21:06
 "
 "======================================================================
 
@@ -64,11 +64,16 @@ function! s:vim_create_textbox(textlist, opts)
 	endif
 	let opts = {'mapping':0, 'cursorline':0, 'drag':1}
 	let border = get(a:opts, 'border', 1)
-	let opts.borderchars = quickui#core#border_vim(border)
-	let opts.border = [1,1,1,1,1,1,1,1,1]
-	let opts.title = has_key(a:opts, 'title')? ' ' . a:opts.title . ' ' : ''
+	let opts.border = [0,0,0,0,0,0,0,0,0]
+	if border > 0
+		let opts.borderchars = quickui#core#border_vim(border)
+		let opts.border = [1,1,1,1,1,1,1,1,1]
+		let opts.close = 'button'
+	endif
 	let opts.padding = [0,1,0,1]
-	let opts.close = 'button'
+	if has_key(a:opts, 'title') && (a:opts.title != '')
+		let opts.title = ' '. a:opts.title . ' '
+	endif
 	let opts.filter = function('s:popup_filter')
 	let opts.callback = function('s:popup_exit')
 	let opts.resize = get(a:opts, 'resize', 0)
@@ -110,6 +115,10 @@ function! s:vim_create_textbox(textlist, opts)
 	endif
 	if cursor < 0
 		call win_execute(winid, 'setlocal nocursorline')
+	endif
+	if has_key(a:opts, 'bordercolor')
+		let c = a:opts.bordercolor
+		let opts.borderhighlight = [c, c, c, c]	
 	endif
 	call popup_setoptions(winid, opts)
 	call win_execute(winid, 'setlocal scrolloff=0')
@@ -235,8 +244,9 @@ function! s:nvim_create_textbox(textlist, opts)
 		let pos = nvim_win_get_config(winid)
 		let op.row = pos.row - 1
 		let op.col = pos.col - 1
+		let bordercolor = get(a:opts, 'bordercolor', color)
 		let background = nvim_open_win(nbid, 0, op)
-		call nvim_win_set_option(background, 'winhl', 'Normal:'. color)
+		call nvim_win_set_option(background, 'winhl', 'Normal:'. bordercolor)
 	endif
 	let init = ['syn clear']
 	if has_key(a:opts, 'tabstop')
@@ -421,6 +431,7 @@ if 0
 	let opts.title = "title"
 	let opts.syntax = "cpp"
 	let opts.color = "QuickBox"
+	let opts.border = 0
 	" let opts.bordercolor = "QuickBG"
 	let opts.cursor = 38
 	let opts.number = 1
