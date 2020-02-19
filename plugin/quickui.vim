@@ -61,7 +61,7 @@ function! QuickThemeChange(theme)
 	else
 		let theme = a:theme
 	endif
-	let s:fname = s:rtp . '/colors/quickui/' . a:theme . '.vim'
+	let s:fname = s:rtp . '/colors/quickui/' . theme . '.vim'
 	if !filereadable(s:fname)
 		let s:fname = s:rtp . '/colors/quickui/borland.vim'
 	endif
