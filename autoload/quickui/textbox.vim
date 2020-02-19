@@ -3,7 +3,7 @@
 " textbox.vim - 
 "
 " Created by skywind on 2019/12/27
-" Last Modified: 2020/02/14 21:06
+" Last Modified: 2020/02/20 02:29
 "
 "======================================================================
 
@@ -98,9 +98,8 @@ function! s:vim_create_textbox(textlist, opts)
 			call win_execute(winid, 'setl nolist')
 		endif
 	endif
-	if has_key(a:opts, 'bordercolor')
-		let opts.borderhighlight = repeat([a:opts.bordercolor], 4)
-	endif
+	let bc = get(a:opts, 'bordercolor', 'QuickBorder')
+	let opts.borderhighlight = [bc, bc, bc, bc]	
 	if has_key(a:opts, 'tabstop')
 		call win_execute(winid, 'setlocal tabstop=' . get(a:opts, 'tabstop', 4))
 	endif
@@ -244,7 +243,7 @@ function! s:nvim_create_textbox(textlist, opts)
 		let pos = nvim_win_get_config(winid)
 		let op.row = pos.row - 1
 		let op.col = pos.col - 1
-		let bordercolor = get(a:opts, 'bordercolor', color)
+		let bordercolor = get(a:opts, 'bordercolor', 'QuickBorder')
 		let background = nvim_open_win(nbid, 0, op)
 		call nvim_win_set_option(background, 'winhl', 'Normal:'. bordercolor)
 	endif
