@@ -53,11 +53,11 @@ function! QuickThemeChange(theme)
 	elseif a:theme == 'solarized'
 		let theme = 'solarized'
 	elseif a:theme == 'papercol' || a:theme == 'papercol-dark' 
-		let theme = 'papercol-dark'
+		let theme = 'papercol_dark'
 	elseif a:theme == 'papercol dark'
-		let theme = 'papercol-dark'
+		let theme = 'papercol_dark'
 	elseif a:theme == 'papercol-light' || a:theme == 'papercol light'
-		let theme = 'papercol-light'
+		let theme = 'papercol_light'
 	else
 		let theme = a:theme
 	endif
