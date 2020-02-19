@@ -3,7 +3,7 @@
 " listbox.vim - 
 "
 " Created by skywind on 2019/12/20
-" Last Modified: 2020/02/14 21:06
+" Last Modified: 2020/02/20 02:00
 "
 "======================================================================
 
@@ -219,10 +219,8 @@ function! s:vim_create_listbox(textlist, opts)
 	let hwnd.state = 1
 	let hwnd.code = 0
 	let hwnd.tag = ''
-	if has_key(hwnd.opts, 'bordercolor')
-		let c = hwnd.opts.bordercolor
-		let opts.borderhighlight = [c, c, c, c]	
-	endif
+	let bc = get(a:opts, 'bordercolor', 'QuickBorder')
+	let opts.borderhighlight = [bc, bc, bc, bc]	
 	call popup_setoptions(winid, opts)
 	call win_execute(winid, 'syn clear')
 	if has_key(a:opts, 'syntax')
@@ -520,7 +518,7 @@ function! s:nvim_create_listbox(textlist, opts)
 		let op.height = h + 2
 		let op.row = opts.row - 1
 		let op.col = opts.col - 1
-		let bordercolor = get(a:opts, 'bordercolor', color)
+		let bordercolor = get(a:opts, 'bordercolor', 'QuickBorder')
 		let background = nvim_open_win(nbid, 0, op)
 		call nvim_win_set_option(background, 'winhl', 'Normal:'. bordercolor)
 	endif
