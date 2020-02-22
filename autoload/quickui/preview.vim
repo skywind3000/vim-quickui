@@ -120,7 +120,7 @@ function! quickui#preview#display(content, opts)
 		if type(source) == v:t_number
 			let bid = source
 		else
-			let bid = quickui#core#neovim_buffer('preview', source)
+			let bid = quickui#core#scratch_buffer('preview', source)
 		endif
 		let winid = nvim_open_win(bid, 0, opts)
 		let s:private.winid = winid
@@ -129,7 +129,7 @@ function! quickui#preview#display(content, opts)
 		let s:private.background = -1
 		if border > 0 && get(g:, 'quickui_nvim_simulate_border', 1) != 0
 			let back = quickui#utils#make_border(w, h, border, title, button)
-			let nbid = quickui#core#neovim_buffer('previewborder', back)
+			let nbid = quickui#core#scratch_buffer('previewborder', back)
 			let op = {'relative':'editor', 'focusable':0, 'style':'minimal'}
 			let op.width = w + 2
 			let op.height = h + 2

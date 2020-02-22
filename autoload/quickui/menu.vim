@@ -686,7 +686,7 @@ function! quickui#menu#nvim_open_menu(opts)
 	let s:cmenu.width = &columns
 	let s:cmenu.size = len(s:cmenu.inst.items)
 	let s:cmenu.current = current
-	let bid = quickui#core#neovim_buffer('menu', [s:cmenu.inst.text])
+	let bid = quickui#core#scratch_buffer('menu', [s:cmenu.inst.text])
 	let w = s:cmenu.width
 	let opts = {'width':w, 'height':1, 'focusable':1, 'style':'minimal'}
 	let opts.col = 0

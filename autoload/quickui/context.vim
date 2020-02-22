@@ -491,7 +491,7 @@ endfunc
 function! s:nvim_create_context(textlist, opts)
 	let border = get(a:opts, 'border', g:quickui#style#border)
 	let hwnd = quickui#context#compile(a:textlist, border)
-	let bid = quickui#core#neovim_buffer('context', hwnd.image)
+	let bid = quickui#core#scratch_buffer('context', hwnd.image)
 	let hwnd.bid = bid
 	let w = hwnd.width
 	let h = hwnd.height

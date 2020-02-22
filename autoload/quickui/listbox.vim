@@ -459,7 +459,7 @@ function! s:nvim_create_listbox(textlist, opts)
 	let hwnd = {}
 	let opts = {}
 	let items = quickui#listbox#parse(a:textlist)
-	let bid = quickui#core#neovim_buffer('listbox', items.image)
+	let bid = quickui#core#scratch_buffer('listbox', items.image)
 	let hwnd.items = items
 	let hwnd.bid = bid
 	let hwnd.keymap = quickui#utils#keymap()
@@ -512,7 +512,7 @@ function! s:nvim_create_listbox(textlist, opts)
 	if border > 0 && get(g:, 'quickui_nvim_simulate_border', 1) != 0
 		let title = has_key(a:opts, 'title')? ' ' . a:opts.title . ' ' : ''
 		let back = quickui#utils#make_border(w, h, border, title, button)
-		let nbid = quickui#core#neovim_buffer('listborder', back)
+		let nbid = quickui#core#scratch_buffer('listborder', back)
 		let op = {'relative':'editor', 'focusable':1, 'style':'minimal'}
 		let op.width = w + 2
 		let op.height = h + 2

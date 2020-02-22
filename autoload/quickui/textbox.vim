@@ -63,7 +63,7 @@ function! s:vim_create_textbox(textlist, opts)
 		call quickui#utils#center(winid)
 	endif
 	let opts = {'mapping':0, 'cursorline':0, 'drag':1}
-	let border = get(a:opts, 'border', 1)
+	let border = get(a:opts, 'border', g:quickui#style#border)
 	let opts.border = [0,0,0,0,0,0,0,0,0]
 	if border > 0
 		let opts.borderchars = quickui#core#border_vim(border)
@@ -205,9 +205,9 @@ endfunc
 "----------------------------------------------------------------------
 function! s:nvim_create_textbox(textlist, opts)
 	if type(a:textlist) == v:t_list
-		let bid = quickui#core#neovim_buffer('textbox', a:textlist)
+		let bid = quickui#core#scratch_buffer('textbox', a:textlist)
 	elseif type(a:textlist) == v:t_string
-		let bid = quickui#core#neovim_buffer('textbox', [a:textlist])
+		let bid = quickui#core#scratch_buffer('textbox', [a:textlist])
 	elseif type(a:textlist) == v:t_number
 		let bid = a:textlist
 	endif
@@ -236,7 +236,7 @@ function! s:nvim_create_textbox(textlist, opts)
 		let w = opts.w
 		let h = opts.h
 		let back = quickui#utils#make_border(w, h, border, title, button)
-		let nbid = quickui#core#neovim_buffer('textboxborder', back)
+		let nbid = quickui#core#scratch_buffer('textboxborder', back)
 		let op = {'relative':'editor', 'focusable':1, 'style':'minimal'}
 		let op.width = opts.w + 2
 		let op.height = opts.h + 2

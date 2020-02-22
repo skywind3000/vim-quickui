@@ -73,7 +73,7 @@ function! quickui#terminal#create(cmd, opts)
 		let s:current = hwnd
 		call popup_show(winid)
 	else
-		let bid = quickui#core#neovim_buffer('terminal', [])
+		let bid = quickui#core#scratch_buffer('terminal', [])
 		let opts = {'focusable':1, 'style':'minimal', 'relative':'editor'}
 		let opts.width = w
 		let opts.height = h
@@ -92,7 +92,7 @@ function! quickui#terminal#create(cmd, opts)
 		if border > 0
 			let title = has_key(a:opts, 'title')? ' ' . a:opts.title . ' ':''
 			let back = quickui#utils#make_border(w, h, border, title, button)
-			let nbid = quickui#core#neovim_buffer('terminalborder', back)
+			let nbid = quickui#core#scratch_buffer('terminalborder', back)
 			let op = {'relative':'editor', 'focusable':0, 'style':'minimal'}
 			let op.width = w + 2
 			let op.height = h + 2

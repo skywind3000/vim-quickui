@@ -338,17 +338,26 @@ endfunc
 "----------------------------------------------------------------------
 " get a named buffer
 "----------------------------------------------------------------------
-function! quickui#core#neovim_buffer(name, textlist)
+function! quickui#core#scratch_buffer(name, textlist)
 	if !exists('s:buffer_cache')
 		let s:buffer_cache = {}
 	endif
 	let bid = get(s:buffer_cache, a:name, -1)
 	if bid < 0
-		let bid = nvim_create_buf(v:false, v:true)
+		if g:quickui#core#has_nvim == 0
+			let bid = bufadd('')
+			call bufload(bid)
+			call setbufvar(bid, '&buflisted', 0)
+			call setbufvar(bid, '&bufhidden', 'hide')
+		else
+			let bid = nvim_create_buf(v:false, v:true)
+		endif
 		let s:buffer_cache[a:name] = bid
 	endif
-	call nvim_buf_set_option(bid, 'modifiable', v:true)
-	call nvim_buf_set_lines(bid, 0, -1, v:true, a:textlist)
+	call setbufvar(bid, '&modifiable', 1)
+	call deletebufline(bid, 1, '$')
+	call setbufline(bid, 1, a:textlist)
+	call setbufvar(bid, '&modified', 0)
 	call setbufvar(bid, 'current_syntax', '')
 	call setbufvar(bid, '&filetype', '')
 	return bid

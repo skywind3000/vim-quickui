@@ -208,7 +208,7 @@ function! quickui#tools#python_help(word)
 	let title = 'PyDoc <'. a:word . '>'
 	let opts = {'title':title}
 	let opts.color = 'QuickBG'
-	let opts.bordercolor = 'QuickBG'
+	" let opts.bordercolor = 'QuickBG'
 	let opts.tabstop = 12
 	call quickui#textbox#command(cmd, opts)
 endfunc
