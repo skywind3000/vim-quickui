@@ -1,22 +1,6 @@
-# What Is It ?
+# User Manual
 
-There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:
-
-- Well designed and carefully colored Borland/Turbo C++ flavor ui system combined with vim's productivity.
-- Can be accessed by keyboard only while mouse is also supported.
-- Navigate with the usual Vim keys like `h/j/k/l`, confirm with `ENTER/SPACE` and cancel with `ESC/Ctrl+[`.
-- `Tip` for each entry can display in the cmdline when you are moving the cursor around.
-- Available widgets: [menu](#menu), [listbox](#listbox), [textbox](#textbox).. (coming soon)
-- Fully customizable, including color scheme and borders.
-- Corresponding experience in both `Vim` and `NeoVim`.
-- Pure vim-script, `+python` is not required.
-- No longer have to be afraid to forget keymaps anymore.
-
-Just see this GIF demonstration below:
-
-![](images/screenshot.gif)
-
-Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite acceptable for them.
+QuickUI is fully customizable, and can be easily configurated.
 
 # Content 
 
@@ -163,7 +147,7 @@ If it is invoked with an argument "abc", menus in the namespace "abc" will displ
 
 ### Listbox
 
-When you have hundred items to deal with, menu is not enough to hold them. Then you will need a listbox.
+When you have hundres of items to deal with, menu is not enough to hold them. Then you will need a listbox.
 
 ![](images/listbox.png)
 

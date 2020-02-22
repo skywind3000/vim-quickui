@@ -24,23 +24,14 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Available Widgets](#available-widgets)
+- [Gallery Screenshot](#gallery-screenshot)
     - [Menu](#menu)
     - [Listbox](#listbox)
     - [Context menu](#context-menu)
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
     - [Terminal](#terminal)
-- [Tools](#tools)
-    - [Buffer switcher](#buffer-switcher)
-    - [Function list](#function-list)
-    - [Help viewer](#help-viewer)
-    - [Preview tag](#preview-tag)
-    - [Preview quickfix](#preview-quickfix)
-- [Customize](#customize)
-    - [How to change border style](#how-to-change-border-style)
-    - [How to change the color scheme](#how-to-change-the-color-scheme)
-    - [Specify color group precisely](#specify-color-group-precisely)
+- [User Manual](#user-manual)
 - [Who Am I ?](#who-am-i-)
 - [Credit](#credit)
 
@@ -55,201 +46,42 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
     Plug 'skywind3000/vim-quickui'
 
-## Available Widgets
+For more information, please see the [User Manual](MANUAL.md).
+
+## Gallery Screenshot
 
 ### Menu
 
-Display a dropdown menubar at top of the screen:
+Display a dropdown menubar at top of the screen, use `hjkl` or mouse to navigate:
 
 ![](images/mainmenu.png)
 
-**Usage**:
+Border style 1:
 
-- `h` / `CTRL+h` / `LEFT`: move left.
-- `l` / `CTRL+l` / `RIGHT`: move right.
-- `j` / `CTRL+j` / `DOWN`: move down.
-- `k` / `CTRL+k` / `UP`: move up.
-- `SPACE` / `ENTER`: confirm.
-- `ESC` / `CTRL+[`: cancel.
-- `H`: move to the left-most menu.
-- `L`: move to the right-most menu.
-- `J`: move to the last item.
-- `K`: move to the first item.
+![](images/border1.png)
 
-Note: `hjkl` may be overried by user hotkeys, so `CTRL`+`hjkl` or arrow keys can be used at all time.
 
-**APIs**:
+Border style 2:
 
-register menu entries:
+![](images/border2.png)
 
-```VimL
-call quickui#menu#install(section, items [, weight [, filetypes]])
-```
+Menu color schemes:
 
-display the menu:
-
-```VimL
-call quickui#menu#open()
-```
-
-**Sample code**:
-
-```VimL
-" clear all the menus
-call quickui#menu#reset()
-
-" install a 'File' menu, use [text, command] to represent an item.
-call quickui#menu#install('&File', [
-            \ [ "&New File\tCtrl+n", 'echo 0' ],
-            \ [ "&Open File\t(F3)", 'echo 1' ],
-            \ [ "&Close", 'echo 2' ],
-            \ [ "--", '' ],
-            \ [ "&Save\tCtrl+s", 'echo 3'],
-            \ [ "Save &As", 'echo 4' ],
-            \ [ "Save All", 'echo 5' ],
-            \ [ "--", '' ],
-            \ [ "E&xit\tAlt+x", 'echo 6' ],
-            \ ])
-
-" items containing tips, tips will display in the cmdline
-call quickui#menu#install('&Edit', [
-            \ [ '&Copy', 'echo 1', 'help 1' ],
-            \ [ '&Paste', 'echo 2', 'help 2' ],
-            \ [ '&Find', 'echo 3', 'help 3' ],
-            \ ])
-
-" script inside %{...} will be evaluated and expanded in the string
-call quickui#menu#install("&Option", [
-			\ ['Set &Spell %{&spell? "Off":"On"}', 'set spell!'],
-			\ ['Set &Cursor Line %{&cursorline? "Off":"On"}', 'set cursorline!'],
-			\ ['Set &Paste %{&paste? "Off":"On"}', 'set paste!'],
-			\ ])
-
-" register HELP menu with weight 10000
-call quickui#menu#install('H&elp', [
-			\ ["&Cheatsheet", 'help index', ''],
-			\ ['T&ips', 'help tips', ''],
-			\ ['--',''],
-			\ ["&Tutorial", 'help tutor', ''],
-			\ ['&Quick Reference', 'help quickref', ''],
-			\ ['&Summary', 'help summary', ''],
-			\ ], 10000)
-
-" enable to display tips in the cmdline
-let g:quickui_show_tip = 1
-
-" hit space twice to open menu
-noremap <space><space> :call quickui#menu#open()<cr>
-```
-
-Then you can open the menu by pressing space twice. If the 4th parameter `filetypes` is provided as a comma separated list, the menu will display only if the current file type can be matched in the list.
-
-```VimL
-call quickui#menu#install('&C/C++', [
-            \ [ '&Compile', 'echo 1' ],
-            \ [ '&Run', 'echo 2' ],
-            \ ], '<auto>', 'c,cpp')
-```
-
-This `C/C++` menu will be visible only if the `filetype` of current buffer is `c` or `cpp`.
-
-As we are living in multiverse, and menus can be separated in [multiple namespaces](https://github.com/skywind3000/vim-quickui/wiki/Menu-Namespaces) too. The `quickui#menu#open` function can actually take one more argument like:
-
-```VimL
-call quickui#menu#open('abc')
-```
-
-If it is invoked with an argument "abc", menus in the namespace "abc" will display immediately. If this argument is omitted, the default namespace "system" will be used.
+![](images/colors.png)
 
 ### Listbox
 
-When you have hundred items to deal with, menu is not enough to hold them. Then you will need a listbox.
+When you have hundres of items to deal with, menu is not enough to hold them. Then you will need a listbox.
 
 ![](images/listbox.png)
 
-**Features**:
+It has scroll bar, content can be scrolled by keyboard or mouse wheel. You can search items with `/` or `?` command.
 
-- Listbox can used to pick up a item from thousands items.
-- Columns separated by `"\t"` will be aligned.
-- A scroll bar will display if there are too many items.
-- Mouse wheel can be used to scroll the content.
-- Character starting with `&` can be used as a shortcut.
-- It has a title, and can be dragged by mouse.
-- Search item with `/` or `?` command.
-- Jump to line with `:` command.
+It can be used to select buffers or functions in current file:
 
-**Usage**:
+![](images/list-function.png)
 
-- `j` / `CTRL+j` / `UP`: move up.
-- `k` / `CTRL+k` / `DOWN`: move down.
-- `J` / `CTRL+d`: half page down.
-- `K` / `CTRL+d`: half page up.
-- `H` / `CTRL+b` / `PageUp`: page up.
-- `L` / `CTRL+f` / `PageDown`: page down.
-- `SPACE` / `ENTER`: confirm.
-- `ESC` / `CTRL+[`: cancel.
-- `g`: go to the first item.
-- `G`: go to the last item.
-- `/`: search forwards.
-- `?`: search backwards.
-- `:`: go to line number.
-- `n` / `CTRL+n`: next match.
-- `N` / `CTRL+p`: previous match.
-
-Note: `hjkl` or `n` may be overried by user hotkeys, so `CTRL`+`hjkl` or `CTRL`+`n` can always be used at all time.
-
-**APIs**:
-
-Open the listbox:
-
-```VimL
-quickui#listbox#open(content, opts)
-```
-
-Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options, available options are:
-
-- `title`: title of the listbox.
-- `index`: initial cursor position, starts from 0.
-- `w`: listbox width.
-- `h`: listbox height.
-- `col`: screen position in columns, starts from 1.
-- `line`: screen position in lines, starts from 1.
-- `color`: background color, default to `QuickBG`.
-- `syntax`: the `filetype` apply to the `listbox`.
-- `callback`: a function (`"fn(code)"` form) which will be called after listbox closed (press Enter or ESC).
-
-All options are not compulsorily required and can be omitted. The `callback` function will be invoked with a parameter `code` which represent the selected item index. If you quit (`ESC`/`CTRL+[`) without making your selection, `code` will be `-1`.
-
-There is an internal variable `g:quickui#listbox#cursor` which stores the last cursor position (index) in the listbox. It can be used to restore previous location.
-
-**Sample code**:
-
-```VimL
-let content = [
-            \ [ 'echo 1', 'echo 100' ],
-            \ [ 'echo 2', 'echo 200' ],
-            \ [ 'echo 3', 'echo 300' ],
-            \ [ 'echo 4' ],
-            \ [ 'echo 5', 'echo 500' ],
-            \]
-let opts = {'title': 'select one'}
-call quickui#listbox#open(content, opts)
-```
-
-It can also work like `inputlist()` function by using `quickui#listbox#inputlist`, it will return the index you select immediatedly instead of executing a vim command:
-
-```VimL
-let linelist = [
-            \ "line &1",
-            \ "line &2",
-            \ "line &3",
-            \ ]
-" restore last position in previous listbox
-let opts = {'index':g:quickui#listbox#cursor, 'title': 'select'}
-echo quickui#listbox#inputlist(linelist, opts)
-```
-
-The key difference between `open` and `inputlist` is `open` will return immediately to vim's event loop while `inputlist` won't return until you select an item or press `ESC`.
+The cursor will stay in the current function initially. Navigate and press enter to jump to the selected function. 
 
 ### Context menu
 
@@ -259,36 +91,11 @@ Context menu imitates Windows context menu (triggered by your mouse right button
 
 It is usually used to present some commands that will do something with source code in the current line.
 
-**APIs**:
+The border can be changed too:
 
-open the context menu:
+![](images/context2.png)
 
-```VimL
-quickui#context#open(content, opts)
-```
-
-Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options, has similar options in `listbox`.
-
-**Sample code**:
-
-```VimL
-let content = [
-            \ ["&Help Keyword\t\\ch", 'echo 100' ],
-            \ ["&Signature\t\\cs", 'echo 101'],
-            \ ['-'],
-            \ ["Find in &File\t\\cx", 'echo 200' ],
-            \ ["Find in &Project\t\\cp", 'echo 300' ],
-            \ ["Find in &Defintion\t\\cd", 'echo 400' ],
-            \ ["Search &References\t\\cr", 'echo 500'],
-            \ ['-'],
-            \ ["&Documentation\t\\cm", 'echo 600'],
-            \ ]
-" set cursor to the last position
-let opts = {'index':g:quickui#context#cursor}
-call quickui#context#open(content, opts)
-```
-
-You can define your own context menu and map it to `K` (override the original `keywordprg` command). And you will get a much more powerful `K` command then before.
+Because some terminals or fonts cannot display unicode borders correctly, so QuickUI choose ascii border characters by default. But you can change it as you like.
 
 ### Textbox
 
@@ -296,46 +103,17 @@ Textbox is used to display arbitrary text in a popup window.
 
 ![](images/textbox.png)
 
-**Features**:
+Display vim help with syntax highlighting in the `textbox`:
 
-- HJKL to scroll up/down, ESC to quit
-- Support syntax highlighting
+![](images/display-help.png)
 
-**APIs**:
+With `textbox`, you can read the help text at anytime in a popup, without creating a new split window.
 
-open textbox:
-
-```VimL
-quickui#textbox#open(textlist, opts)
-```
-
-Run a shell command and display the output in the textbox:
-
-```VimL
-quickui#textbox#command(command, opts)
-```
-
-**Sample code**:
-
-```VimL
-" display vim messages in the textbox
-function! DisplayMessages()
-    let x = ''
-    redir => x
-    silent! messages
-    redir END
-    let x = substitute(x, '[\n\r]\+\%$', '', 'g')
-    let content = filter(split(x, "\n"), 'v:key != ""')
-    let opts = {"close":"button", "title":"Vim Messages"}
-    call quickui#textbox#open(content, opts)
-endfunc
-```
-
-This function can display vim error messages (`:messages`) in the text window:
+Display vim messages:
 
 ![](images/messages.png)
 
-Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list them in the command line by `:messages`.
+Navigating the messages with `HJKL` or `PageUp/PageDown` is much more convenient than using `:messages`.
 
 ### Preview window
 
@@ -343,202 +121,28 @@ Preview window is used to replace traditional `pedit` command and can be used to
 
 ![](images/preview.png)
 
-You can open the preview window by:
+Sometimes I just want a glimpse to the definition of the current word under cursor without actually open that file, the `preview` window is much helpful for this. 
 
-```VimL
-quickui#preview#open(filename, opts)
-```
+Use it to preview quickfix result:
 
-It will not interfere your work, and will immediately close if you move your cursor around. The second parameter `opts` is a dictionary with options, available options are:
+![](images/quickfix.png)
 
-| Option | Type | Default | Description |
-|-|-|-|-|
-| cursor | Number | -1 | if you set it above zero, the certain line  will be highlighted (use cursorline). |
-| number | Number | 1 | set to zero to disable line number |
-| syntax | String | `unset` | additional syntax file type, eg: `cpp` or `python` |
-| title | String | `unset` | additional title for preview window |
-| persist | Number | 0 | By default the preview window will be closed automatically when `CursorMove` happens, set to 1 to close it manually by `quickui#preview#close()` |
-
-Usually the syntax highlighting and cursorline will help you when you are using it to peek symbol definitions.
-
-The `filename` argument can be provided as a list of strings, if so, preview window will display the content of the list, and `syntax` filed in the `opts` argument can be used for highlighting.
-
-User can scroll the content in the preview window by:
-
-```VimL
-quickui#preview#scroll(offset)
-```
-
-Parameter `offset` is an integer, above zero to scroll down and below zero to scroll up.
+If you have many items in the quickfix window, instead of open them one by one, you are able to press `p` in the quickfix window and preview them in the popup.
 
 ### Terminal
 
 The `terminal` widget can allow you open a terminal in the popup window:
 
-```VimL
-quickui#terminal#open(cmd, opts)
-```
-
-Parameter `cmd` can be a string or a list, and `opts` is a dictionary of options, available options are:
-
-| Option | Type | Default | Description |
-|-|-|-|-|
-| w | Number | 80 | terminal window width |
-| h | Number | 24 | terminal window height |
-| col | Number | `unset` | window horizontal position |
-| line | Number | `unset` | window vertical position |
-| border | Number | 1 | use `0` for no border |
-| title | String | `unset` | window title |
-| callback | String/Function | `unset` | a function with one argument to receive exit code when terminal exit |
-
-**Sample code**:
-
-```VimL
-function! TermExit(code)
-    echom "terminal exit code: ". a:code
-endfunc
-
-let opts = {'w':60, 'h':8, 'callback':'TermExit'}
-let opts.title = 'Terminal Popup'
-call quickui#terminal#open('python', opts)
-```
-
-When you run it, it will run `python` in a popup window:
-
 ![](images/terminal.png)
 
 This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to run various tui programs in a dialog window.
 
-## Tools
+## User Manual
 
-Tools are build upon basic widgets.
+For further instructions, please visit:
 
-### Buffer switcher
+- [User Manual](MANUAL.md)
 
-There is a builtin buffer switcher using `listbox`, open it by:
-
-    call quickui#tools#list_buffer('e')
-
-or 
-   
-    call quickui#tools#list_buffer('tabedit')
-
-Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit:
-
-![](images/listbox.png)
-
-If there are many buffers listed, you can use `/` or `?` to search, and `n` or `N` to jump to the next / previous match.
-
-
-### Function list
-
-Function list can be actived by:
-
-    call quickui#tools#list_function()
-
-The cursor will stay in the current function initially:
-
-![](images/list-function.png)
-
-Navigate and press enter to jump to the selected function. This feature requires `ctags` in you `$PATH`.
-
-### Help viewer
-
-Use `textbox` to display vim help in a popup window:
-
-    call quickui#tools#display_help('index')
-
-See the screenshot:
-
-![](images/display-help.png)
-
-The only one argument in `display_help` is the help tag name. With this tool, you can read the help text anytime, without creating a new split window.
-
-### Preview tag
-
-Sometimes I just want a glimpse to the definition of the current word under cursor without actually open that file. So, the tag previewer was made for this:
-
-![](images/preview_tag.png)
-
-use it like:
-
-```VimL
-nnoremap <F3> :call quickui#tools#preview_tag('')<cr>
-```
-
-When you move the cursor around and press `<F3>`, the definition of current `<cword>` under cursor will display in the preview window. If there are multiple definitions, press `<F3>` again will circularly display the next one, and in the command line, you will see the details about how many definitions and source file name.
-
-Don't forget to use `quickui#preview#scroll` to scroll the content in the preview window if you want to see more.
-
-This feature requires ctags databases are loaded correctly in vim. A plugin [gutentags](https://github.com/ludovicchabant/vim-gutentags) can do it for you nicely in the background.
-
-### Preview quickfix
-
-If you have many items in the quickfix window, instead of open them one by one, you are able to press `p` in the quickfix window and preview them in the popup:
-
-```VimL
-augroup MyQuickfixPreview
-  au!
-  au FileType qf noremap <silent><buffer> p :call quickui#tools#preview_quickfix()<cr>
-augroup END
-```
-
-This piece of code setup a `p` keymap in your quickfix window to preview items, and press `p` again to close the preview window.
-
-## Customize
-
-### How to change border style
-
-Change border characters.
-
-
-    let g:quickui_border_style = 1   (default)
-
-![](images/border1.png)
-
-
-    let g:quickui_border_style = 2
-
-![](images/border2.png)
-
-    let g:quickui_border_style = 3
-
-![](images/border3.png)
-
-### How to change the color scheme
-
-To change the color scheme, you can set the option below:
-
-    let g:quickui_color_scheme = 'borland'
-
-And the default color scheme `"borland"` will be used.
-
-Avaliables color schemes:
-
-![](images/colors.png)
-
-
-### Specify color group precisely
-
-If none of the builtin color schemes satisfy your need, you can define the color groups your self in your `.vimrc` before enter vim (`VimEnter` event).
-
-| Group | Meaning |
-|-|-|
-| QuickBG | Background color |
-| QuickSel | Selector (or cursor) color |
-| QuickKey | Hotkey (or shortcut-key) color |
-| QuickOff | Disabled item color |
-| QuickHelp | Tip text color |
-
-Default color `"borland"` is defined as:
-
-```VimL
-hi! QuickBG ctermfg=0 ctermbg=7 guifg=black guibg=gray
-hi! QuickSel cterm=bold ctermfg=0 ctermbg=2 gui=bold guibg=brown guifg=gray
-hi! QuickKey term=bold ctermfg=9 gui=bold guifg=#f92772
-hi! QuickOff ctermfg=59 guifg=#75715e
-hi! QuickHelp ctermfg=247 guifg=#959173
-```
 
 ## Who Am I ?
 
