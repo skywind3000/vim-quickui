@@ -227,12 +227,18 @@ endfunc
 "----------------------------------------------------------------------
 " buffer instance
 "----------------------------------------------------------------------
-function! quickui#core#object()
-	if exists('b:__quickui__')
-		return b:__quickui__
+function! quickui#core#object(bid)
+	let name = '__quickui__'
+	let bid = (a:bid > 0)? a:bid : (bufnr())
+	if bufexists(bid) == 0
+		return v:null
 	endif
-	let b:__quickui__ = {}
-	return b:__quickui__
+	let obj = getbufvar(bid, name)
+	if type(obj) != v:t_dict
+		call setbufvar(bid, name, {})
+		let obj = getbufvar(bid, name)
+	endif
+	return obj
 endfunc
 
 

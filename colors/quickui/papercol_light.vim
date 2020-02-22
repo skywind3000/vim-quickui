@@ -9,3 +9,10 @@ hi! QuickDefaultHelp ctermfg=247 guifg=#959173
 " hi! QuickDefaultBorder ctermfg=31 ctermbg=252 guifg=#222222 guibg=#d0d0d0
 hi! QuickDefaultBorder ctermfg=24 ctermbg=252 guifg=#005f87 guibg=#d0d0d0
 " hi! QuickDefaultBorder ctermfg=24 ctermbg=252 guifg=#d70087 guibg=#d0d0d0
+hi! QuickDefaultTermBorder ctermfg=24 ctermbg=252 guifg=#005f87 guibg=#d0d0d0
+
+if &background == 'dark'
+	hi! QuickDefaultPreview ctermbg=237 guibg=#4c4846
+else
+	hi! QuickDefaultPreview ctermbg=12 guibg=#dddddd
+endif

@@ -20,7 +20,7 @@ function! quickui#terminal#create(cmd, opts)
 	let title = has_key(a:opts, 'title')? (' ' . a:opts.title .' ') : ''
 	let border = get(a:opts, 'border', g:quickui#style#border)
 	let button = (get(a:opts, 'close', '') == 'button')? 1 : 0
-	let color = get(a:opts, 'color', 'QuickBG')
+	let color = get(a:opts, 'color', 'QuickTermBorder')
 	let ww = w + ((border != 0)? 2 : 0)
 	let hh = h + ((border != 0)? 2 : 0)
 	let hwnd = {'opts':deepcopy(a:opts), 'code':-1}

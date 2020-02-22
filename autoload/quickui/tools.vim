@@ -287,7 +287,7 @@ function! quickui#tools#preview_tag(tagname)
 		call quickui#utils#errmsg('Error: empty tagname')
 		return 0
 	endif
-	let obj = quickui#core#object()
+	let obj = quickui#core#object(0)
 	let reuse = 0
 	if has_key(obj, 'ptag')
 		let ptag = obj.ptag
