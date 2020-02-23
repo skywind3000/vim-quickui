@@ -342,7 +342,11 @@ function! quickui#core#scratch_buffer(name, textlist)
 	if !exists('s:buffer_cache')
 		let s:buffer_cache = {}
 	endif
-	let bid = get(s:buffer_cache, a:name, -1)
+	if a:name != ''
+		let bid = get(s:buffer_cache, a:name, -1)
+	else
+		let bid = -1
+	endif
 	if bid < 0
 		if g:quickui#core#has_nvim == 0
 			let bid = bufadd('')
@@ -352,7 +356,9 @@ function! quickui#core#scratch_buffer(name, textlist)
 		else
 			let bid = nvim_create_buf(v:false, v:true)
 		endif
-		let s:buffer_cache[a:name] = bid
+		if a:name != ''
+			let s:buffer_cache[a:name] = bid
+		endif
 	endif
 	call setbufvar(bid, '&modifiable', 1)
 	call deletebufline(bid, 1, '$')
