@@ -233,6 +233,15 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" press esc to close
+"----------------------------------------------------------------------
+function! s:press_esc()
+	exec "nunmap <ESC>"
+	call quickui#preview#close()
+endfunc
+
+
+"----------------------------------------------------------------------
 " preview file
 "----------------------------------------------------------------------
 function! quickui#preview#open(content, opts)
@@ -261,7 +270,9 @@ function! quickui#preview#open(content, opts)
 	if has_key(a:opts, 'syntax')
 		let opts.syntax = a:opts.syntax
 	endif
-	return quickui#preview#display(a:content, opts)
+	let hr = quickui#preview#display(a:content, opts)
+	exec "nnoremap <silent><ESC> :call <SID>press_esc()<cr>"
+	return hr
 endfunc
 
 
