@@ -150,6 +150,17 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" clear all entries in current namespace
+"----------------------------------------------------------------------
+function! quickui#menu#clear(section)
+	let current = s:namespace[s:name].config
+	if has_key(current, a:section)
+		call remove(current, a:section)
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
 " change weight
 "----------------------------------------------------------------------
 function! quickui#menu#change_weight(section, weight)
