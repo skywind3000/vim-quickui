@@ -14,7 +14,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 
 Just see this GIF demonstration below:
 
-![](images/screenshot.gif)
+![](https://skywind3000.github.io/images/p/quickui/screenshot.gif)
 
 Trying to share my configuration to my friends, I found that they did't have patience to remember all the keymaps in my vimrc, but text ui is quite acceptable for them.
 
@@ -54,32 +54,32 @@ For more information, please see the [User Manual](MANUAL.md).
 
 Display a dropdown menubar at top of the screen, use `hjkl` or mouse to navigate:
 
-![](images/mainmenu.png)
+![](https://skywind3000.github.io/images/p/quickui/mainmenu.png)
 
 Border style 1:
 
-![](images/border1.png)
+![](https://skywind3000.github.io/images/p/quickui/border1.png)
 
 
 Border style 2:
 
-![](images/border2.png)
+![](https://skywind3000.github.io/images/p/quickui/border2.png)
 
 Menu color schemes:
 
-![](images/colors.png)
+![](https://skywind3000.github.io/images/p/quickui/colors.png)
 
 ### Listbox
 
 When you have hundres of items to deal with, menu is not enough to hold them. Then you will need a listbox.
 
-![](images/listbox.png)
+![](https://skywind3000.github.io/images/p/quickui/listbox.png)
 
 It has scroll bar, content can be scrolled by keyboard or mouse wheel. You can search items with `/` or `?` command.
 
 It can be used to select buffers or functions in current file:
 
-![](images/list-function.png)
+![](https://skywind3000.github.io/images/p/quickui/list-function.png)
 
 The cursor will stay in the current function initially. Navigate and press enter to jump to the selected function. 
 
@@ -87,13 +87,13 @@ The cursor will stay in the current function initially. Navigate and press enter
 
 Context menu imitates Windows context menu (triggered by your mouse right button), which will display around the cursor:
 
-![](images/context.png)
+![](https://skywind3000.github.io/images/p/quickui/context.png)
 
 It is usually used to present some commands that will do something with source code in the current line.
 
 The border can be changed too:
 
-![](images/context2.png)
+![](https://skywind3000.github.io/images/p/quickui/context2.png)
 
 Because some terminals or fonts cannot display unicode borders correctly, so QuickUI choose ascii border characters by default. But you can change it as you like.
 
@@ -101,17 +101,17 @@ Because some terminals or fonts cannot display unicode borders correctly, so Qui
 
 Textbox is used to display arbitrary text in a popup window.
 
-![](images/textbox.png)
+![](https://skywind3000.github.io/images/p/quickui/textbox.png)
 
 Display vim help with syntax highlighting in the `textbox`:
 
-![](images/display-help.png)
+![](https://skywind3000.github.io/images/p/quickui/display-help.png)
 
 With `textbox`, you can read the help text at anytime in a popup, without creating a new split window.
 
 Display vim messages:
 
-![](images/messages.png)
+![](https://skywind3000.github.io/images/p/quickui/messages.png)
 
 Navigating the messages with `HJKL` or `PageUp/PageDown` is much more convenient than using `:messages`.
 
@@ -119,13 +119,13 @@ Navigating the messages with `HJKL` or `PageUp/PageDown` is much more convenient
 
 Preview window is used to replace traditional `pedit` command and can be used to display certain file in a small popup window around your cursor:
 
-![](images/preview.png)
+![](https://skywind3000.github.io/images/p/quickui/preview.png)
 
 Sometimes I just want a glimpse to the definition of the current word under cursor without actually open that file, the `preview` window is much helpful for this. 
 
 Use it to preview quickfix result:
 
-![](images/quickfix.png)
+![](https://skywind3000.github.io/images/p/quickui/quickfix.png)
 
 If you have many items in the quickfix window, instead of open them one by one, you are able to press `p` in the quickfix window and preview them in the popup.
 
@@ -133,7 +133,7 @@ If you have many items in the quickfix window, instead of open them one by one, 
 
 The `terminal` widget can allow you open a terminal in the popup window:
 
-![](images/terminal.png)
+![](https://skywind3000.github.io/images/p/quickui/terminal.png)
 
 This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to run various tui programs in a dialog window.
 
@@ -150,7 +150,7 @@ My name is Lin Wei, an open source believer and vim enthusiast. I started learni
 
 I even imitated Turbo C++ and made my own editor when I moved to Watcom C++:
 
-![](images/editor.png)
+![](https://skywind3000.github.io/images/p/quickui/editor.png)
 
 Because I didn't own a proper editor/IDE for Watcom C++ at that time.
 

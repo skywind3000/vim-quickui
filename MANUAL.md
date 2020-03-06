@@ -45,7 +45,7 @@ QuickUI is fully customizable, and can be easily configurated.
 
 Display a dropdown menubar at top of the screen:
 
-![](images/mainmenu.png)
+![](https://skywind3000.github.io/images/p/quickui/mainmenu.png)
 
 **Usage**:
 
@@ -149,7 +149,7 @@ If it is invoked with an argument "abc", menus in the namespace "abc" will displ
 
 When you have hundres of items to deal with, menu is not enough to hold them. Then you will need a listbox.
 
-![](images/listbox.png)
+![](https://skywind3000.github.io/images/p/quickui/listbox.png)
 
 **Features**:
 
@@ -239,7 +239,7 @@ The key difference between `open` and `inputlist` is `open` will return immediat
 
 Context menu imitates Windows context menu (triggered by your mouse right button), which will display around the cursor:
 
-![](images/context.png)
+![](https://skywind3000.github.io/images/p/quickui/context.png)
 
 It is usually used to present some commands that will do something with source code in the current line.
 
@@ -278,7 +278,7 @@ You can define your own context menu and map it to `K` (override the original `k
 
 Textbox is used to display arbitrary text in a popup window.
 
-![](images/textbox.png)
+![](https://skywind3000.github.io/images/p/quickui/textbox.png)
 
 **Features**:
 
@@ -317,7 +317,7 @@ endfunc
 
 This function can display vim error messages (`:messages`) in the text window:
 
-![](images/messages.png)
+![](https://skywind3000.github.io/images/p/quickui/messages.png)
 
 Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list them in the command line by `:messages`.
 
@@ -325,7 +325,7 @@ Navigating the messages with `HJKL` or `PageUp/PageDown` is much handy than list
 
 Preview window is used to replace traditional `pedit` command and can be used to display certain file in a small popup window around your cursor:
 
-![](images/preview.png)
+![](https://skywind3000.github.io/images/p/quickui/preview.png)
 
 You can open the preview window by:
 
@@ -389,7 +389,7 @@ call quickui#terminal#open('python', opts)
 
 When you run it, it will run `python` in a popup window:
 
-![](images/terminal.png)
+![](https://skywind3000.github.io/images/p/quickui/terminal.png)
 
 This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to run various tui programs in a dialog window.
 
@@ -409,7 +409,7 @@ or
 
 Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit:
 
-![](images/listbox.png)
+![](https://skywind3000.github.io/images/p/quickui/listbox.png)
 
 If there are many buffers listed, you can use `/` or `?` to search, and `n` or `N` to jump to the next / previous match.
 
@@ -422,7 +422,7 @@ Function list can be actived by:
 
 The cursor will stay in the current function initially:
 
-![](images/list-function.png)
+![](https://skywind3000.github.io/images/p/quickui/list-function.png)
 
 Navigate and press enter to jump to the selected function. This feature requires `ctags` in you `$PATH`.
 
@@ -434,7 +434,7 @@ Use `textbox` to display vim help in a popup window:
 
 See the screenshot:
 
-![](images/display-help.png)
+![](https://skywind3000.github.io/images/p/quickui/display-help.png)
 
 The only one argument in `display_help` is the help tag name. With this tool, you can read the help text anytime, without creating a new split window.
 
@@ -442,7 +442,7 @@ The only one argument in `display_help` is the help tag name. With this tool, yo
 
 Sometimes I just want a glimpse to the definition of the current word under cursor without actually open that file. So, the tag previewer was made for this:
 
-![](images/preview_tag.png)
+![](https://skywind3000.github.io/images/p/quickui/preview_tag.png)
 
 use it like:
 
@@ -478,16 +478,16 @@ Change border characters.
 
     let g:quickui_border_style = 1   (default)
 
-![](images/border1.png)
+![](https://skywind3000.github.io/images/p/quickui/border1.png)
 
 
     let g:quickui_border_style = 2
 
-![](images/border2.png)
+![](https://skywind3000.github.io/images/p/quickui/border2.png)
 
     let g:quickui_border_style = 3
 
-![](images/border3.png)
+![](https://skywind3000.github.io/images/p/quickui/border3.png)
 
 ### How to change the color scheme
 
@@ -499,7 +499,7 @@ And the default color scheme `"borland"` will be used.
 
 Avaliables color schemes:
 
-![](images/colors.png)
+![](https://skywind3000.github.io/images/p/quickui/colors.png)
 
 
 ### Specify color group precisely
@@ -530,7 +530,7 @@ My name is Lin Wei, an open source believer and vim enthusiast. I started learni
 
 I even imitated Turbo C++ and made my own editor when I moved to Watcom C++:
 
-![](images/editor.png)
+![](https://skywind3000.github.io/images/p/quickui/editor.png)
 
 Because I didn't own a proper editor/IDE for Watcom C++ at that time.
 
