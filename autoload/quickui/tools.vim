@@ -174,6 +174,7 @@ function! quickui#tools#list_function()
 	if opts.w < maxsize
 		let opts.w = (opts.w < 60)? 60 : opts.w
 	endif
+	let opts.syntax = 'qui_func'
 	if exists('g:quickui_tools_width')
 		let opts.w = quickui#utils#tools_width()
 	endif
@@ -204,7 +205,16 @@ function! quickui#tools#python_help(word)
 			let python = 'python2'
 		endif
 	endif
-	let cmd = python . ' -m pydoc ' . shellescape(a:word)
+	if a:word == ''
+		let text = getline('.')
+		let pre = text[:col('.') - 1]
+		let suf = text[col('.'):]
+		let word = matchstr(pre, "[A-Za-z0-9_.]*$") 
+		let word = word . matchstr(suf, "^[A-Za-z0-9_]*")
+	else
+		let word = a:word
+	endif
+	let cmd = python . ' -m pydoc ' . shellescape(word)
 	let title = 'PyDoc <'. a:word . '>'
 	let opts = {'title':title}
 	let opts.color = 'QuickBG'

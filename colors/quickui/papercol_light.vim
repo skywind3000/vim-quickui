@@ -16,3 +16,11 @@ if &background == 'dark'
 else
 	hi! QuickDefaultPreview ctermbg=12 guibg=#dddddd
 endif
+
+hi! QuickDefaultMatch0 ctermfg=166 guifg=#d75f00
+hi! QuickDefaultMatch1 ctermfg=31 guifg=#0087af
+hi! QuickDefaultMatch2 ctermfg=25 guifg=#005faf
+hi! QuickDefaultMatch3 ctermfg=64 guifg=#5f8700
+hi! QuickDefaultMatch4 ctermfg=91 guifg=#8700af
+hi! QuickDefaultMatch5 ctermfg=247 guifg=#a2a2a2 
+
