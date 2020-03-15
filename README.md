@@ -139,9 +139,11 @@ This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to ru
 
 ## User Manual
 
-For further instructions, please visit:
+To get started, please visit:
 
 - [User Manual](MANUAL.md)
+
+For more examples, see [my config](test/menu_example.vim).
 
 
 ## Who Am I ?
