@@ -501,7 +501,7 @@ function! quickui#core#around_cursor(width, height)
 			return [row, col]
 		endif
 	endif
-	if cursor_pos[0] + a:height + 2 < &line
+	if cursor_pos[0] + a:height + 2 < &lines
 		let row = cursor_pos[0] + 1
 	else
 		let row = cursor_pos[0] - a:height
