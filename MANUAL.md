@@ -24,6 +24,7 @@ QuickUI is fully customizable, and can be easily configurated.
 - [Customize](#customize)
     - [How to change border style](#how-to-change-border-style)
     - [How to change the color scheme](#how-to-change-the-color-scheme)
+    - [How to change preview window size](#how-to-change-preview-window-size)
     - [Specify color group precisely](#specify-color-group-precisely)
 - [Who Am I ?](#who-am-i-)
 - [Credit](#credit)
@@ -501,6 +502,12 @@ Avaliables color schemes:
 
 ![](https://skywind3000.github.io/images/p/quickui/colors.png)
 
+### How to change preview window size
+
+The default width of preview window is 85 and the height is 10, you can change it like this:
+
+    let g:quickui_preview_w = 100
+    let g:quickui_preview_h = 15
 
 ### Specify color group precisely
 
