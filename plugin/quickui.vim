@@ -73,6 +73,10 @@ endfunc
 let s:scheme = get(g:, 'quickui_color_scheme', '')
 call QuickThemeChange(s:scheme)
 
+augroup quickui "{{{
+	autocmd!
+	autocmd Colorscheme * call QuickThemeChange(get(g:, 'quickui_color_scheme', ''))
+augroup END "}}}
 
 " hi! QuickDefaultSel ctermbg=
 call s:hilink('QuickBG', 'QuickDefaultBackground')
