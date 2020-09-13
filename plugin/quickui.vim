@@ -73,6 +73,21 @@ endfunc
 let s:scheme = get(g:, 'quickui_color_scheme', '')
 call QuickThemeChange(s:scheme)
 
+if !exists('g:Lf_Extensions')
+	let g:Lf_Extensions = {}
+endif
+
+let g:Lf_Extensions.quickui_themes = {
+			\ 'source': 'leaderf#quickui_themes#source',
+			\ 'accept': 'leaderf#quickui_themes#accept',
+			\ 'highlights_def': {
+			\ 'Lf_hl_quickui_themesTitle': '.*',
+			\ },
+			\ 'highlights_cmd': [
+			\ 'hi link Lf_hl_quickui_themesTitle Title',
+			\ ],
+			\ }
+
 augroup quickui "{{{
 	autocmd!
 	autocmd Colorscheme * call QuickThemeChange(get(g:, 'quickui_color_scheme', ''))

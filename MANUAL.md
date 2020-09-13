@@ -2,7 +2,7 @@
 
 QuickUI is fully customizable, and can be easily configurated.
 
-# Content 
+# Content
 
 <!-- TOC -->
 
