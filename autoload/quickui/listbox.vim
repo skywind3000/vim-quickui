@@ -30,7 +30,7 @@ function! quickui#listbox#parse(textlist)
 	for description in a:textlist
 		let obj = quickui#core#single_parse(description)
 		let objects += [obj]
-		if obj.key_pos > 0
+		if obj.key_pos >= 0
 			let items.keymap[tolower(obj.key_char)] = items.nrows
 		endif
 		let items.nrows += 1
