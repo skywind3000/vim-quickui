@@ -29,16 +29,6 @@ let s:rtp = fnamemodify(s:home, ':h')
 "----------------------------------------------------------------------
 let g:quickui#style#border = get(g:, 'quickui_border_style', 1)
 
-
-"----------------------------------------------------------------------
-" default highlighting
-"----------------------------------------------------------------------
-function! s:hilink(name, target)
-	if !hlexists(a:name)
-		exec 'hi! link ' . a:name . ' ' . a:target
-	endif
-endfunc
-
 function! s:set_quickui_hi()
 	" hi! QuickDefaultSel ctermbg=
 	hi! link QuickBG QuickDefaultBackground
