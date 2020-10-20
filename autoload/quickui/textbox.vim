@@ -149,8 +149,9 @@ function! s:popup_exit(winid, code)
 	let g:quickui#textbox#current = local
 	call quickui#core#popup_clear(a:winid)
 	if has_key(local, 'callback')
-		let F = function(local.callback)
-		call F(topline)
+		let l:F = function(local.callback)
+		call l:F(topline)
+		unlet l:F
 	endif
 endfunc
 

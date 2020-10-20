@@ -267,8 +267,9 @@ function! s:popup_exit(winid, code)
 	let g:quickui#context#cursor = hwnd.index
 	let redrawed = 0
 	if has_key(hwnd.opts, 'callback')
-		let F = function(hwnd.opts.callback)
-		call F(code)
+		let l:F = function(hwnd.opts.callback)
+		call l:F(code)
+		unlet l:F
 	endif
 	silent! call popup_hide(a:winid)
 	if code >= 0 && code < len(hwnd.items)

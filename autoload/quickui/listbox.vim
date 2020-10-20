@@ -264,8 +264,9 @@ function! s:popup_exit(winid, code)
 	silent! call popup_hide(a:winid)
 	let g:quickui#listbox#current = hwnd
 	if has_key(hwnd.opts, 'callback')
-		let F = function(hwnd.opts.callback)
-		call F(code)
+		let l:F = function(hwnd.opts.callback)
+		call l:F(code)
+		unlet l:F
 	endif
 	if code >= 0 && code < hwnd.items.nrows
 		let cmd = hwnd.items.cmds[code]
