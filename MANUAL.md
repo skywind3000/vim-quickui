@@ -2,7 +2,7 @@
 
 QuickUI is fully customizable, and can be easily configurated.
 
-# Content 
+# Content
 
 <!-- TOC -->
 
@@ -252,7 +252,9 @@ open the context menu:
 quickui#context#open(content, opts)
 ```
 
-Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options, has similar options in `listbox`.
+Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options, has similar options in `listbox` but an additional option:
+
+- `ignore_case`: ignore case of the keyword, default 1.
 
 **Sample code**:
 
@@ -404,8 +406,8 @@ There is a builtin buffer switcher using `listbox`, open it by:
 
     call quickui#tools#list_buffer('e')
 
-or 
-   
+or
+
     call quickui#tools#list_buffer('tabedit')
 
 Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to quit:
@@ -550,4 +552,3 @@ It is time for me to bring these ideas to reality, just start from this plugin.
 ## Credit
 
 like vim-quickui? Follow the repository on [GitHub](https://github.com/skywind3000/vim-quickui) and vote for it on [vim.org](https://www.vim.org/scripts/script.php?script_id=5845). And if you're feeling especially charitable, follow skywind3000 on [Twitter](https://twitter.com/skywind3000) and [GitHub](https://github.com/skywind3000).
-

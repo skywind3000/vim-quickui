@@ -132,7 +132,7 @@ function! s:vim_create_context(textlist, opts)
 	let hwnd.hotkey = {}
 	for item in hwnd.items
 		if item.enable != 0 && item.key_pos >= 0
-			let key = tolower(item.key_char)
+			let key = ignore_case ? tolower(item.key_char) : item.key_char
 			if get(a:opts, 'reserve', 0) == 0
 				let hwnd.hotkey[key] = item.index
 			elseif get(g:, 'quickui_protect_hjkl', 0) != 0
@@ -491,6 +491,7 @@ endfunc
 "----------------------------------------------------------------------
 function! s:nvim_create_context(textlist, opts)
 	let border = get(a:opts, 'border', g:quickui#style#border)
+	let ignore_case = get(a:opts, 'ignore_case', 1)
 	let hwnd = quickui#context#compile(a:textlist, border)
 	let bid = quickui#core#scratch_buffer('context', hwnd.image)
 	let hwnd.bid = bid
@@ -519,7 +520,7 @@ function! s:nvim_create_context(textlist, opts)
 	let hwnd.hotkey = {}
 	for item in hwnd.items
 		if item.enable != 0 && item.key_pos >= 0
-			let key = tolower(item.key_char)
+			let key = ignore_case ? tolower(item.key_char) : item.key_char
 			if get(a:opts, 'reserve', 0) == 0
 				let hwnd.hotkey[key] = item.index
 			elseif get(g:, 'quickui_protect_hjkl', 0) != 0
