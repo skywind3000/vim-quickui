@@ -103,6 +103,7 @@ function! s:vim_create_context(textlist, opts)
 	let hwnd.winid = winid
 	let hwnd.index = get(a:opts, 'index', -1)
 	let hwnd.opts = deepcopy(a:opts)
+	let ignore_case = get(a:opts, 'ignore_case', 1)
 	let opts = {'minwidth':w, 'maxwidth':w, 'minheight':h, 'maxheight':h}
 	if has_key(a:opts, 'line') && has_key(a:opts, 'col')
 		let opts.line = a:opts.line
