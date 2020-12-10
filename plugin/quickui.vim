@@ -1,6 +1,6 @@
 "======================================================================
 "
-" quickui.vim - 
+" quickui.vim -
 "
 " Created by skywind on 2019/12/26
 " Last Modified: 2019/12/26 18:20:52
@@ -29,16 +29,17 @@ let s:rtp = fnamemodify(s:home, ':h')
 "----------------------------------------------------------------------
 let g:quickui#style#border = get(g:, 'quickui_border_style', 1)
 
-
-"----------------------------------------------------------------------
-" default highlighting
-"----------------------------------------------------------------------
-function! s:hilink(name, target)
-	if !hlexists(a:name)
-		exec 'hi! link ' . a:name . ' ' . a:target
-	endif
+function! s:set_quickui_hi()
+	" hi! QuickDefaultSel ctermbg=
+	hi! link QuickBG QuickDefaultBackground
+	hi! link QuickSel QuickDefaultSel
+	hi! link QuickKey QuickDefaultKey
+	hi! link QuickOff QuickDefaultDisable
+	hi! link QuickHelp QuickDefaultHelp
+	hi! link QuickBorder QuickDefaultBorder
+	hi! link QuickTermBorder QuickDefaultTermBorder
+	hi! link QuickPreview QuickDefaultPreview
 endfunc
-
 
 function! QuickThemeChange(theme)
 	let theme = 'borland'
@@ -52,7 +53,7 @@ function! QuickThemeChange(theme)
 		let theme = 'gruvbox'
 	elseif a:theme == 'solarized'
 		let theme = 'solarized'
-	elseif a:theme == 'papercol' || a:theme == 'papercol-dark' 
+	elseif a:theme == 'papercol' || a:theme == 'papercol-dark'
 		let theme = 'papercol_dark'
 	elseif a:theme == 'papercol dark'
 		let theme = 'papercol_dark'
@@ -68,6 +69,7 @@ function! QuickThemeChange(theme)
 	if filereadable(s:fname)
 		exec "source " . fnameescape(s:fname)
 	endif
+	call s:set_quickui_hi()
 endfunc
 
 let s:scheme = get(g:, 'quickui_color_scheme', '')
@@ -78,14 +80,4 @@ augroup quickui "{{{
 	autocmd Colorscheme * call QuickThemeChange(get(g:, 'quickui_color_scheme', ''))
 augroup END "}}}
 
-" hi! QuickDefaultSel ctermbg=
-call s:hilink('QuickBG', 'QuickDefaultBackground')
-call s:hilink('QuickSel', 'QuickDefaultSel')
-call s:hilink('QuickKey', 'QuickDefaultKey')
-call s:hilink('QuickOff', 'QuickDefaultDisable')
-call s:hilink('QuickHelp', 'QuickDefaultHelp')
-call s:hilink('QuickBorder', 'QuickDefaultBorder')
-call s:hilink('QuickTermBorder', 'QuickDefaultTermBorder')
-call s:hilink('QuickPreview', 'QuickDefaultPreview')
-
-
+call s:set_quickui_hi()
