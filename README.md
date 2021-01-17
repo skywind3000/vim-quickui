@@ -6,6 +6,7 @@ relativenumber of vim before, you'll be familiar with it.
 As so far, preliminary supports for these widgets are available.
 * Menu
 * Context menu
+
 Known bugs:
 * The highlight of the first letter in sub menu is occupied by line number.
 * unexpected cursor move will occur when following the order of these operations.
