@@ -1,8 +1,10 @@
 # About this fork
 With more and more opotions added, I want more efficient way to locate
 the command.
+
 I am trying to add relative number to this plugin. If you've used the
 relativenumber of vim before, you'll be familiar with it.
+
 As so far, preliminary supports for these widgets are available.
 * Menu
 * Context menu
@@ -14,6 +16,7 @@ Known bugs:
     2) locating the comand by relative number(The larger the number,
         the more obvious the effect).
     3) closing the context menu.
+    4) pressing j or k
 
 
 # What Is It ?
