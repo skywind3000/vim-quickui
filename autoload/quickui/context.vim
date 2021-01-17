@@ -16,6 +16,7 @@
 " last position
 let g:quickui#context#cursor = -1
 
+let s:place_holder = '##'
 
 
 "----------------------------------------------------------------------
@@ -157,6 +158,9 @@ function! s:vim_create_context(textlist, opts)
 	call popup_setoptions(winid, opts)
 	call quickui#context#update(hwnd)
 	call popup_show(winid)
+
+    " when context created, quickui_rept must be 0 "
+    let g:quickui_rept = 0
 	return hwnd
 endfunc
 
@@ -165,6 +169,31 @@ endfunc
 " render menu 
 "----------------------------------------------------------------------
 function! quickui#context#update(hwnd)
+    function! RenderContext(hwnd)
+        let tmp = a:hwnd.index
+        let cnt = 0
+        for i in range(tmp)
+            if match(a:hwnd.image[i+1], s:place_holder) == -1
+                let cnt += 1
+            endif
+        endfor
+
+        let start = a:hwnd.index - cnt
+        let new_image = []
+
+        for i in a:hwnd.image
+            if match(i, s:place_holder) == -1
+                call add(new_image, i)
+                continue
+            endif
+            call add(new_image, substitute(i, s:place_holder, printf("%2S", abs(start)), ''))
+            let start -= 1
+        endfor
+
+        call popup_settext(a:hwnd.winid, new_image)
+    endfunc
+    call RenderContext(a:hwnd)
+
 	let winid = a:hwnd.winid
 	let size = len(a:hwnd.items)
 	let w = a:hwnd.width
@@ -299,14 +328,15 @@ function! s:popup_filter(winid, key)
 	let local = quickui#core#popup_local(a:winid)
 	let hwnd = local.hwnd
 	let winid = hwnd.winid
+    let ret = -2
 	if a:key == "\<ESC>" || a:key == "\<c-c>"
 		call popup_close(a:winid, -1)
-		return 1
+        let ret = 1
 	elseif a:key == "\<CR>" || a:key == "\<SPACE>"
 		call s:on_confirm(hwnd)
-		return 1
+        let ret = 1
 	elseif a:key == "\<LeftMouse>"
-		return s:on_click(hwnd)
+		let ret = s:on_click(hwnd)
 	elseif has_key(hwnd.hotkey, a:key)
 		let key = hwnd.hotkey[a:key]
 		if key >= 0 && key < len(hwnd.items)
@@ -317,18 +347,24 @@ function! s:popup_filter(winid, key)
 				call popup_setoptions(winid, {})
 				redraw
 				call popup_close(winid, key)
-				return 1
+                let ret = 1
 			endif
 		endif
 	elseif has_key(hwnd.keymap, a:key)
 		let key = hwnd.keymap[a:key]
 		if key == 'ESC'
 			call popup_close(a:winid, -1)
-			return 1
+            let ret = 1
 		elseif key == 'UP'
-			let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
+            for i in range(g:quickui_rept + 1)
+                let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
+            endfor
+            let g:quickui_rept = 0
 		elseif key == 'DOWN'
-			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
+            for i in range(g:quickui_rept + 1)
+                let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
+            endfor
+            let g:quickui_rept = 0
 		elseif key == 'TOP'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'TOP')
 		elseif key == 'BOTTOM'
@@ -343,12 +379,17 @@ function! s:popup_filter(winid, key)
 				call popup_close(a:winid, -1001)
 			elseif key == 'PAGEDOWN'
 				call popup_close(a:winid, -2001)
+            elseif key == 'HOLD'
+                let g:quickui_rept = (a:key - 1) < 0 ? 0 : (a:key - 1)
+                return
 			endif
 		endif
 		call quickui#context#update(hwnd)
-		return 1
+        let ret = 1
 	endif
-	return 1
+    let g:quickui_rept = 0  " clean anyway "
+    let ret = 1
+    return ret
 endfunc
 
 

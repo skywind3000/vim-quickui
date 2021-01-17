@@ -15,6 +15,7 @@
 "----------------------------------------------------------------------
 let s:namespace = { 'system':{'config':{}, 'weight':100, 'index':0} }
 let s:name = 'system'
+let g:quickui_rept = 0
 
 
 "----------------------------------------------------------------------
@@ -276,7 +277,7 @@ function! s:parse_menu(name, padding)
 		let menu = current[section]
 		let item = {'name':menu.name, 'text':''}
 		let obj = quickui#core#escape(menu.name)
-		let item.text = ' ' . obj[0] . ' '
+		let item.text = '#' . obj[0] . ' '
 		let item.key_char = obj[1]
 		let item.key_pos = (obj[4] < 0)? -1 : (obj[4] + 1)
 		let item.x = start
@@ -353,6 +354,9 @@ function! quickui#menu#create(opts)
 	call popup_setoptions(winid, opts)
 	call quickui#menu#update()
 	call popup_show(winid)
+
+    " after menu created, rept must be 0 "
+    let g:quickui_rept = 0
 	return 0
 endfunc
 
@@ -361,6 +365,20 @@ endfunc
 " render menu
 "----------------------------------------------------------------------
 function! quickui#menu#update()
+    function! RenderIndx()
+        let start = s:cmenu.index
+        let menu = s:cmenu.inst.text
+        let size = s:cmenu.size
+
+        for i in range(size)
+            let menu = substitute(menu, '#', abs(start), '')
+            let start -= 1
+        endfor
+
+        call popup_settext(s:cmenu.winid, menu)
+    endfunc
+    call RenderIndx()
+
 	let winid = s:cmenu.winid
 	if s:cmenu.state == 0
 		return -1
@@ -439,7 +457,7 @@ function! quickui#menu#filter(winid, key)
 		redraw
 	elseif has_key(keymap, a:key)
 		let key = keymap[a:key]
-		call s:movement(key)
+		call s:movement(key, a:key)
 		redraw
 		return 1
 	endif
@@ -450,20 +468,24 @@ endfunc
 "----------------------------------------------------------------------
 " moving 
 "----------------------------------------------------------------------
-function! s:movement(key)
+function! s:movement(key, ...)
+    let btn = get(a:, 1, 0)
 	if a:key == 'ESC'
 		if g:quickui#core#has_nvim == 0
 			call popup_close(a:winid, -1)
 		endif
 		return 1
-	elseif a:key == 'LEFT' || a:key == 'RIGHT'
+	elseif a:key == 'LEFT' || a:key == 'RIGHT' || a:key == 'HOLD'
 		let index = s:cmenu.index
 		if index < 0
 			let index = 0
 		elseif a:key == 'LEFT'
-			let index -= 1
+			let index = index - 1 - g:quickui_rept
 		elseif a:key == 'RIGHT'
-			let index += 1
+			let index = index + 1 + g:quickui_rept
+        elseif a:key == 'HOLD'
+            let g:quickui_rept = (btn - 1) < 0 ? 0 : (btn - 1)
+            return
 		endif
 		let index = (index < 0)? (s:cmenu.size - 1) : index
 		let index = (index >= s:cmenu.size)? 0 : index
@@ -481,6 +503,7 @@ function! s:movement(key)
 			return s:neovim_dropdown()
 		endif
 	endif
+    let g:quickui_rept = 0   " clean anyway "
 endfunc
 
 
