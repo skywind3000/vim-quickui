@@ -5,7 +5,7 @@ the command.
 I am trying to add relative number to this plugin. If you've used the
 relativenumber of vim before, you'll be familiar with it.
 
-As so far, preliminary supports for these widgets are available.
+As so far, preliminary supports for these widgets are available. (vim olny)
 * Menu
 * Context menu
 
