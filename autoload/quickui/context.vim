@@ -17,6 +17,7 @@
 let g:quickui#context#cursor = -1
 
 let s:place_holder = '##'
+let s:mc_rept = 0
 
 
 "----------------------------------------------------------------------
@@ -172,11 +173,13 @@ function! quickui#context#update(hwnd)
     function! RenderContext(hwnd)
         let tmp = a:hwnd.index
         let cnt = 0
-        for i in range(tmp)
-            if match(a:hwnd.image[i+1], s:place_holder) == -1
-                let cnt += 1
-            endif
-        endfor
+        if tmp >= 0
+            for i in range(tmp)
+                if match(a:hwnd.image[i+1], s:place_holder) == -1
+                    let cnt += 1
+                endif
+            endfor
+        endif
 
         let start = a:hwnd.index - cnt
         let new_image = []
@@ -356,20 +359,36 @@ function! s:popup_filter(winid, key)
 			call popup_close(a:winid, -1)
             let ret = 1
 		elseif key == 'UP'
-            for i in range(g:quickui_rept + 1)
+            if s:mc_rept == 0
                 let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
-            endfor
-            let g:quickui_rept = 0
+            else
+                for i in range(s:mc_rept)
+                    let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
+                endfor
+            endif
 		elseif key == 'DOWN'
-            for i in range(g:quickui_rept + 1)
+            if s:mc_rept == 0
                 let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
-            endfor
-            let g:quickui_rept = 0
+            else
+                for i in range(s:mc_rept)
+                    let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
+                endfor
+            endif
 		elseif key == 'TOP'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'TOP')
 		elseif key == 'BOTTOM'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'BOTTOM')
+        elseif key == 'HOLD'
+            if s:mc_rept != 0
+                " the index is greater than 9 "
+                let s:mc_rept = s:mc_rept * 10 + a:key
+            else
+                let s:mc_rept = a:key
+            endif
+            return
 		endif
+        let s:mc_rept = 0   " clean anyway "
+
 		if get(hwnd.opts, 'horizon', 0) != 0
 			if key == 'LEFT'
 				call popup_close(a:winid, -1000)
@@ -380,7 +399,7 @@ function! s:popup_filter(winid, key)
 			elseif key == 'PAGEDOWN'
 				call popup_close(a:winid, -2001)
             elseif key == 'HOLD'
-                let g:quickui_rept = (a:key - 1) < 0 ? 0 : (a:key - 1)
+                " WARNING: the number is recorded by menu. no need record again "
                 return
 			endif
 		endif
@@ -388,6 +407,7 @@ function! s:popup_filter(winid, key)
         let ret = 1
 	endif
     let g:quickui_rept = 0  " clean anyway "
+    let s:mc_rept = 0
     let ret = 1
     return ret
 endfunc
@@ -722,6 +742,7 @@ endfunc
 " create menu object
 "----------------------------------------------------------------------
 function! quickui#context#open(textlist, opts)
+    let s:mc_rept = 0
 	let textlist = a:textlist
 	if g:quickui#core#has_nvim == 0
 		return s:vim_create_context(textlist, a:opts)

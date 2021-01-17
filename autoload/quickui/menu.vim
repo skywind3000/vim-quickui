@@ -15,6 +15,8 @@
 "----------------------------------------------------------------------
 let s:namespace = { 'system':{'config':{}, 'weight':100, 'index':0} }
 let s:name = 'system'
+
+" the number pressed by user "
 let g:quickui_rept = 0
 
 
@@ -480,11 +482,18 @@ function! s:movement(key, ...)
 		if index < 0
 			let index = 0
 		elseif a:key == 'LEFT'
-			let index = index - 1 - g:quickui_rept
+            let offset = (g:quickui_rept - 1 < 0)? 0 : (g:quickui_rept - 1)
+			let index = index - 1 - offset
 		elseif a:key == 'RIGHT'
-			let index = index + 1 + g:quickui_rept
+            let offset = (g:quickui_rept - 1 < 0)? 0 : (g:quickui_rept - 1)
+			let index = index + 1 + offset
         elseif a:key == 'HOLD'
-            let g:quickui_rept = (btn - 1) < 0 ? 0 : (btn - 1)
+            if g:quickui_rept != 0
+                " the index is greater than 9 "
+                let g:quickui_rept = g:quickui_rept * 10 + btn
+            else
+                let g:quickui_rept = btn
+            endif
             return
 		endif
 		let index = (index < 0)? (s:cmenu.size - 1) : index

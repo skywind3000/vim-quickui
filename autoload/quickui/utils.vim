@@ -74,7 +74,7 @@ function! quickui#utils#item_parse(description)
 				let rest .= key
 			endif
 		endwhile
-		let obj.text = "##".rest
+		let obj.text = "## ".rest
 		let obj.text_width = strwidth(obj.text)
 		let obj.desc_width = strwidth(obj.desc)
 	end
@@ -171,6 +171,7 @@ let s:maps["G"] = 'BOTTOM'
 let s:maps['q'] = 'ESC'
 let s:maps['n'] = 'NEXT'
 let s:maps['N'] = 'PREV'
+let s:maps['0'] = 'HOLD'
 let s:maps['1'] = 'HOLD'
 let s:maps['2'] = 'HOLD'
 let s:maps['3'] = 'HOLD'
