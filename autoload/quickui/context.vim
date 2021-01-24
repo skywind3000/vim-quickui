@@ -385,7 +385,7 @@ function! s:popup_filter(winid, key)
             else
                 let s:mc_rept = a:key
             endif
-            return
+            return 1
 		endif
         let s:mc_rept = 0   " clean anyway "
 
