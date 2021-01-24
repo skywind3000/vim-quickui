@@ -52,7 +52,7 @@ function! quickui#utils#item_parse(description)
 			let obj.desc = strpart(text, pos + 1)
 			let obj.desc = substitute(obj.desc, "\t", " ", "g")
 		endif
-		let text = obj.text
+		let text = "## ".obj.text
 		let rest = ''
 		let start = 0
 		while 1
@@ -74,7 +74,7 @@ function! quickui#utils#item_parse(description)
 				let rest .= key
 			endif
 		endwhile
-		let obj.text = "## ".rest
+		let obj.text = rest
 		let obj.text_width = strwidth(obj.text)
 		let obj.desc_width = strwidth(obj.desc)
 	end
