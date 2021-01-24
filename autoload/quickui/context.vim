@@ -174,8 +174,9 @@ function! quickui#context#update(hwnd)
         let tmp = a:hwnd.index
         let cnt = 0
         if tmp >= 0
+            let size = len(a:hwnd.image)
             for i in range(tmp)
-                if match(a:hwnd.image[i+1], s:place_holder) == -1
+                if i+1 < size && match(a:hwnd.image[i+1], s:place_holder) == -1
                     let cnt += 1
                 endif
             endfor
