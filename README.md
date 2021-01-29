@@ -10,6 +10,7 @@ As so far, preliminary supports for these widgets are available. (vim only)
 * Context menu
 
 Known bugs:
+* [] Not compatible with neovim. (need help)
 * [fixed] The highlight of the first letter in sub menu is occupied by line number.
 * [fixed] unexpected cursor move will occur when following the order of these operations.
     1) opening context menu.
