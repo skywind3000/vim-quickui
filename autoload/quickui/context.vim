@@ -387,6 +387,8 @@ function! s:popup_filter(winid, key)
                 let s:mc_rept = a:key
             endif
             return 1
+        elseif key == 'LEFT' || key == 'RIGHT'
+            let g:quickui_rept = s:mc_rept
 		endif
         let s:mc_rept = 0   " clean anyway "
 
