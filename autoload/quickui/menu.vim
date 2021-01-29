@@ -17,7 +17,7 @@ let s:namespace = { 'system':{'config':{}, 'weight':100, 'index':0} }
 let s:name = 'system'
 
 " the number pressed by user "
-let g:quickui_rept = 0
+let g:menu_rept = 0
 
 
 "----------------------------------------------------------------------
@@ -358,7 +358,7 @@ function! quickui#menu#create(opts)
 	call popup_show(winid)
 
     " after menu created, rept must be 0 "
-    let g:quickui_rept = 0
+    let g:menu_rept = 0
 	return 0
 endfunc
 
@@ -482,17 +482,17 @@ function! s:movement(key, ...)
 		if index < 0
 			let index = 0
 		elseif a:key == 'LEFT'
-            let offset = (g:quickui_rept - 1 < 0)? 0 : (g:quickui_rept - 1)
+            let offset = (g:menu_rept - 1 < 0)? 0 : (g:menu_rept - 1)
 			let index = index - 1 - offset
 		elseif a:key == 'RIGHT'
-            let offset = (g:quickui_rept - 1 < 0)? 0 : (g:quickui_rept - 1)
+            let offset = (g:menu_rept - 1 < 0)? 0 : (g:menu_rept - 1)
 			let index = index + 1 + offset
         elseif a:key == 'HOLD'
-            if g:quickui_rept != 0
+            if g:menu_rept != 0
                 " the index is greater than 9 "
-                let g:quickui_rept = g:quickui_rept * 10 + btn
+                let g:menu_rept = g:menu_rept * 10 + btn
             else
-                let g:quickui_rept = btn
+                let g:menu_rept = btn
             endif
             return
 		endif
@@ -512,7 +512,7 @@ function! s:movement(key, ...)
 			return s:neovim_dropdown()
 		endif
 	endif
-    let g:quickui_rept = 0   " clean anyway "
+    let g:menu_rept = 0   " clean anyway "
 endfunc
 
 
@@ -574,7 +574,7 @@ function! s:context_dropdown()
 	let index = get(cfg, 'index', 0)
 	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
 	let cfg.index = opts.index
-	let hwnd = quickui#context#open(s:cmenu.dropdown, opts)
+	let hwnd = quickui#context#open(s:cmenu.dropdown, opts, 1)
 	let s:cmenu.context = hwnd.winid
 	let s:cmenu.state = 1
 endfunc

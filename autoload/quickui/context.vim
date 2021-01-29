@@ -18,6 +18,8 @@ let g:quickui#context#cursor = -1
 
 let s:place_holder = '##'
 let s:mc_rept = 0
+let s:is_drop = 0
+let s:last_pos = 0
 
 
 "----------------------------------------------------------------------
@@ -103,7 +105,11 @@ function! s:vim_create_context(textlist, opts)
 	let w = hwnd.width
 	let h = hwnd.height
 	let hwnd.winid = winid
-	let hwnd.index = get(a:opts, 'index', -1)
+    if s:is_drop == 1
+        let hwnd.index = get(a:opts, 'index', -1)
+    else
+        let hwnd.index = s:last_pos
+    endif
 	let hwnd.opts = deepcopy(a:opts)
 	let ignore_case = get(a:opts, 'ignore_case', 1)
 	let opts = {'minwidth':w, 'maxwidth':w, 'minheight':h, 'maxheight':h}
@@ -160,8 +166,8 @@ function! s:vim_create_context(textlist, opts)
 	call quickui#context#update(hwnd)
 	call popup_show(winid)
 
-    " when context created, quickui_rept must be 0 "
-    let g:quickui_rept = 0
+    " when context created, menu_rept must be 0 "
+    let g:menu_rept = 0
 	return hwnd
 endfunc
 
@@ -299,6 +305,9 @@ function! s:popup_exit(winid, code)
 	let g:quickui#context#code = code
 	let g:quickui#context#current = hwnd
 	let g:quickui#context#cursor = hwnd.index
+    if s:is_drop == 0
+        let s:last_pos = hwnd.index
+    endif
 	let redrawed = 0
 	if has_key(hwnd.opts, 'callback')
 		let l:F = function(hwnd.opts.callback)
@@ -388,7 +397,7 @@ function! s:popup_filter(winid, key)
             endif
             return 1
         elseif key == 'LEFT' || key == 'RIGHT'
-            let g:quickui_rept = s:mc_rept
+            let g:menu_rept = s:mc_rept
 		endif
         let s:mc_rept = 0   " clean anyway "
 
@@ -409,7 +418,7 @@ function! s:popup_filter(winid, key)
 		call quickui#context#update(hwnd)
         let ret = 1
 	endif
-    let g:quickui_rept = 0  " clean anyway "
+    let g:menu_rept = 0  " clean anyway "
     let s:mc_rept = 0
     let ret = 1
     return ret
@@ -743,9 +752,12 @@ endfunc
 
 "----------------------------------------------------------------------
 " create menu object
+" is_drop: 1 -> opened by menu
+"          0 -> opened not by menu
 "----------------------------------------------------------------------
-function! quickui#context#open(textlist, opts)
+function! quickui#context#open(textlist, opts, is_drop = 0)
     let s:mc_rept = 0
+    let s:is_drop = a:is_drop
 	let textlist = a:textlist
 	if g:quickui#core#has_nvim == 0
 		return s:vim_create_context(textlist, a:opts)
