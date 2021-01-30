@@ -177,6 +177,9 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#context#update(hwnd)
     function! RenderContext(hwnd)
+		if g:quickui#core#has_nvim == 1
+            return
+        endif
         let tmp = a:hwnd.index
         let cnt = 0
         if tmp >= 0
@@ -755,9 +758,9 @@ endfunc
 " is_drop: 1 -> opened by menu
 "          0 -> opened not by menu
 "----------------------------------------------------------------------
-function! quickui#context#open(textlist, opts, is_drop = 0)
+function! quickui#context#open(textlist, opts)
     let s:mc_rept = 0
-    let s:is_drop = a:is_drop
+    let s:is_drop = get(a:opts, 'is_drop', 0)
 	let textlist = a:textlist
 	if g:quickui#core#has_nvim == 0
 		return s:vim_create_context(textlist, a:opts)

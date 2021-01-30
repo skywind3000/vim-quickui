@@ -52,7 +52,7 @@ function! quickui#utils#item_parse(description)
 			let obj.desc = strpart(text, pos + 1)
 			let obj.desc = substitute(obj.desc, "\t", " ", "g")
 		endif
-		let text = "## ".obj.text
+		let text = (g:quickui#core#has_nvim == 1)? obj.text : "## ".obj.text
 		let rest = ''
 		let start = 0
 		while 1

@@ -275,11 +275,12 @@ function! s:parse_menu(name, padding)
 	let names = quickui#menu#available(a:name)
 	let index = 0
 	let size = len(names)
+    let place_holder = (g:quickui#core#has_nvim == 1)? ' ' : '#'
 	for section in names
 		let menu = current[section]
 		let item = {'name':menu.name, 'text':''}
 		let obj = quickui#core#escape(menu.name)
-		let item.text = '#' . obj[0] . ' '
+		let item.text = place_holder . obj[0] . ' '
 		let item.key_char = obj[1]
 		let item.key_pos = (obj[4] < 0)? -1 : (obj[4] + 1)
 		let item.x = start
@@ -368,6 +369,9 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#menu#update()
     function! RenderIndx()
+		if g:quickui#core#has_nvim == 1
+            return
+        endif
         let start = s:cmenu.index
         let menu = s:cmenu.inst.text
         let size = s:cmenu.size
@@ -574,7 +578,8 @@ function! s:context_dropdown()
 	let index = get(cfg, 'index', 0)
 	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
 	let cfg.index = opts.index
-	let hwnd = quickui#context#open(s:cmenu.dropdown, opts, 1)
+    let opts.is_drop = 1
+    let hwnd = quickui#context#open(s:cmenu.dropdown, opts)
 	let s:cmenu.context = hwnd.winid
 	let s:cmenu.state = 1
 endfunc
@@ -661,6 +666,7 @@ function! s:neovim_dropdown()
 	let index = get(cfg, 'index', 0)
 	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
 	let cfg.index = opts.index
+    let opts.is_drop = 1
 	let hr = quickui#context#open(s:cmenu.dropdown, opts)
 	let cfg.index = g:quickui#context#current.index
 	let s:cmenu.next = 0
