@@ -19,6 +19,9 @@ Known bugs:
     3) closing the context menu.
     4) pressing j or k
 
+Maybe More:
+* second menu for context menu
+
 Bug reports are welcome.
 
 
