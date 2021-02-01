@@ -28,6 +28,7 @@ let s:rtp = fnamemodify(s:home, ':h')
 " setup variables
 "----------------------------------------------------------------------
 let g:quickui#style#border = get(g:, 'quickui_border_style', 1)
+let g:quickui_enable_rnu = get(g:, 'quickui_enable_rnu', 0)
 
 function! s:set_quickui_hi()
 	" hi! QuickDefaultSel ctermbg=

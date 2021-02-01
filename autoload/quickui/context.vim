@@ -177,7 +177,7 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#context#update(hwnd)
     function! RenderContext(hwnd)
-		if g:quickui#core#has_nvim == 1
+		if g:quickui#core#has_nvim == 1 || g:quickui_enable_rnu == 0
             return
         endif
         let tmp = a:hwnd.index

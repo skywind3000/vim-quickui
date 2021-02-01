@@ -1,30 +1,3 @@
-# About this fork
-With more and more options added, I want more efficient way to locate
-the command.
-
-I am trying to add relative number to this plugin. If you've used the
-"relativenumber" of vim before, you'll be familiar with it.
-
-As so far, preliminary supports for these widgets are available. (vim only)
-* Menu
-* Context menu
-
-Known bugs:
-* [] Not compatible with neovim. (need help)
-* [fixed] The highlight of the first letter in sub menu is occupied by line number.
-* [fixed] unexpected cursor move will occur when following the order of these operations.
-    1) opening context menu.
-    2) locating the comand by relative number(The larger the number,
-        the more obvious the effect).
-    3) closing the context menu.
-    4) pressing j or k
-
-Maybe More:
-* second menu for context menu
-
-Bug reports are welcome.
-
-
 # What Is It ?
 
 There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:
