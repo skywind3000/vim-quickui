@@ -87,9 +87,7 @@ endfunc
 " reposition text offset
 "----------------------------------------------------------------------
 function! quickui#listbox#reposition()
-	if mode() != 'i'
-		exec 'normal! zz'
-	endif
+	exec 'normal! zz'
 	let height = winheight(0)
 	let size = line('$')
 	let curline = line('.')
@@ -180,11 +178,9 @@ function! s:vim_create_listbox(textlist, opts)
 	if get(a:opts, 'index', 0) >= 0
 		let moveto = get(a:opts, 'index', 0) + 1
 		call popup_show(winid)
-		if mode() != 'i'
-			call win_execute(winid, 'normal! G')
-			call win_execute(winid, ':' . moveto)
-			call win_execute(winid, 'normal! G')
-		endif
+		call win_execute(winid, 'normal! G')
+		call win_execute(winid, ':' . moveto)
+		call win_execute(winid, 'normal! G')
 		call win_execute(winid, ':' . moveto)
 		call win_execute(winid, 'call quickui#listbox#reposition()')
 	endif
@@ -367,9 +363,7 @@ function! quickui#listbox#cursor_movement(where)
 		let curline = endline
 	endif
 	noautocmd exec ":" . curline
-	if mode() != 'i'
-		noautocmd exec "normal! 0"
-	endif
+	noautocmd exec "normal! 0"
 endfunc
 
 
