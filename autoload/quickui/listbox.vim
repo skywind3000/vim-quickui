@@ -620,8 +620,9 @@ function! s:nvim_create_listbox(textlist, opts)
 	let hwnd.state = 0
 	let g:quickui#listbox#current = hwnd
 	if has_key(hwnd.opts, 'callback')
-		let F = function(hwnd.opts.callback)
-		call F(retval)
+		let l:F = function(hwnd.opts.callback)
+		call l:F(retval)
+		unlet l:F
 	endif
 	if retval >= 0 && retval < hwnd.items.nrows
 		let cmd = hwnd.items.cmds[retval]

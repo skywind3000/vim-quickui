@@ -613,8 +613,9 @@ function! s:nvim_create_context(textlist, opts)
 	let g:quickui#context#current = hwnd
 	let g:quickui#context#cursor = hwnd.index
 	if has_key(hwnd.opts, 'callback')
-		let F = function(hwnd.opts.callback)
-		call F(retval)
+		let l:F = function(hwnd.opts.callback)
+		call l:F(retval)
+		unlet l:F
 	endif
 	if retval >= 0 && retval < len(hwnd.items)
 		let item = hwnd.items[retval]

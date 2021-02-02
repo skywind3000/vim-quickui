@@ -11,6 +11,13 @@
 
 
 "----------------------------------------------------------------------
+" terminal return
+"----------------------------------------------------------------------
+let g:quickui#terminal#capture = []
+let g:quickui#terminal#tmpname = ''
+
+
+"----------------------------------------------------------------------
 " create a terminal popup
 "----------------------------------------------------------------------
 function! quickui#terminal#create(cmd, opts)
@@ -124,6 +131,22 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" read back capture
+"----------------------------------------------------------------------
+function! s:capture_read()
+	let g:quickui#terminal#capture = []
+	if g:quickui#terminal#tmpname != ''
+		let tmpname = g:quickui#terminal#tmpname
+		let g:quickui#terminal#tmpname = ''
+		if filereadable(tmpname)
+			silent! let g:quickui#terminal#capture = readfile(tmpname)
+			call delete(tmpname)
+		endif
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
 " terminal exit_cb
 "----------------------------------------------------------------------
 function! s:vim_term_exit(job, message)
@@ -141,9 +164,11 @@ function! s:vim_popup_callback(winid, code)
 	if exists('s:current')
 		let hwnd = s:current
 		let hwnd.winid = -1
+		call s:capture_read()
 		if has_key(hwnd.opts, 'callback')
-			let F = function(hwnd.opts.callback)
-			call F(hwnd.code)
+			let l:F = function(hwnd.opts.callback)
+			call l:F(hwnd.code)
+			unlet l:F
 		endif
 	endif
 endfunc
@@ -164,9 +189,11 @@ function! s:nvim_term_exit(jobid, data, event)
 		endif
 		let hwnd.winid = -1
 		let hwnd.background = -1
+		call s:capture_read()
 		if has_key(hwnd.opts, 'callback')
-			let F = function(hwnd.opts.callback)
-			call F(hwnd.code)
+			let l:F = function(hwnd.opts.callback)
+			call l:F(hwnd.code)
+			unlet l:F
 		endif
 	endif
 endfunc
@@ -193,7 +220,107 @@ function! quickui#terminal#open(cmd, opts)
 			endif
 		endif
 	endif
+	if has_key(opts, 'w')
+		let opts.w = quickui#utils#read_size(opts.w, &columns)
+	endif
+	if has_key(opts, 'h')
+		let opts.h = quickui#utils#read_size(opts.h, &lines)
+	endif
+	let g:quickui#terminal#capture = []
+	let g:quickui#terminal#tmpname = ''
+	let $VIM_CAPTURE = ''
+	if has_key(opts, 'capture')
+		if opts.capture
+			if has('win32') || has('win64') || has('win95') || has('win16')
+				let tmpname = fnamemodify(tempname(), ':h') . '\quickui2.txt'
+			else
+				let tmpname = fnamemodify(tempname(), ':h') . '/quickui2.txt'
+			endif
+			let g:quickui#terminal#tmpname = tmpname
+			let $VIM_CAPTURE = tmpname
+			if filereadable(tmpname)
+				call delete(tmpname)
+			endif
+		endif
+		unlet opts['capture']
+	endif
 	return quickui#terminal#create(a:cmd, opts)
+endfunc
+
+
+"----------------------------------------------------------------------
+" dialog exit
+"----------------------------------------------------------------------
+function! s:dialog_callback(code)
+	let args = {}
+	let args.code = a:code
+	let args.capture = g:quickui#terminal#capture
+	let l:FF = function(s:dialog_cb)
+	call l:FF(args)
+	unlet l:FF
+endfunc
+
+
+"----------------------------------------------------------------------
+" dialog: run command line tool and capture result
+" the callback function changes to a new prototype:
+" function! Callback(args), where args is a tuple of (code, capture)
+" where capture is a list of text lines in the $VIM_CAPTURE file
+"----------------------------------------------------------------------
+function! quickui#terminal#dialog(cmd, opts)
+	let opts = deepcopy(a:opts)
+	let opts.macros = quickui#core#expand_macros()
+	if has_key(opts, 'prepare')
+		let l:F3 = function(opts.prepare)
+		call l:F3(opts)
+		unlet l:F3
+	endif
+	let command = a:cmd
+	for [key, val] in items(opts.macros)
+		let replace = (key[0] != '<')? '$('.key.')' : key
+		if key[0] != '<'
+			exec 'let $' . key . ' = val'
+		endif
+		let command = quickui#core#string_replace(command, replace, val)
+		if has_key(opts, 'cwd')
+			let opts.cwd = quickui#core#string_replace(opts.cwd, replace, val)
+		endif
+	endfor
+	let cwd = get(opts, 'cwd', '')
+	if cwd != ''
+		let previous = getcwd()
+		call quickui#core#chdir(cwd)
+		let opts.macros['VIM_CWD'] = getcwd()
+		let opts.macros['VIM_RELDIR'] = expand("%:h:.")
+		let opts.macros['VIM_RELNAME'] = expand("%:p:.")
+		let opts.macros['VIM_CFILE'] = expand("<cfile>")
+		let opts.macros['VIM_DIRNAME'] = fnamemodify(opts.macros['VIM_CWD'], ':t')
+		let opts.macros['<cwd>'] = opts.macros['VIM_CWD']
+		call quickui#core#chdir(previous)
+	endif
+	let pause = get(opts, 'pause', 0)
+	let command = quickui#core#write_script(command, pause)
+	if has_key(opts, 'callback')
+		let l:F2 = opts.callback
+		if type(l:F2) == v:t_string
+			if l:F2 != ''
+				let s:dialog_cb = function(l:F2)
+				let opts.callback = function('s:dialog_callback')
+				let opts.capture = 1
+			endif
+		elseif type(l:F2) == v:t_func
+			let s:dialog_cb = function(l:F2)
+			let opts.callback = function('s:dialog_callback')
+			let opts.capture = 1
+		endif
+		unlet l:F2
+	endif
+	if has_key(opts, 'cwd')
+		if opts.cwd == ''
+			unlet opts['cwd']
+		endif
+	endif
+	return quickui#terminal#open(command, opts)
 endfunc
 
 

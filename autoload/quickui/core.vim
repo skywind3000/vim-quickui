@@ -25,6 +25,7 @@ let g:quickui#core#has_floating = has('nvim-0.4')
 "----------------------------------------------------------------------
 " internal variables
 "----------------------------------------------------------------------
+let s:windows = has('win32') || has('win16') || has('win64') || has('win95')
 
 
 "----------------------------------------------------------------------
@@ -541,5 +542,160 @@ function! quickui#core#chdir(path)
 	endif
 	silent execute cmd . ' '. fnameescape(a:path)
 endfunc
+
+
+"----------------------------------------------------------------------
+" full file name
+"----------------------------------------------------------------------
+function! quickui#core#fullname(f)
+	let f = a:f
+	if f =~ "'."
+		try
+			redir => m
+			silent exe ':marks' f[1]
+			redir END
+			let f = split(split(m, '\n')[-1])[-1]
+			let f = filereadable(f)? f : ''
+		catch
+			let f = '%'
+		endtry
+	endif
+	if f == '%'
+		let f = expand('%')
+		if &bt == 'terminal'
+			let f = ''
+		endif
+	endif
+	let f = fnamemodify(f, ':p')
+	if s:windows
+		let f = substitute(f, "\\", '/', 'g')
+	endif
+	if f =~ '\/$'
+		let f = fnamemodify(f, ':h')
+	endif
+	return f
+endfunc
+
+
+"----------------------------------------------------------------------
+" returns nearest parent directory contains one of the markers
+"----------------------------------------------------------------------
+function! quickui#core#find_root(name, markers, strict)
+	let name = fnamemodify((a:name != '')? a:name : bufname('%'), ':p')
+	let finding = ''
+	" iterate all markers
+	for marker in a:markers
+		if marker != ''
+			" search as a file
+			let x = findfile(marker, name . '/;')
+			let x = (x == '')? '' : fnamemodify(x, ':p:h')
+			" search as a directory
+			let y = finddir(marker, name . '/;')
+			let y = (y == '')? '' : fnamemodify(y, ':p:h:h')
+			" which one is the nearest directory ?
+			let z = (strchars(x) > strchars(y))? x : y
+			" keep the nearest one in finding
+			let finding = (strchars(z) > strchars(finding))? z : finding
+		endif
+	endfor
+	if finding == ''
+		let path = (a:strict == 0)? fnamemodify(name, ':h') : ''
+	else
+		let path = fnamemodify(finding, ':p')
+	endif
+	if has('win32') || has('win16') || has('win64') || has('win95')
+		let path = substitute(path, '\/', '\', 'g')
+	endif
+	if path =~ '[\/\\]$'
+		let path = fnamemodify(path, ':h')
+	endif
+	return path
+endfunc
+
+
+"----------------------------------------------------------------------
+" find project root
+"----------------------------------------------------------------------
+function! quickui#core#project_root(name, ...)
+	let markers = ['.project', '.git', '.hg', '.svn', '.root']
+	if exists('g:quickui_rootmarks')
+		let markers = g:quickui_rootmarks
+	elseif exists('g:asyncrun_rootmarks')
+		let markers = g:asyncrun_rootmarks
+	endif
+	let path = quickui#core#fullname(a:name)
+	let strict = (a:0 > 0)? (a:1) : 0
+	return quickui#core#find_root(path, markers, strict)
+endfunc
+
+
+"----------------------------------------------------------------------
+" expand macros
+"----------------------------------------------------------------------
+function! quickui#core#expand_macros()
+	let macros = {}
+	let macros['VIM_FILEPATH'] = expand("%:p")
+	let macros['VIM_FILENAME'] = expand("%:t")
+	let macros['VIM_FILEDIR'] = expand("%:p:h")
+	let macros['VIM_FILENOEXT'] = expand("%:t:r")
+	let macros['VIM_PATHNOEXT'] = expand("%:p:r")
+	let macros['VIM_FILEEXT'] = "." . expand("%:e")
+	let macros['VIM_FILETYPE'] = (&filetype)
+	let macros['VIM_CWD'] = getcwd()
+	let macros['VIM_RELDIR'] = expand("%:h:.")
+	let macros['VIM_RELNAME'] = expand("%:p:.")
+	let macros['VIM_CWORD'] = expand("<cword>")
+	let macros['VIM_CFILE'] = expand("<cfile>")
+	let macros['VIM_CLINE'] = line('.')
+	let macros['VIM_VERSION'] = ''.v:version
+	let macros['VIM_SVRNAME'] = v:servername
+	let macros['VIM_COLUMNS'] = ''.&columns
+	let macros['VIM_LINES'] = ''.&lines
+	let macros['VIM_GUI'] = has('gui_running')? 1 : 0
+	let macros['VIM_ROOT'] = quickui#core#project_root('%', 0)
+	let macros['VIM_HOME'] = expand(split(&rtp, ',')[0])
+	let macros['VIM_PRONAME'] = fnamemodify(macros['VIM_ROOT'], ':t')
+	let macros['VIM_DIRNAME'] = fnamemodify(macros['VIM_CWD'], ':t')
+	let macros['<cwd>'] = macros['VIM_CWD']
+	let macros['<root>'] = macros['VIM_ROOT']
+	if expand("%:e") == ''
+		let macros['VIM_FILEEXT'] = ''
+	endif
+	return macros
+endfunc
+
+
+"----------------------------------------------------------------------
+" write script to a file and return filename
+"----------------------------------------------------------------------
+function! quickui#core#write_script(command, pause)
+	let tmpname = fnamemodify(tempname(), ':h') . '\quickui1.cmd'
+	let command = a:command
+	if s:windows != 0
+		let lines = ["@echo off\r"]
+		let $VIM_COMMAND = a:command
+		let $VIM_PAUSE = (a:pause)? 'pause' : ''
+		let lines += ["call %VIM_COMMAND% \r"]
+		let lines += ["set VIM_EXITCODE=%ERRORLEVEL%\r"]
+		let lines += ["call %VIM_PAUSE% \r"]
+		let lines += ["exit %VIM_EXITCODE%\r"]
+	else
+		let shell = split(&shell, ' ', 1)[0]
+		let lines = ['#! ' . shell]
+		let lines += [command]
+		if a:pause != 0
+			let lines += ['read -n1 -rsp "press any key to confinue ..."']
+		endif
+		let tmpname = fnamemodify(tempname(), ':h') . '/quickui1.sh'
+	endif
+	call writefile(lines, tmpname)
+	if s:windows == 0
+		if exists('*setfperm')
+			silent! call setfperm(tmpname, 'rwxrwxrws')
+		endif
+	endif
+	return tmpname
+endfunc
+
 
 
