@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 =======
 # About this fork
 An awesome plugin with awesome modifications to meet individual needs.
@@ -23,8 +22,6 @@ Known bugs:
 
 Bug reports are welcome.
 
-
->>>>>>> nightly
 # What Is It ?
 
 There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:
