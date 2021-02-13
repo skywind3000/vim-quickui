@@ -1,3 +1,30 @@
+<<<<<<< HEAD
+=======
+# About this fork
+An awesome plugin with awesome modifications to meet individual needs.
+
+What is new:
+* Relative number for menu and context menu. (vim only)
+
+Maybe more:
+* second menu for context menu.
+
+Disable the relative number.
+> let g:quickui_enable_rnu = 0
+
+Known bugs:
+* [fixed] The highlight of the first letter in sub menu is occupied by line number.
+* [fixed] unexpected cursor move will occur when following the order of these operations.
+    1) opening context menu.
+    2) locating the comand by relative number(The larger the number,
+        the more obvious the effect).
+    3) closing the context menu.
+    4) pressing j or k
+
+Bug reports are welcome.
+
+
+>>>>>>> nightly
 # What Is It ?
 
 There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:

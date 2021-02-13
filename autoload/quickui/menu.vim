@@ -275,7 +275,7 @@ function! s:parse_menu(name, padding)
 	let names = quickui#menu#available(a:name)
 	let index = 0
 	let size = len(names)
-    let place_holder = (g:quickui#core#has_nvim == 1)? ' ' : '#'
+    let place_holder = (g:quickui#core#has_nvim == 1 || g:quickui_enable_rnu == 0)? ' ' : '#'
 	for section in names
 		let menu = current[section]
 		let item = {'name':menu.name, 'text':''}
@@ -369,7 +369,7 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#menu#update()
     function! RenderIndx()
-		if g:quickui#core#has_nvim == 1
+		if g:quickui#core#has_nvim == 1 || g:quickui_enable_rnu == 0
             return
         endif
         let start = s:cmenu.index
