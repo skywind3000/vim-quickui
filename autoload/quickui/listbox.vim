@@ -264,9 +264,7 @@ function! s:popup_exit(winid, code)
 	silent! call popup_hide(a:winid)
 	let g:quickui#listbox#current = hwnd
 	if has_key(hwnd.opts, 'callback')
-		let l:F = function(hwnd.opts.callback)
-		call l:F(code)
-		unlet l:F
+		call call(hwnd.opts.callback, [code])
 	endif
 	if code >= 0 && code < hwnd.items.nrows
 		let cmd = hwnd.items.cmds[code]
@@ -620,9 +618,7 @@ function! s:nvim_create_listbox(textlist, opts)
 	let hwnd.state = 0
 	let g:quickui#listbox#current = hwnd
 	if has_key(hwnd.opts, 'callback')
-		let l:F = function(hwnd.opts.callback)
-		call l:F(retval)
-		unlet l:F
+		call call(hwnd.opts.callback, [retval])
 	endif
 	if retval >= 0 && retval < hwnd.items.nrows
 		let cmd = hwnd.items.cmds[retval]

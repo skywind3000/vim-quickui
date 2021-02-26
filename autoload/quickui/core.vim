@@ -562,7 +562,7 @@ function! quickui#core#fullname(f)
 	endif
 	if f == '%'
 		let f = expand('%')
-		if &bt == 'terminal'
+		if &bt == 'terminal' || &bt == 'nofile'
 			let f = ''
 		endif
 	endif
@@ -684,7 +684,13 @@ function! quickui#core#write_script(command, pause)
 		let lines = ['#! ' . shell]
 		let lines += [command]
 		if a:pause != 0
-			let lines += ['read -n1 -rsp "press any key to confinue ..."']
+			if executable('bash')
+				let pause = 'read -n1 -rsp "press any key to continue ..."'
+				let lines += ['bash -c ''' . pause . '''']
+			else
+				let lines += ['echo "press enter to continue ..."']
+				let lines += ['sh -c "read _tmp_"']
+			endif
 		endif
 		let tmpname = fnamemodify(tempname(), ':h') . '/quickui1.sh'
 	endif

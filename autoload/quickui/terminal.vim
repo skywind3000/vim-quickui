@@ -166,9 +166,7 @@ function! s:vim_popup_callback(winid, code)
 		let hwnd.winid = -1
 		call s:capture_read()
 		if has_key(hwnd.opts, 'callback')
-			let l:F = function(hwnd.opts.callback)
-			call l:F(hwnd.code)
-			unlet l:F
+			call call(hwnd.opts.callback, [hwnd.code])
 		endif
 	endif
 endfunc
@@ -191,9 +189,7 @@ function! s:nvim_term_exit(jobid, data, event)
 		let hwnd.background = -1
 		call s:capture_read()
 		if has_key(hwnd.opts, 'callback')
-			let l:F = function(hwnd.opts.callback)
-			call l:F(hwnd.code)
-			unlet l:F
+			call call(hwnd.opts.callback, [hwnd.code])
 		endif
 	endif
 endfunc
@@ -255,9 +251,7 @@ function! s:dialog_callback(code)
 	let args = {}
 	let args.code = a:code
 	let args.capture = g:quickui#terminal#capture
-	let l:FF = function(s:dialog_cb)
-	call l:FF(args)
-	unlet l:FF
+	call call(s:dialog_cb, [args])
 endfunc
 
 
@@ -271,9 +265,7 @@ function! quickui#terminal#dialog(cmd, opts)
 	let opts = deepcopy(a:opts)
 	let opts.macros = quickui#core#expand_macros()
 	if has_key(opts, 'prepare')
-		let l:F3 = function(opts.prepare)
-		call l:F3(opts)
-		unlet l:F3
+		call call(opts.prepare, [opts])
 	endif
 	let command = a:cmd
 	for [key, val] in items(opts.macros)
