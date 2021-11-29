@@ -3,7 +3,7 @@
 " tools.vim - 
 "
 " Created by skywind on 2019/12/23
-" Last Modified: 2021/11/30 01:35
+" Last Modified: 2021/11/30 01:37
 "
 "======================================================================
 
@@ -498,7 +498,7 @@ function! quickui#tools#input_search()
 		echo "quit search"
 		return
 	endif
-	let text = escape(text, '[\*~^')
+	let text = escape(text, '[\/*~^')
 	" exec '/' . text
 	call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
 endfunc
