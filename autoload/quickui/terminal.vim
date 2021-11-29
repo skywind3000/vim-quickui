@@ -224,7 +224,17 @@ function! quickui#terminal#open(cmd, opts)
 	endif
 	let g:quickui#terminal#capture = []
 	let g:quickui#terminal#tmpname = ''
+	let $VIM_INPUT = ''
 	let $VIM_CAPTURE = ''
+	if has_key(opts, 'input')
+		if has('win32') || has('win64') || has('win95') || has('win16')
+			let tmpname = fnamemodify(tempname(), ':h') . '\quickui1.txt'
+		else
+			let tmpname = fnamemodify(tempname(), ':h') . '/quickui1.txt'
+		endif
+		call writefile(opts.input, tmpname)
+		let $VIM_INPUT = tmpname
+	endif
 	if has_key(opts, 'capture')
 		if opts.capture
 			if has('win32') || has('win64') || has('win95') || has('win16')

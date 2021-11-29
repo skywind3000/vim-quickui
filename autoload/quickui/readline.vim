@@ -3,7 +3,7 @@
 " readline.vim - 
 "
 " Created by skywind on 2021/02/20
-" Last Modified: 2021/02/20 12:58:24
+" Last Modified: 2021/11/29 21:04
 "
 "======================================================================
 
@@ -61,7 +61,7 @@ function! s:readline.set(text)
 	let wide = []
 	for cc in code
 		let ch = nr2char(cc)
-		let wide += [strdisplaywidth(cc)]
+		let wide += [strdisplaywidth(ch)]
 	endfor
 	let self.code = code
 	let self.wide = wide
@@ -82,16 +82,35 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" slice
+"----------------------------------------------------------------------
+let s:nvim = has('nvim')? 1 : 0
+function! s:list_slice(code, start, endup)
+	let start = a:start
+	let endup = a:endup
+	if s:nvim == 0
+		return slice(a:code, a:start, a:endup)
+	else
+		if start == endup
+			return []
+		else
+			return a:code[start:endup-1]
+		endif
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
 " extract text: -1/0/1 for text before/on/after cursor
 "----------------------------------------------------------------------
 function! s:readline.extract(locate)
 	let cc = self.cursor
 	if a:locate < 0
-		let p = slice(self.code, 0, cc)
+		let p = s:list_slice(self.code, 0, cc)
 	elseif a:locate == 0
-		let p = slice(self.code, cc, cc + 1)
+		let p = s:list_slice(self.code, cc, cc + 1)
 	else
-		let p = slice(self.code, cc + 1)
+		let p = s:list_slice(self.code, cc + 1, len(self.code))
 	endif
 	return list2str(p)
 endfunc
@@ -188,7 +207,7 @@ function! s:readline.visual_text() abort
 		return ''
 	else
 		let [start, end] = self.visual_range()
-		let code = slice(self.code, start, end)
+		let code = s:list_slice(self.code, start, end)
 		return list2str(code)
 	endif
 endfunc
@@ -270,7 +289,7 @@ function! s:readline.read_data(pos, width, what)
 		return []
 	endif
 	let data = (a:what == 0)? self.code : self.wide
-	return slice(data, x, x + w)
+	return s:list_slice(data, x, x + w)
 endfunc
 
 
@@ -343,7 +362,7 @@ function! s:readline.display() abort
 	if (self.select < 0) || (self.select == cursor)
 		" content before cursor
 		if cursor > 0
-			let code = slice(codes, 0, cursor)
+			let code = s:list_slice(codes, 0, cursor)
 			let display += [[0, list2str(code)]]
 		endif
 		" content on cursor
@@ -351,7 +370,7 @@ function! s:readline.display() abort
 		let display += [[1, list2str([code])]]
 		" content after cursor
 		if cursor + 1 < size
-			let code = slice(codes, cursor + 1, size)
+			let code = s:list_slice(codes, cursor + 1, size)
 			let display += [[0, list2str(code)]]
 		endif
 	else
@@ -359,29 +378,29 @@ function! s:readline.display() abort
 		let vis_endup = (cursor > self.select)? cursor : self.select
 		" content befor visual selection
 		if vis_start > 0
-			let code = slice(codes, 0, vis_start)
+			let code = s:list_slice(codes, 0, vis_start)
 			let display += [[0, list2str(code)]]
 		endif
 		" content in visual selection
 		if cursor < self.select
 			let code = [codes[cursor]]
 			let display += [[3, list2str(code)]]
-			let code = slice(codes, cursor + 1, vis_endup)
+			let code = s:list_slice(codes, cursor + 1, vis_endup)
 			let display += [[2, list2str(code)]]
 			if vis_endup < size
-				let code = slice(codes, vis_endup, size)
+				let code = s:list_slice(codes, vis_endup, size)
 				let display += [[0, list2str(code)]]
 			endif
 		else
 			" visual selection
-			let code = slice(codes, vis_start, vis_endup)
+			let code = s:list_slice(codes, vis_start, vis_endup)
 			let display += [[2, list2str(code)]]
 			" content on cursor
 			let code = (cursor < size)? codes[cursor] : char2nr(' ')
 			let display += [[1, list2str([code])]]
 			" content after cursor
 			if cursor + 1 < size
-				let code = slice(codes, cursor + 1, size)
+				let code = s:list_slice(codes, cursor + 1, size)
 				let display += [[0, list2str(code)]]
 			endif
 		endif
@@ -452,7 +471,14 @@ function! s:readline.slide(window_pos, display_width)
 	endif
 	let window_pos = (window_pos < 0)? 0 : window_pos
 	let wides = self.read_data(window_pos, cursor - window_pos, 1)
-	let width = reduce(wides, { acc, val -> acc + val }, 0) + 1
+	if s:nvim == 0
+		let width = reduce(wides, { acc, val -> acc + val }, 0) + 1
+	else
+		let width = 1
+		for w in wides
+			let width += w
+		endfor
+	endif
 	if width <= display_width
 		return window_pos
 	else
@@ -494,6 +520,15 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" calculate mouse click position
+"----------------------------------------------------------------------
+function! s:readline.mouse_click(winpos, offset)
+	let index = self.avail(a:winpos, a:offset) + a:winpos
+	return (index > self.size)? self.size : index
+endfunc
+
+
+"----------------------------------------------------------------------
 " save history in current position
 "----------------------------------------------------------------------
 function! s:readline.history_save() abort
@@ -518,6 +553,7 @@ function! s:readline.history_prev() abort
 		call self.history_save()
 		let self.index = (self.index < size - 1)? (self.index + 1) : 0
 		call self.set(self.history[self.index])
+		call self.update()
 	endif
 endfunc
 
@@ -531,6 +567,7 @@ function! s:readline.history_next() abort
 		call self.history_save()
 		let self.index = (self.index <= 0)? (size - 1) : (self.index - 1)
 		call self.set(self.history[self.index])
+		call self.update()
 	endif
 endfunc
 
@@ -640,6 +677,7 @@ function! s:readline.feed(char) abort
 			endif
 		elseif char == "\<S-Insert>"
 			let text = split(@*, "\n", 1)[0]
+			let text = substitute(text, '[\r\n\t]', ' ', 'g')
 			if text != ''
 				if self.select >= 0
 					call self.visual_delete()
@@ -673,6 +711,7 @@ function! s:readline.feed(char) abort
 			endif
 		elseif char == "\<c-v>"
 			let text = split(@0, "\n", 1)[0]
+			let text = substitute(text, '[\r\n\t]', ' ', 'g')
 			if text != ''
 				if self.select >= 0
 					call self.visual_delete()
@@ -791,6 +830,7 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#readline#cli(prompt)
 	let rl = quickui#readline#new()
+	let rl.history = ['', 'abcd', '12345']
 	let index = 0
 	let accept = ''
 	let pos = 0
@@ -809,8 +849,11 @@ function! quickui#readline#cli(prompt)
 			call rl.echo(rl.blink(ts), pos, size)
 			echohl Title
 			echon ">"
+			echon " size=" . size
 			echon " cursor=" . rl.cursor
 			echon " pos=". pos
+			echon " blink=". rl.blink(ts)
+			echon " avail=". rl.avail(pos, size)
 		endif
 		" echon rl.display()
 		try
@@ -844,13 +887,28 @@ function! quickui#readline#cli(prompt)
 	return accept
 endfunc
 
-if 1
-	" echo quickui#readline#cli(">>> ")
-else
-	let rl = quickui#readline#new()
-	call rl.insert('a')
-	" echo rl.wide
-	echo rl.avail(0, 5)
+
+"----------------------------------------------------------------------
+" testing suit
+"----------------------------------------------------------------------
+if 0
+	let suit = 0
+	if suit == 0
+		call quickui#readline#test()
+	elseif suit == 1
+		let rl = quickui#readline#new()
+		call rl.insert('abad')
+		echo rl.mouse_click(0, 5)
+	elseif suit == 2
+		echo quickui#readline#cli(">>> ")
+	elseif suit == 3
+		let rl = quickui#readline#new()
+		let size = 10
+		echo "avail=" . rl.avail(0, size)
+		call rl.insert("hello")
+		echo "cursor=" . rl.cursor
+		echo "avail=" . rl.avail(0, size)
+	endif
 endif
 
 

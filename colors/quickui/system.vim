@@ -12,3 +12,10 @@ if &background == 'dark'
 else
 	hi! QuickDefaultPreview ctermbg=12 guibg=#dddddd
 endif
+
+
+hi! link QuickDefaultInput NonText
+hi! link QuickDefaultCursor Cursor
+hi! link QuickDefaultVisual Visual
+
+

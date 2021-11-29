@@ -3,7 +3,7 @@
 " context.vim - 
 "
 " Created by skywind on 2019/12/19
-" Last Modified: 2020/02/13 16:24
+" Last Modified: 2021/11/28 03:57
 "
 "======================================================================
 
@@ -97,7 +97,12 @@ endfunc
 function! s:vim_create_context(textlist, opts)
 	let border = get(a:opts, 'border', g:quickui#style#border)
 	let hwnd = quickui#context#compile(a:textlist, border)
-	let winid = popup_create(hwnd.image, {'hidden':1, 'wrap':0})
+	if 0
+		let hwnd.bid = quickui#core#scratch_buffer('context', hwnd.image)
+		let winid = popup_create(hwnd.bid, {'hidden':1, 'wrap':0})
+	else
+		let winid = popup_create(hwnd.image, {'hidden':1, 'wrap':0})
+	endif
 	let w = hwnd.width
 	let h = hwnd.height
 	let hwnd.winid = winid

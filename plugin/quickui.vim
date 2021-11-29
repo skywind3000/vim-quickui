@@ -39,6 +39,11 @@ function! s:set_quickui_hi()
 	hi! link QuickBorder QuickDefaultBorder
 	hi! link QuickTermBorder QuickDefaultTermBorder
 	hi! link QuickPreview QuickDefaultPreview
+
+	" for input box
+	hi! link QuickInput QuickDefaultInput
+	hi! link QuickCursor QuickDefaultCursor
+	hi! link QuickVisual QuickDefaultVisual
 endfunc
 
 function! QuickThemeChange(theme)

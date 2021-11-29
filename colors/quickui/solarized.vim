@@ -12,3 +12,8 @@ if &background == 'dark'
 else
 	hi! QuickDefaultPreview ctermbg=12 guibg=#dddddd
 endif
+
+hi! QuickDefaultInput ctermfg=244 ctermbg=234 guifg=#839496 guibg=#002b36
+hi! QuickDefaultCursor ctermfg=234 ctermbg=234 guifg=#002b36 guibg=#839496
+hi! QuickDefaultVisual ctermfg=234 ctermbg=239 guifg=#002b36 guibg=DarkGray
+
