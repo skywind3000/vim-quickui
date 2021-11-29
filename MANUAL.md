@@ -11,6 +11,7 @@ QuickUI is fully customizable, and can be easily configurated.
 - [Available Widgets](#available-widgets)
     - [Menu](#menu)
     - [Listbox](#listbox)
+    - [Inputbox](#inputbox)
     - [Context menu](#context-menu)
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
@@ -235,6 +236,46 @@ echo quickui#listbox#inputlist(linelist, opts)
 ```
 
 The key difference between `open` and `inputlist` is `open` will return immediately to vim's event loop while `inputlist` won't return until you select an item or press `ESC`.
+
+### Inputbox
+
+Prompt user to input a string in a TUI box:
+
+![](https://skywind3000.github.io/images/p/quickui/input1.png)
+
+Could be used as a drop-in replacement of `input()` function:
+
+**APIs**:
+
+```VimL
+quickui#input#open(prompt [, text [, history_key]])
+```
+
+**Sample code**
+
+```VimL
+echo quickui#input#open('Enter your name:', 'nobody')
+```
+
+**Usage**:
+
+- `Left` / `Ctrl+B`: move cursor left.
+- `Right` / `Ctrl+F`: move cursor right.
+- `Shift+Left`: select left.
+- `Shift+Right`: select right.
+- `Ctrl+g`: select all.
+- `Up` / `Ctrl+P`: previous history.
+- `Down` / `Ctrl+N`: next history.
+- `Ctrl+Insert`: copy to register `*`.
+- `Shift+Insert`: paste from register `*`.
+- `Ctrl+K`: kill all characters on and after cursor.
+- `Ctrl+D`: delete character under cursor.
+- `Ctrl+W`: delete word before cursor.
+- `Home` / `Ctrl+A`: rewind cursor.
+- `End` / `Ctrl+E`: move cursor to the line end. 
+- `Ctrl+R Ctrl+W`: read current word.
+- `Ctrl+R =`: read evaluation.
+- `Ctrl+R {reg}`: read register.
 
 ### Context menu
 

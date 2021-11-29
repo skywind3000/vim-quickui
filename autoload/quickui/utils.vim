@@ -3,7 +3,7 @@
 " utils.vim - 
 "
 " Created by skywind on 2019/12/19
-" Last Modified: 2019/12/19 15:31:17
+" Last Modified: 2021/11/30 00:49
 "
 "======================================================================
 
@@ -588,5 +588,39 @@ function! quickui#utils#tools_width()
 	let size = (size < minimal)? minimal : size
 	return (size > &columns)? &columns : size
 endfunc
+
+
+"----------------------------------------------------------------------
+" read from register or evaluation
+"----------------------------------------------------------------------
+function! quickui#utils#read_eval(...)
+	let opts = (a:0 == 0)? {} : (a:1)
+	try
+		let code = getchar()
+	catch /^Vim:Interrupt$/
+		let code = "\<C-C>"
+	endtry
+	let ch = (type(code) == v:t_number)? nr2char(code) : code
+	if ch == "\<c-c>"
+		return ''
+	elseif ch == "\<esc>" || ch == "\<cr>"
+		return ''
+	elseif ch == "="
+		let e = input('=')
+		if e == ''
+			return ''
+		endif
+		return eval(e)
+	elseif ch == "\<c-w>"
+		let x = expand('<cword>')
+		return x
+	elseif len(ch) == 1
+		let x = eval('@' . ch)
+		return x
+	endif
+	return ''
+endfunc
+
+
 
 

@@ -3,7 +3,7 @@
 " input.vim - 
 "
 " Created by skywind on 2021/11/27
-" Last Modified: 2021/11/30 00:03
+" Last Modified: 2021/11/30 00:49
 "
 "======================================================================
 
@@ -248,7 +248,6 @@ function! quickui#input#create(prompt, opts)
 		catch /^Vim:Interrupt$/
 			let code = "\<C-C>"
 		endtry
-		let ch = (type(code) == v:t_number)? nr2char(code) : code
 		if type(code) == v:t_number && code == 0
 			try
 				exec 'sleep 15m'
@@ -257,6 +256,7 @@ function! quickui#input#create(prompt, opts)
 				let code = "\<c-c>"
 			endtry
 		endif
+		let ch = (type(code) == v:t_number)? nr2char(code) : code
 		if ch == "\<ESC>" || ch == "\<c-c>"
 			break
 		endif
@@ -303,8 +303,19 @@ function! quickui#input#create(prompt, opts)
 		elseif ch == "\<c-d>"
 			redraw
 			echon "winsize: " . hwnd.w
-		elseif ch == "\<c-a>"
+		elseif ch == "\<c-g>"
 			call s:select_all(hwnd)
+		elseif ch == "\<c-r>"
+			let rop = {}
+			let text = quickui#utils#read_eval(rop)
+			let text = split(text, "\n", 1)[0]
+			let text = substitute(text, '[\r\n\t]', ' ', 'g')
+			if text != ''
+				if rl.select >= 0
+					call rl.visual_delete()
+				endif
+				call rl.insert(text)
+			endif
 		else
 			call rl.feed(ch)
 		endif

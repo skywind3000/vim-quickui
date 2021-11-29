@@ -6,7 +6,7 @@ There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vim
 - Can be accessed by keyboard only while mouse is also supported.
 - Navigate with the usual Vim keys like `h/j/k/l`, confirm with `ENTER/SPACE` and cancel with `ESC/Ctrl+[`.
 - `Tip` for each entry can display in the cmdline when you are moving the cursor around.
-- Available widgets: [menu](#menu), [listbox](#listbox), [textbox](#textbox).. (coming soon)
+- Available widgets: [menu](#menu), [listbox](#listbox), [inputbox](#inputbox), [textbox](#textbox).. (coming soon)
 - Fully customizable, including color scheme and borders.
 - Corresponding experience in both `Vim` and `NeoVim`.
 - Pure vim-script, `+python` is not required.
@@ -27,6 +27,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
 - [Gallery Screenshot](#gallery-screenshot)
     - [Menu](#menu)
     - [Listbox](#listbox)
+    - [Inputbox](#inputbox)
     - [Context menu](#context-menu)
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
@@ -56,12 +57,7 @@ Display a dropdown menubar at top of the screen, use `hjkl` or mouse to navigate
 
 ![](https://skywind3000.github.io/images/p/quickui/mainmenu.png)
 
-Border style 1:
-
-![](https://skywind3000.github.io/images/p/quickui/border1.png)
-
-
-Border style 2:
+Customizable border style:
 
 ![](https://skywind3000.github.io/images/p/quickui/border2.png)
 
@@ -82,6 +78,14 @@ It can be used to select buffers or functions in current file:
 ![](https://skywind3000.github.io/images/p/quickui/list-function.png)
 
 The cursor will stay in the current function initially. Navigate and press enter to jump to the selected function. 
+
+### Inputbox
+
+Prompt user to input a string in a TUI box:
+
+![](https://skywind3000.github.io/images/p/quickui/input1.png)
+
+Could be used as a drop-in replacement of `input()` function.
 
 ### Context menu
 
