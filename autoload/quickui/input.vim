@@ -3,7 +3,7 @@
 " input.vim - 
 "
 " Created by skywind on 2021/11/27
-" Last Modified: 2021/11/29 23:33
+" Last Modified: 2021/11/30 00:03
 "
 "======================================================================
 
@@ -29,7 +29,7 @@ function! s:init_input_box(prompt, opts)
 		let head = split('' . a:prompt, "\n")
 	endif
 	let hwnd.h = 2 + len(head)
-	let hwnd.ln = 2 + len(head)
+	let hwnd.lnum = 2 + len(head)
 	if has_key(a:opts, 'w')
 		let hwnd.w = a:opts.w
 	else
@@ -179,7 +179,7 @@ function! s:update_input(hwnd)
 	let display = rl.render(hwnd.pos, size)
 	let cmdlist = ['syn clear']
 	let x = 1
-	let y = hwnd.ln
+	let y = hwnd.lnum
 	let content = []
 	for [attr, text] in display
 		let len = strwidth(text)
@@ -272,14 +272,21 @@ function! quickui#input#create(prompt, opts)
 				break
 			endif
 		elseif ch == "\<LeftMouse>"
-			let pos = getmousepos()
-			if pos.winid == hwnd.winid
-				if pos.line == 3
-					let x = pos.column - 1
+			if v:mouse_winid == hwnd.winid
+				if v:mouse_lnum == hwnd.lnum
+					let x = v:mouse_col - (s:has_nvim? 1 : 3)
 					if x >= 0 && x < hwnd.w
 						let pos = rl.mouse_click(hwnd.pos, x)
 						call rl.seek(pos, 0)
 						let rl.select = -1
+					endif
+				endif
+			elseif s:has_nvim != 0
+				if v:mouse_winid == hwnd.background
+					if v:mouse_lnum == 1
+						if v:mouse_col == hwnd.w + 4
+							break
+						endif
 					endif
 				endif
 			endif

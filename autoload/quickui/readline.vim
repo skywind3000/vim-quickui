@@ -3,7 +3,7 @@
 " readline.vim - 
 "
 " Created by skywind on 2021/02/20
-" Last Modified: 2021/11/29 21:04
+" Last Modified: 2021/11/30 00:04
 "
 "======================================================================
 
@@ -84,11 +84,11 @@ endfunc
 "----------------------------------------------------------------------
 " slice
 "----------------------------------------------------------------------
-let s:nvim = has('nvim')? 1 : 0
+let s:has_nvim = has('nvim')? 1 : 0
 function! s:list_slice(code, start, endup)
 	let start = a:start
 	let endup = a:endup
-	if s:nvim == 0
+	if s:has_nvim == 0
 		return slice(a:code, a:start, a:endup)
 	else
 		if start == endup
@@ -471,7 +471,7 @@ function! s:readline.slide(window_pos, display_width)
 	endif
 	let window_pos = (window_pos < 0)? 0 : window_pos
 	let wides = self.read_data(window_pos, cursor - window_pos, 1)
-	if s:nvim == 0
+	if s:has_nvim == 0
 		let width = reduce(wides, { acc, val -> acc + val }, 0) + 1
 	else
 		let width = 1
