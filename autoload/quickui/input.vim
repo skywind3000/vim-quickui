@@ -3,7 +3,7 @@
 " input.vim - 
 "
 " Created by skywind on 2021/11/27
-" Last Modified: 2021/11/29 23:22
+" Last Modified: 2021/11/29 23:33
 "
 "======================================================================
 
@@ -137,7 +137,7 @@ endfunc
 function! s:nvim_create_input(prompt, opts)
 	let hwnd = s:init_input_box(a:prompt, a:opts)
 	let opts = {'focusable':1, 'style':'minimal', 'relative':'editor'}
-	let title = 'Input'
+	let title = ' Input '
 	let border = hwnd.border
 	let back = quickui#utils#make_border(hwnd.w + 2, hwnd.h + 2, border, title, 1)
 	let hwnd.back = back
