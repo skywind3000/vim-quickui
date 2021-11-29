@@ -3,7 +3,7 @@
 " tools.vim - 
 "
 " Created by skywind on 2019/12/23
-" Last Modified: 2019/12/23 21:22:46
+" Last Modified: 2021/11/30 01:33
 "
 "======================================================================
 
@@ -485,5 +485,22 @@ function! quickui#tools#terminal(name)
 	call quickui#terminal#dialog(cmd, opts)
 	return 0
 endfunc
+
+
+"----------------------------------------------------------------------
+" search inputbox
+"----------------------------------------------------------------------
+function! quickui#tools#input_search()
+	let text = quickui#input#open('Enter text to search:', '', 'search')
+	redraw
+	if text == ''
+		echo "quit search"
+		return
+	endif
+	let text = escape(text, '[\*~^')
+	" exec '/' . text
+	call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
+endfunc
+
 
 
