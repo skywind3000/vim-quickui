@@ -3,7 +3,7 @@
 " input.vim - 
 "
 " Created by skywind on 2021/11/27
-" Last Modified: 2021/11/30 00:49
+" Last Modified: 2021/11/30 01:50
 "
 "======================================================================
 
@@ -33,7 +33,11 @@ function! s:init_input_box(prompt, opts)
 	if has_key(a:opts, 'w')
 		let hwnd.w = a:opts.w
 	else
-		let limit = strdisplaywidth(a:prompt)
+		let limit = 8
+		for text in head
+			let width = strdisplaywidth(text)
+			let limit = (limit < width)? width : limit
+		endfor
 		if &columns >= 80
 			let limit = (limit < 50)? 50 : limit
 		endif
@@ -237,6 +241,7 @@ function! quickui#input#create(prompt, opts)
 	let rl = hwnd.rl
 	let accept = 0
 	let result = ''
+	silent! exec 'nohl'
 	while hwnd.exit == 0
 		call s:update_input(hwnd)
 		try
