@@ -65,6 +65,8 @@ Menu color schemes:
 
 ![](https://skywind3000.github.io/images/p/quickui/colors.png)
 
+See: [Menu help](MANUAL.md#menu).
+
 ### Listbox
 
 When you have hundres of items to deal with, menu is not enough to hold them. Then you will need a listbox.
@@ -79,6 +81,8 @@ It can be used to select buffers or functions in current file:
 
 The cursor will stay in the current function initially. Navigate and press enter to jump to the selected function. 
 
+See: [Listbox help](MANUAL.md#listbox).
+
 ### Inputbox
 
 Prompt user to input a string in a TUI box:
@@ -86,6 +90,8 @@ Prompt user to input a string in a TUI box:
 ![](https://skywind3000.github.io/images/p/quickui/input1.png)
 
 Could be used as a drop-in replacement of `input()` function.
+
+See: [Input box help](MANUAL.md#inputbox).
 
 ### Context menu
 
@@ -100,6 +106,8 @@ The border can be changed too:
 ![](https://skywind3000.github.io/images/p/quickui/context2.png)
 
 Because some terminals or fonts cannot display unicode borders correctly, so QuickUI choose ascii border characters by default. But you can change it as you like.
+
+See: [Context menu help](MANUAL.md#context-menu).
 
 ### Textbox
 
@@ -119,6 +127,8 @@ Display vim messages:
 
 Navigating the messages with `HJKL` or `PageUp/PageDown` is much more convenient than using `:messages`.
 
+See: [Text box help](MANUAL.md#textbox).
+
 ### Preview window
 
 Preview window is used to replace traditional `pedit` command and can be used to display certain file in a small popup window around your cursor:
@@ -133,6 +143,8 @@ Use it to preview quickfix result:
 
 If you have many items in the quickfix window, instead of open them one by one, you are able to press `p` in the quickfix window and preview them in the popup.
 
+See: [Preview window help](MANUAL.md#preview-window).
+
 ### Terminal
 
 The `terminal` widget can allow you open a terminal in the popup window:
@@ -140,6 +152,8 @@ The `terminal` widget can allow you open a terminal in the popup window:
 ![](https://skywind3000.github.io/images/p/quickui/terminal.png)
 
 This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to run various tui programs in a dialog window.
+
+See: [Terminal help](MANUAL.md#terminal).
 
 ## User Manual
 
