@@ -6,9 +6,11 @@ QuickUI is fully customizable, and can be easily configurated.
 
 <!-- TOC -->
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Available Widgets](#available-widgets)
+- [User Manual](#user-manual)
+- [Content](#content)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Available Widgets](#available-widgets)
     - [Menu](#menu)
     - [Listbox](#listbox)
     - [Inputbox](#inputbox)
@@ -16,19 +18,19 @@ QuickUI is fully customizable, and can be easily configurated.
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
     - [Terminal](#terminal)
-- [Tools](#tools)
+  - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
     - [Function list](#function-list)
     - [Help viewer](#help-viewer)
     - [Preview tag](#preview-tag)
     - [Preview quickfix](#preview-quickfix)
-- [Customize](#customize)
+  - [Customize](#customize)
     - [How to change border style](#how-to-change-border-style)
     - [How to change the color scheme](#how-to-change-the-color-scheme)
     - [How to change preview window size](#how-to-change-preview-window-size)
     - [Specify color group precisely](#specify-color-group-precisely)
-- [Who Am I ?](#who-am-i-)
-- [Credit](#credit)
+  - [Who Am I ?](#who-am-i-)
+  - [Credit](#credit)
 
 <!-- /TOC -->
 
@@ -276,6 +278,22 @@ echo quickui#input#open('Enter your name:', 'nobody')
 - `Ctrl+R Ctrl+W`: read current word.
 - `Ctrl+R =`: read evaluation.
 - `Ctrl+R {reg}`: read register.
+
+**Another Sample**
+
+```VimL
+function! SearchBox()
+	let cword = expand('<cword>')
+	let title = 'Enter text to search:'
+	let text = quickui#input#open(title, cword, 'search')
+	if text != ''
+		let text = escape(text, '[\/*~^')
+		call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
+	endif
+endfunc
+```
+
+You can search text with this function without dealing with special character escaping.
 
 ### Context menu
 
