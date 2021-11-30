@@ -3,7 +3,7 @@
 " tools.vim - 
 "
 " Created by skywind on 2019/12/23
-" Last Modified: 2021/11/30 01:42
+" Last Modified: 2021/11/30 14:43
 "
 "======================================================================
 
@@ -491,18 +491,14 @@ endfunc
 " search inputbox
 "----------------------------------------------------------------------
 function! quickui#tools#input_search()
-	let word = expand('<cword>')
-	let title = ['Enter text to search']
-	" let title += [repeat('*', 70)]
-	let text = quickui#input#open(title, word, 'search')
+	let cword = expand('<cword>')
+	let title = 'Enter text to search:'
+	let text = quickui#input#open(title, cword, 'search')
 	redraw
-	if text == ''
-		echo "quit search"
-		return
+	if text != ''
+		let text = escape(text, '[\/*~^')
+		call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
 	endif
-	let text = escape(text, '[\/*~^')
-	" exec '/' . text
-	call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
 endfunc
 
 
