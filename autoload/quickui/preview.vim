@@ -3,7 +3,7 @@
 " preview.vim - 
 "
 " Created by skywind on 2020/01/11
-" Last Modified: 2020/01/11 11:30:20
+" Last Modified: 2021/12/06 21:45
 "
 "======================================================================
 
@@ -154,6 +154,9 @@ function! quickui#preview#display(content, opts)
 	endif
 	if has_key(a:opts, 'syntax')
 		let cmdlist += ['setl ft=' . fnameescape(a:opts.syntax) ]
+	endif
+	if has('nvim')
+		let cmdlist += ['setlocal scrolloff=0']
 	endif
 	call setbufvar(winbufnr(winid), '__quickui_cursor__', cursor)
 	call quickui#core#win_execute(winid, cmdlist)
