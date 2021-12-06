@@ -3,7 +3,7 @@
 " preview.vim - 
 "
 " Created by skywind on 2020/01/11
-" Last Modified: 2021/12/06 21:45
+" Last Modified: 2021/12/06 21:55
 "
 "======================================================================
 
@@ -81,6 +81,10 @@ function! quickui#preview#display(content, opts)
 	let button = (get(a:opts, 'close', '') == 'button')? 1 : 0
 	let color = get(a:opts, 'color', 'QuickPreview')
 	let p = s:around_cursor(w + (border? 2 : 0), h + (border? 2 : 0))
+	if has_key(a:opts, 'col')
+		let p[0] = get(a:opts, 'line', get(a:opts, 'row', 1))
+		let p[1] = get(a:opts, 'col', 1)
+	endif
 	if has('nvim') == 0
 		let winid = popup_create(source, {'wrap':1, 'mapping':0, 'hidden':1})
 		let opts = {'maxwidth':w, 'maxheight':h, 'minwidth':w, 'minheight':h}
@@ -272,6 +276,10 @@ function! quickui#preview#open(content, opts)
 	let opts.focusable = get(g:, 'quickui_preview_focusable', 1)
 	if has_key(a:opts, 'syntax')
 		let opts.syntax = a:opts.syntax
+	endif
+	if has_key(a:opts, 'col')
+		let opts.col = a:opts.col
+		let opts.line = get(a:opts, 'line', get(a:opts, 'row'))
 	endif
 	let hr = quickui#preview#display(a:content, opts)
 	exec "nnoremap <silent><ESC> :call <SID>press_esc()<cr>"
