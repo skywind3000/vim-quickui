@@ -471,8 +471,6 @@ quickui#confirm#open(msg, [choices, [default, [title]]])
 e.g.
 
 ```VimL
-let g:quickui_confirm_border = 'double'
-
 let question = "What do you want ?"
 let choices = "&Apples\n&Oranges\n&Bananas"
 
