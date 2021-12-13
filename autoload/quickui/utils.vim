@@ -343,7 +343,7 @@ endfunc
 "----------------------------------------------------------------------
 " centerize
 "----------------------------------------------------------------------
-function! quickui#utils#center(winid)
+function! quickui#utils#center(winid, ...)
 	if g:quickui#core#has_nvim == 0
 		let pos = popup_getpos(a:winid)
 	else
@@ -353,7 +353,9 @@ function! quickui#utils#center(winid)
 	endif
 	let h = pos.height
 	let w = pos.width
-	let limit1 = (&lines - 2) * 82 / 100
+	let mode = (a:0 < 1)? 0 : (a:1)
+	let scale = (mode == 0)? 80 : 68
+	let limit1 = (&lines - 2) * scale / 100
 	let limit2 = (&lines - 2)
 	let opts = {}
 	if h + 4 < limit1

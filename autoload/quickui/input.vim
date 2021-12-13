@@ -98,7 +98,7 @@ function! s:vim_create_input(prompt, opts)
 	let opts.minheight = hwnd.h
 	let winid = popup_create(hwnd.bid, opts)
 	if has_key(a:opts, 'line') == 0 || has_key(a:opts, 'col') == 0
-		call quickui#utils#center(winid)
+		call quickui#utils#center(winid, 1)
 	endif
 	let opts = {'mapping':0, 'cursorline':0, 'drag':1}
 	let opts.border = [0,0,0,0,0,0,0,0,0]
