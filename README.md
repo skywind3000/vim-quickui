@@ -1,6 +1,6 @@
 # What Is It ?
 
-There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic ui components to enrich vim's interactive experience:
+There are many keymaps defined in my `.vimrc`. Getting tired from checking `.vimrc` time to time when I forget some, based on the latest `+popup` feature (vim 8.2), I created this `vim-quickui` plugin to introduce some basic UI components to enrich vim's interactive experience:
 
 - Well designed and carefully colored Borland/Turbo C++ flavor ui system combined with vim's productivity.
 - Can be accessed by keyboard only while mouse is also supported.
@@ -22,9 +22,11 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 <!-- TOC -->
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Gallery Screenshot](#gallery-screenshot)
+- [What Is It ?](#what-is-it-)
+- [Content](#content)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Gallery Screenshot](#gallery-screenshot)
     - [Menu](#menu)
     - [Listbox](#listbox)
     - [Inputbox](#inputbox)
@@ -32,9 +34,10 @@ Trying to share my configuration to my friends, I found that they did't have pat
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
     - [Terminal](#terminal)
-- [User Manual](#user-manual)
-- [Who Am I ?](#who-am-i-)
-- [Credit](#credit)
+    - [Confirm dialog](#confirm-dialog)
+  - [User Manual](#user-manual)
+  - [Who Am I ?](#who-am-i-)
+  - [Credit](#credit)
 
 <!-- /TOC -->
 
@@ -154,6 +157,17 @@ The `terminal` widget can allow you open a terminal in the popup window:
 This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to run various tui programs in a dialog window.
 
 See: [Terminal help](MANUAL.md#terminal).
+
+### Confirm dialog
+
+This widget offers user a dialog, from which a choice can be made:
+
+![](https://skywind3000.github.io/images/p/quickui/confirm1.png)
+
+It returns the number of the choice. For the first choice, this is 1.
+
+See: [Confirm dialog help](MANUAL.md#confirm-dialog).
+
 
 ## User Manual
 

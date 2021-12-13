@@ -18,6 +18,7 @@ QuickUI is fully customizable, and can be easily configurated.
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
     - [Terminal](#terminal)
+    - [Confirm dialog](#confirm-dialog)
   - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
     - [Function list](#function-list)
@@ -437,7 +438,7 @@ Parameter `cmd` can be a string or a list, and `opts` is a dictionary of options
 | title | String | `unset` | window title |
 | callback | String/Function | `unset` | a function with one argument to receive exit code when terminal exit |
 
-**Sample code**:
+e.g.
 
 ```VimL
 function! TermExit(code)
@@ -454,6 +455,39 @@ When you run it, it will run `python` in a popup window:
 ![](https://skywind3000.github.io/images/p/quickui/terminal.png)
 
 This feature require vim `8.2.200` (nvim `0.4.0`) or later, it enables you to run various tui programs in a dialog window.
+
+### Confirm dialog
+
+This widget offers user a dialog, from which a choice can be made. It returns the number of the choice. For the first choice, this is 1.
+
+```VimL
+quickui#confirm#open(msg, [choices, [default, [title]]])
+```
+
+e.g.
+
+```VimL
+let g:quickui_confirm_border = 'double'
+
+let question = "What do you want ?"
+let choices = "&Apples\n&Oranges\n&Bananas"
+
+let choice = quickui#confirm#open(question, choices, 1, 'Confirm')
+
+if choice == 0
+	echo "make up your mind!"
+elseif choice == 3
+	echo "tasteful"
+else
+	echo "I prefer bananas myself."
+endif
+```
+
+Result:
+
+![](https://skywind3000.github.io/images/p/quickui/confirm1.png)
+
+Use `h` and `l` to move cursor, `<space>` or `<cr>` to confirm and `<ESC>` to give up. Mouse is also supported.
 
 ## Tools
 

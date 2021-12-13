@@ -3,7 +3,7 @@
 " confirm.vim - 
 "
 " Created by skywind on 2021/12/11
-" Last Modified: 2021/12/13 18:32
+" Last Modified: 2021/12/13 22:07
 "
 "======================================================================
 
@@ -127,10 +127,11 @@ function! s:init(text, choices, index, title)
 	let hwnd.h = len(hwnd.text) + 3
 	let hwnd.tw = hwnd.w + 4
 	let hwnd.th = hwnd.h + 4
+	let border = g:quickui#style#border
 	let opts = {}
 	let opts.w = hwnd.w
 	let opts.h = hwnd.h
-	let opts.border = g:quickui#style#border
+	let opts.border = get(g:, 'quickui_confirm_border', border)
 	let opts.center = 1
 	let opts.title = (a:title == '')? '' : (' ' . a:title . ' ')
 	let opts.padding = [1, 1, 1, 1]
@@ -214,10 +215,11 @@ endfunc
 "----------------------------------------------------------------------
 " main entry
 "----------------------------------------------------------------------
-function! quickui#confirm#open(text, choices, ...)
-	let index = (a:0 < 1)? 0 : (a:1)
-	let title = (a:0 < 2)? '' : (a:2)
-	let hwnd = s:init(a:text, a:choices, index - 1, title)
+function! quickui#confirm#open(text, ...)
+	let choices = (a:0 < 1)? " &OK " : (a:1)
+	let index = (a:0 < 2)? 1 : (a:2)
+	let title = (a:0 < 3)? 'Confirm' : (a:3)
+	let hwnd = s:init(a:text, choices, index - 1, title)
 	let win = hwnd.win
 	let accept = 0
 	let size = len(hwnd.items)
@@ -254,7 +256,6 @@ function! quickui#confirm#open(text, choices, ...)
 				let x = v:mouse_col - 1
 				let y = v:mouse_lnum - 1
 			endif
-			" echo "winid:" . win.winid . " target:" . v:mouse_winid . ' ' . x. '/' .y
 			if v:mouse_winid == win.winid
 				if y == hwnd.h - 1 && x >= hwnd.padding
 					let u = x - hwnd.padding
@@ -267,6 +268,11 @@ function! quickui#confirm#open(text, choices, ...)
 					if accept > 0
 						break
 					endif
+				endif
+			elseif v:mouse_winid == win.info.border_winid
+				if y == 0 && x == win.info.tw - 1
+					let accept = 0
+					break
 				endif
 			endif
 		else
