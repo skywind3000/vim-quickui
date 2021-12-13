@@ -3,7 +3,7 @@
 " core.vim - 
 "
 " Created by skywind on 2019/12/18
-" Last Modified: 2019/12/18 15:58:00
+" Last Modified: 2021/12/09 21:04
 "
 "======================================================================
 
@@ -20,6 +20,11 @@
 let g:quickui#core#has_nvim = has('nvim')
 let g:quickui#core#has_popup = exists('*popup_create') && v:version >= 800
 let g:quickui#core#has_floating = has('nvim-0.4')
+let g:quickui#core#has_nvim_040 = has('nvim-0.4')
+let g:quickui#core#has_nvim_050 = has('nvim-0.5.0')
+let g:quickui#core#has_nvim_060 = has('nvim-0.6.0')
+let g:quickui#core#has_vim_820 = (has('nvim') == 0 && has('patch-8.2.1'))
+let g:quickui#core#has_win_exe = exists('*win_execute')
 
 
 "----------------------------------------------------------------------
@@ -216,12 +221,21 @@ endfunc
 "----------------------------------------------------------------------
 " tabpage instance
 "----------------------------------------------------------------------
-function! quickui#core#instance()
-	if exists('t:__quickui__')
+function! quickui#core#instance(local)
+	let local = a:local
+	if local != 0
+		if exists('t:__quickui__')
+			return t:__quickui__
+		endif
+		let t:__quickui__ = {}
 		return t:__quickui__
+	else
+		if exists('g:__quickui__')
+			return g:__quickui__
+		endif
+		let g:__quickui__ = {}
+		return g:__quickui__
 	endif
-	let t:__quickui__ = {}
-	return t:__quickui__
 endfunc
 
 
@@ -247,7 +261,7 @@ endfunc
 " object cache: acquire
 "----------------------------------------------------------------------
 function! quickui#core#popup_alloc(name)
-	let inst = quickui#core#instance()
+	let inst = quickui#core#instance(1)
 	if !has_key(inst, 'popup_cache')
 		let inst.popup_cache = {}
 	endif
@@ -271,7 +285,7 @@ endfunc
 " object cache: release
 "----------------------------------------------------------------------
 function! quickui#core#popup_release(name, winid)
-	let inst = quickui#core#instance()
+	let inst = quickui#core#instance(1)
 	if !has_key(inst, 'popup_cache')
 		let inst.popup_cache = {}
 	endif
@@ -288,7 +302,7 @@ endfunc
 " local object
 "----------------------------------------------------------------------
 function! quickui#core#popup_local(winid)
-	let inst = quickui#core#instance()
+	let inst = quickui#core#instance(0)
 	if !has_key(inst, 'popup_local')
 		let inst.popup_local = {}
 	endif
@@ -303,7 +317,7 @@ endfunc
 " erase local data
 "----------------------------------------------------------------------
 function! quickui#core#popup_clear(winid)
-	let inst = quickui#core#instance()
+	let inst = quickui#core#instance(0)
 	if !has_key(inst, 'popup_local')
 		let inst.popup_local = {}
 	endif
@@ -316,23 +330,106 @@ endfunc
 "----------------------------------------------------------------------
 " vim/nvim compatible
 "----------------------------------------------------------------------
-function! quickui#core#win_execute(winid, command)
+function! quickui#core#win_execute(winid, command, ...)
+	let silent = (a:0 < 1)? 0 : (a:1)
 	if g:quickui#core#has_popup != 0
 		if type(a:command) == v:t_string
-			keepalt call win_execute(a:winid, a:command)
+			keepalt call win_execute(a:winid, a:command, silent)
 		elseif type(a:command) == v:t_list
-			keepalt call win_execute(a:winid, join(a:command, "\n"))
+			keepalt call win_execute(a:winid, join(a:command, "\n"), silent)
 		endif
-	else
+	elseif g:quickui#core#has_win_exe == 0
 		let current = nvim_get_current_win()
 		keepalt call nvim_set_current_win(a:winid)
 		if type(a:command) == v:t_string
-			exec a:command
+			if silent == 0
+				exec a:command
+			else
+				silent exec a:command
+			endif
 		elseif type(a:command) == v:t_list
-			exec join(a:command, "\n")
+			if silent == 0
+				exec join(a:command, "\n")
+			else
+				silent exec join(a:command, "\n")
+			endif
 		endif
 		keepalt call nvim_set_current_win(current)
+	else
+		if type(a:command) == v:t_string
+			keepalt call win_execute(a:winid, a:command, silent)
+		elseif type(a:command) == v:t_list
+			keepalt call win_execute(a:winid, join(a:command, "\n"), silent)
+		endif
 	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" alloc a new buffer
+"----------------------------------------------------------------------
+function! quickui#core#buffer_alloc()
+	if !exists('s:buffer_array')
+		let s:buffer_array = {}
+	endif
+	let index = len(s:buffer_array) - 1
+	if index >= 0
+		let bid = s:buffer_array[index]
+		unlet s:buffer_array[index]
+	else
+		if g:quickui#core#has_nvim == 0
+			let bid = bufadd('')
+			call bufload(bid)
+			call setbufvar(bid, '&buflisted', 0)
+			call setbufvar(bid, '&bufhidden', 'hide')
+		else
+			let bid = nvim_create_buf(v:false, v:true)
+		endif
+	endif
+	call setbufvar(bid, '&modifiable', 1)
+	call deletebufline(bid, 1, '$')
+	call setbufvar(bid, '&modified', 0)
+	call setbufvar(bid, '&filetype', '')
+	return bid
+endfunc
+
+
+"----------------------------------------------------------------------
+" free a buffer
+"----------------------------------------------------------------------
+function! quickui#core#buffer_free(bid)
+	if !exists('s:buffer_array')
+		let s:buffer_array = {}
+	endif
+	let index = len(s:buffer_array)
+	let s:buffer_array[index] = a:bid
+	call setbufvar(a:bid, '&modifiable', 1)
+	call deletebufline(a:bid, 1, '$')
+	call setbufvar(a:bid, '&modified', 0)
+endfunc
+
+
+"----------------------------------------------------------------------
+" update content
+"----------------------------------------------------------------------
+function! quickui#core#buffer_update(bid, textlist)
+	if type(a:textlist) == v:t_list
+		let textlist = a:textlist
+	else
+		let textlist = split('' . a:textlist, '\n', 1)
+	endif
+	call setbufvar(a:bid, '&modifiable', 1)
+	call deletebufline(a:bid, 1, '$')
+	call setbufline(a:bid, 1, textlist)
+	call setbufvar(a:bid, '&modified', 0)
+endfunc
+
+
+"----------------------------------------------------------------------
+" clear content
+"----------------------------------------------------------------------
+function! quickui#core#buffer_clear(bid)
+	call quickui#core#buffer_update(a:bid, [])
 endfunc
 
 
@@ -349,24 +446,13 @@ function! quickui#core#scratch_buffer(name, textlist)
 		let bid = -1
 	endif
 	if bid < 0
-		if g:quickui#core#has_nvim == 0
-			let bid = bufadd('')
-			call bufload(bid)
-			call setbufvar(bid, '&buflisted', 0)
-			call setbufvar(bid, '&bufhidden', 'hide')
-		else
-			let bid = nvim_create_buf(v:false, v:true)
-		endif
+		let bid = quickui#core#buffer_alloc()
 		if a:name != ''
 			let s:buffer_cache[a:name] = bid
 		endif
 	endif
-	call setbufvar(bid, '&modifiable', 1)
-	call deletebufline(bid, 1, '$')
-	call setbufline(bid, 1, a:textlist)
-	call setbufvar(bid, '&modified', 0)
+	call quickui#core#buffer_update(bid, a:textlist)
 	call setbufvar(bid, 'current_syntax', '')
-	call setbufvar(bid, '&filetype', '')
 	return bid
 endfunc
 
@@ -403,24 +489,41 @@ function! quickui#core#border_extract(pattern)
 endfunc
 
 
-function! quickui#core#border_convert(pattern)
+function! quickui#core#border_convert(pattern, nvim_format)
 	if type(a:pattern) == v:t_string
 		let p = quickui#core#border_extract(a:pattern)
 	else
 		let p = a:pattern
 	endif
-	let pattern = [ p[1], p[5], p[7], p[3], p[0], p[2], p[8], p[6] ]
+	if len(p) == 0
+		return []
+	endif
+	if a:nvim_format == 0
+		let pattern = [ p[1], p[5], p[7], p[3], p[0], p[2], p[8], p[6] ]
+	else
+		let pattern = [ p[0], p[1], p[2], p[5], p[8], p[7], p[6], p[3] ]
+	endif
 	return pattern
 endfunc
 
 let s:border_styles = {}
 
+let s:border_styles[0] = quickui#core#border_extract('           ')
 let s:border_styles[1] = quickui#core#border_extract('+-+|-|+-+++')
 let s:border_styles[2] = quickui#core#border_extract('┌─┐│─│└─┘├┤')
 let s:border_styles[3] = quickui#core#border_extract('╔═╗║─║╚═╝╟╢')
-let s:border_styles[4] = quickui#core#border_extract('/-\|-|\-/++')
+let s:border_styles[4] = quickui#core#border_extract('╭─╮│─│╰─╯├┤')
+let s:border_styles[5] = quickui#core#border_extract('/-\|-|\-/++')
 
 let s:border_ascii = quickui#core#border_extract('+-+|-|+-+++')
+
+let s:border_styles['none'] = []
+let s:border_styles['single'] = s:border_styles[2]
+let s:border_styles['double'] = s:border_styles[3]
+let s:border_styles['rounded'] = s:border_styles[4]
+let s:border_styles['solid'] = s:border_styles[0]
+let s:border_styles['ascii'] = s:border_styles[1]
+let s:border_styles['default'] = s:border_styles[1]
 
 function! quickui#core#border_install(name, pattern)
 	let s:border_styles[a:name] = quickui#core#border_extract(a:pattern)
@@ -435,7 +538,20 @@ endfunc
 
 function! quickui#core#border_vim(name)
 	let border = quickui#core#border_get(a:name)
-	return quickui#core#border_convert(border)
+	return quickui#core#border_convert(border, 0)
+endfunc
+
+function! quickui#core#border_nvim(name)
+	let border = quickui#core#border_get(a:name)
+	return quickui#core#border_convert(border, 1)
+endfunc
+
+function! quickui#core#border_auto(name)
+	if g:quickui#core#has_nvim == 0
+		return quickui#core#border_vim(a:name)
+	else
+		return quickui#core#border_nvim(a:name)
+	endif
 endfunc
 
 
@@ -701,6 +817,23 @@ function! quickui#core#write_script(command, pause)
 		endif
 	endif
 	return tmpname
+endfunc
+
+
+"----------------------------------------------------------------------
+" string replace
+"----------------------------------------------------------------------
+function! quickui#core#string_replace(text, old, new)
+	let data = split(a:text, a:old, 1)
+	return join(data, a:new)
+endfunc
+
+
+"----------------------------------------------------------------------
+" string strip
+"----------------------------------------------------------------------
+function! quickui#core#string_strip(text)
+	return substitute(a:text, '^\s*\(.\{-}\)[\s\r\n]*$', '\1', '')
 endfunc
 
 

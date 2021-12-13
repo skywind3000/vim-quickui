@@ -222,6 +222,9 @@ function! s:nvim_create_textbox(textlist, opts)
 		let opts.row += 1
 		let opts.col += 1
 	endif
+	if has('nvim-0.5.0')
+		let opts.noautocmd = 1
+	endif
 	let winid = nvim_open_win(bid, 0, opts)
 	if has_key(a:opts, 'line') == 0 && has_key(a:opts, 'col') == 0
 		call quickui#utils#center(winid)
@@ -245,6 +248,9 @@ function! s:nvim_create_textbox(textlist, opts)
 		let op.row = pos.row - 1
 		let op.col = pos.col - 1
 		let bordercolor = get(a:opts, 'bordercolor', 'QuickBorder')
+		if has('nvim-0.5.0')
+			let op.noautocmd = 1
+		endif
 		let background = nvim_open_win(nbid, 0, op)
 		call nvim_win_set_option(background, 'winhl', 'Normal:'. bordercolor)
 	endif

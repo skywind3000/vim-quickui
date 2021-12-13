@@ -126,6 +126,9 @@ function! quickui#preview#display(content, opts)
 		else
 			let bid = quickui#core#scratch_buffer('preview', source)
 		endif
+		if has('nvim-0.5.0')
+			let opts.noautocmd = 1
+		endif
 		let winid = nvim_open_win(bid, 0, opts)
 		let s:private.winid = winid
 		let high = 'Normal:'.color.',NonText:'.color.',EndOfBuffer:'.color
@@ -141,6 +144,9 @@ function! quickui#preview#display(content, opts)
 			let op.row = pos.row - 1
 			let op.col = pos.col - 1
 			let bordercolor = get(a:opts, 'bordercolor', color)
+			if has('nvim-0.5.0')
+				let op.noautocmd = 1
+			endif
 			let background = nvim_open_win(nbid, 0, op)
 			call nvim_win_set_option(background, 'winhl', 'Normal:'. bordercolor)
 			let s:private.background = background

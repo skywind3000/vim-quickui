@@ -622,5 +622,49 @@ function! quickui#utils#read_eval(...)
 endfunc
 
 
+"----------------------------------------------------------------------
+" normalize textlist
+"----------------------------------------------------------------------
+function! quickui#utils#text_list_normalize(textlist)
+	if type(a:textlist) == v:t_list
+		let textlist = a:textlist
+	else
+		let textlist = split('' . a:textlist, '\n', 1)
+	endif
+	let out = []
+	for text in textlist
+		let text = substitute(text, '[\r\n\t]', ' ', 'g')
+		let out += [text]
+	endfor
+	return out
+endfunc
+
+
+
+"----------------------------------------------------------------------
+" getchar
+"----------------------------------------------------------------------
+function! quickui#utils#getchar(wait)
+	try
+		if a:wait != 0
+			let code = getchar()
+		else
+			let code = getchar(0)
+		endif
+	catch /^Vim:Interrupt$/
+		let code = "\<C-C>"
+	endtry
+	if type(code) == v:t_number && code == 0
+		try
+			exec 'sleep 15m'
+			continue
+		catch /^Vim:Interrupt$/
+			let code = "\<c-c>"
+		endtry
+	endif
+	let ch = (type(code) == v:t_number)? nr2char(code) : code
+	return ch
+endfunc
+
 
 

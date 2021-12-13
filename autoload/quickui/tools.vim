@@ -496,7 +496,7 @@ function! quickui#tools#input_search()
 	let text = quickui#input#open(title, cword, 'search')
 	redraw
 	if text != ''
-		let text = escape(text, '[\/*~^')
+		let text = escape(text, '[\/*~^.')
 		call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
 	endif
 endfunc
