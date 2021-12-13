@@ -405,6 +405,10 @@ It will not interfere your work, and will immediately close if you move your cur
 | syntax | String | `unset` | additional syntax file type, eg: `cpp` or `python` |
 | title | String | `unset` | additional title for preview window |
 | persist | Number | 0 | By default the preview window will be closed automatically when `CursorMove` happens, set to 1 to close it manually by `quickui#preview#close()` |
+| col | Number | `unset` | specify window position by column |
+| line | Number | `unset` | specify window position by line number |
+| w | Number | `unset` | specify window size by width |
+| h | Number | `unset` | specify window size by height |
 
 Usually the syntax highlighting and cursorline will help you when you are using it to peek symbol definitions.
 

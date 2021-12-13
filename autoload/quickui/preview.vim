@@ -3,7 +3,7 @@
 " preview.vim - 
 "
 " Created by skywind on 2020/01/11
-" Last Modified: 2021/12/06 22:31
+" Last Modified: 2021/12/13 22:32
 "
 "======================================================================
 
@@ -284,6 +284,10 @@ function! quickui#preview#open(content, opts)
 	if has_key(a:opts, 'col')
 		let opts.col = a:opts.col
 		let opts.line = get(a:opts, 'line', get(a:opts, 'row'))
+	endif
+	if has_key(a:opts, 'w')
+		let opts.w = a:opts.w
+		let opts.h = get(a:opts, 'h', opts.h)
 	endif
 	let hr = quickui#preview#display(a:content, opts)
 	exec "nnoremap <silent><ESC> :call <SID>press_esc()<cr>"
