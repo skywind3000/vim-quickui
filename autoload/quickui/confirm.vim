@@ -219,6 +219,7 @@ function! quickui#confirm#open(text, ...)
 	let choices = (a:0 < 1)? " &OK " : (a:1)
 	let index = (a:0 < 2)? 1 : (a:2)
 	let title = (a:0 < 3)? 'Confirm' : (a:3)
+	let choices = (choices == '')? " &OK " : choices
 	let hwnd = s:init(a:text, choices, index - 1, title)
 	let win = hwnd.win
 	let accept = 0
