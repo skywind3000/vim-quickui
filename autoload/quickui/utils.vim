@@ -689,10 +689,12 @@ function! quickui#utils#switch(filename, opts)
 				return 0
 			endif
 		endif
-		let bid = bufadd(filename)
-		call bufload(bid)
+		let bid = bufnr(filename)
 	else
 		let bid = a:filename
+		if bid < 0
+			return 0
+		endif
 	endif
 	if index(method, 'useopen') >= 0
 		for wid in range(winnr('$'))
@@ -758,16 +760,18 @@ function! quickui#utils#switch(filename, opts)
 		endif
 	endif
 	try
-		exec 'b' . ((get(a:opts, 'force', 0) != 0)? '!' : '') . ' ' . bid
+		let force = ((get(a:opts, 'force', 0) != 0)? '!' : '')
+		if bid >= 0
+			exec 'b' . force . ' ' . bid
+		else
+			exec 'edit' . force . ' ' . fnameescape(expand(a:filename))
+		endif
 	catch /^Vim\%((\a\+)\)\=:E37:/ 
 		echohl ErrorMsg
 		echo 'E37: No write since last change (set force=1 to override)'
 		echohl None
 		return 0
 	endtry
-	if type(a:filename) == type('')
-		exec 'edit ' . fnameescape(expand(a:filename))
-	endif
 	if goto > 0
 		exec ':' . goto
 	endif
