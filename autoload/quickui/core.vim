@@ -3,7 +3,7 @@
 " core.vim - 
 "
 " Created by skywind on 2019/12/18
-" Last Modified: 2021/12/09 21:04
+" Last Modified: 2021/12/22 20:34
 "
 "======================================================================
 
@@ -362,6 +362,24 @@ function! quickui#core#win_execute(winid, command, ...)
 			keepalt call win_execute(a:winid, join(a:command, "\n"), silent)
 		endif
 	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" close window
+"----------------------------------------------------------------------
+function! quickui#core#win_close(winid, force)
+	let [tnr, wnr] = win_id2tabwin(a:winid)
+	if tnr <= 0 || wnr <= 0
+		return -1
+	endif
+	if g:quickui#core#has_nvim == 0
+		let cmd = 'close' . ((a:force != 0)? '!' : '')
+		call quickui#core#win_execute(a:winid, cmd)
+	else
+		call nvim_win_close(a:winid, a:force)
+	endif
+	return 0
 endfunc
 
 
@@ -836,5 +854,27 @@ function! quickui#core#string_strip(text)
 	return substitute(a:text, '^\s*\(.\{-}\)[\s\r\n]*$', '\1', '')
 endfunc
 
+
+
+"----------------------------------------------------------------------
+" extract opts+command
+"----------------------------------------------------------------------
+function! quickui#core#extract_opts(command)
+	let cmd = substitute(a:command, '^\s*\(.\{-}\)[\s\r\n]*$', '\1', '')
+	let opts = {}
+	while cmd =~# '^-\%(\w\+\)\%([= ]\|$\)'
+		let opt = matchstr(cmd, '^-\zs\w\+')
+		if cmd =~ '^-\w\+='
+			let val = matchstr(cmd, '^-\w\+=\zs\%(\\.\|\S\)*')
+		else
+			let val = ''
+		endif
+		let opts[opt] = substitute(val, '\\\(\s\)', '\1', 'g')
+		let cmd = substitute(cmd, '^-\w\+\%(=\%(\\.\|\S\)*\)\=\s*', '', '')
+	endwhile
+	let cmd = substitute(cmd, '^\s*\(.\{-}\)\s*$', '\1', '')
+	let cmd = substitute(cmd, '^@\s*', '', '')
+	return [cmd, opts]
+endfunc
 
 

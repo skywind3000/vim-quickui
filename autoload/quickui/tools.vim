@@ -46,22 +46,29 @@ let s:keymaps = '123456789abcdefimnopqrstuvwxyz'
 " switch buffer callback
 "----------------------------------------------------------------------
 function! quickui#tools#buffer_switch(bid)
+	let switch = get(g:, 'quickui_switch_mode', &switchbuf)
 	let code = g:quickui#listbox#current.tag
 	let name = fnamemodify(bufname(a:bid), ':p')
+	let opts = {}
+	let bid = str2nr('' . a:bid)
 	if code == ''
-		exec s:switch . ' '. fnameescape(name)
+		let opts.switch = get(g:, 'quickui_switch_enter', switch)
+		call quickui#utils#switch(bid, opts)
 	elseif code == '1'
-		exec 'b '. a:bid
+		let opts.switch = get(g:, 'quickui_switch_space', switch)
+		call quickui#utils#switch(bid, opts)
 	elseif code == '2'
-		exec 'vs'
 		exec 'b '. a:bid
 	elseif code == '3'
-		exec 'split'
+		exec 'vs'
 		exec 'b '. a:bid
 	elseif code == '4'
-		exec 'tab split'
+		exec 'split'
 		exec 'b '. a:bid
 	elseif code == '5'
+		exec 'tab split'
+		exec 'b '. a:bid
+	elseif code == '6'
 		exec 'tab drop ' . fnameescape(name)
 	endif
 endfunc
@@ -104,11 +111,12 @@ function! quickui#tools#list_buffer(switch)
 	let opts = {'title': 'Switch Buffer', 'index':current, 'close':'button'}
 	let opts.border = g:quickui#style#border
 	let opts.keymap = {}
-	let opts.keymap["\<c-e>"] = 'TAG:1'
-	let opts.keymap["\<c-]>"] = 'TAG:2'
-	let opts.keymap["\<c-x>"] = 'TAG:3'
-	let opts.keymap["\<c-t>"] = 'TAG:4'
-	let opts.keymap["\<c-g>"] = 'TAG:5'
+	let opts.keymap["\<space>"] = 'TAG:1'
+	let opts.keymap["\<c-e>"] = 'TAG:2'
+	let opts.keymap["\<c-]>"] = 'TAG:3'
+	let opts.keymap["\<c-x>"] = 'TAG:4'
+	let opts.keymap["\<c-t>"] = 'TAG:5'
+	let opts.keymap["\<c-g>"] = 'TAG:6'
 	if exists('g:quickui_tools_width')
 		let opts.w = quickui#utils#tools_width()
 	endif
@@ -480,6 +488,11 @@ function! quickui#tools#terminal(name)
 	if has_key(tools, 'pause')
 		if tools.pause
 			let opts.pause = 1
+		endif
+	endif
+	if has_key(tools, 'close')
+		if tools.close
+			let opts.close = 1
 		endif
 	endif
 	call quickui#terminal#dialog(cmd, opts)
