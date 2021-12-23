@@ -511,6 +511,33 @@ Then `hjkl` to navigate, `enter`/`space` to switch buffer and `ESC`/`CTRL+[` to 
 
 If there are many buffers listed, you can use `/` or `?` to search, and `n` or `N` to jump to the next / previous match.
 
+Usage:
+
+- `j`/`k`: navigate.
+- `ESC`/`CTRL+[`: quit
+- `Enter`: open with `switchbuf` rules (override with `g:quickui_switch_enter`).
+- `Space`: open with `switchbuf` rules (override with `g:quickui_switch_space`).
+- `CTRL+e`: edit in current window.
+- `CTRL+x`: open in a new split.
+- `CTRL+]`: open in a new vertical split.
+- `CTRL+t`: open in a new tab.
+- `CTRL+g`: open with `:drop` command.
+- `/`: search.
+- `?`: search backwards.
+
+If you want to open file in current window when pressing `Space`, you can either change `switchbuf` option or change `g:quickui_switch_space` manually:
+
+```VimL
+let g:quickui_switch_space = ''
+```
+
+Once it has been defined, it will overshadow `switchbuf` option, and an empty string means edit in the current window. 
+
+    :h switchbuf
+
+For more information, please see the help of `switchbuf`.
+
+
 
 ### Function list
 
