@@ -678,6 +678,7 @@ function! quickui#utils#switch(filename, opts)
 	let switch = get(a:opts, 'switch', switch)
 	let method = split(switch, ',')
 	let goto = get(a:opts, 'goto', -1)
+	let ft = get(a:opts, 'ft', '')
 	let cmds = get(a:opts, 'command', [])
 	if type(a:filename) == type('')
 		let filename = expand(a:filename)
@@ -774,6 +775,9 @@ function! quickui#utils#switch(filename, opts)
 	endtry
 	if goto > 0
 		exec ':' . goto
+	endif
+	if ft != ''
+		exec 'setlocal ft=' . fnameescape(ft)
 	endif
 	for cmd in cmds
 		exec cmd

@@ -399,14 +399,21 @@ endfunc
 " convert #112233 to [0x11, 0x22, 0x33]
 "----------------------------------------------------------------------
 function! quickui#palette#hex2rgb(hex)
-	if strpart(a:hex, 0, 1) == '#'
+	let [r, g, b] = [0, 0, 0]
+	let head = strpart(a:hex, 0, 1)
+	if head == '#'
 		let cc = str2nr(strpart(a:hex, 1), 16)
 		let r = and(cc / 0x10000, 0xff)
 		let g = and(cc / 0x100, 0xff)
 		let b = and(cc, 0xff)
-		return [r, g, b]
+	elseif head == '('
+		let head = strpart(a:name, 1, len(a:name) - 2)
+		let part = split(head, ',')
+		let r = str2nr(part[0])
+		let g = str2nr(part[1])
+		let b = str2nr(part[2])
 	endif
-	return [0, 0, 0]
+	return [r, g, b]
 endfunc
 
 
