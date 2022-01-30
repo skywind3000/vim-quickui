@@ -149,7 +149,7 @@ function! s:nvim_create_input(prompt, opts)
 	let opts.height = hwnd.h
 	let opts.row = hwnd.opts.row
 	let opts.col = hwnd.opts.col
-	if has('nvim-0.5.0')
+	if has('nvim-0.6.0')
 		let opts.noautocmd = 1
 	endif
 	let winid = nvim_open_win(hwnd.bid, 0, opts)
@@ -163,7 +163,7 @@ function! s:nvim_create_input(prompt, opts)
 		let op.row = hwnd.opts.row - 2
 		let op.col = hwnd.opts.col - 2
 		let bordercolor = hwnd.opts.bordercolor
-		if has('nvim-0.5.0')
+		if has('nvim-0.6.0')
 			let op.noautocmd = 1
 		endif
 		let background = nvim_open_win(nbid, 0, op)

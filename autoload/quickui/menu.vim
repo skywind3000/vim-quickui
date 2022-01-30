@@ -711,7 +711,7 @@ function! quickui#menu#nvim_open_menu(opts)
 	let opts.row = 0
 	let opts.relative = 'editor'
 	let s:cmenu.bufnr = bid
-	if has('nvim-0.5.0')
+	if has('nvim-0.6.0')
 		let opts.noautocmd = 1
 	endif
 	let winid = nvim_open_win(bid, 0, opts)
