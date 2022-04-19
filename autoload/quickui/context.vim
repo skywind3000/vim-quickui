@@ -667,6 +667,10 @@ function! quickui#context#reduce_items(textlist)
 					let state = 0
 				else
 					for check in split(item[3], ',')
+						if '-'.&ft == check
+							break
+						endif
+
 						if &ft == check
 							let output += [item]
 							let state = 0
