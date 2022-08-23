@@ -1,19 +1,9 @@
-"======================================================================
-"
-" palette.vim - 
-"
-" Created by skywind on 2021/12/23
-" Last Modified: 2021/12/23 13:29:47
-"
-"======================================================================
+vim9script
 
-" vim: set ts=4 sw=4 tw=78 noet :
-
-
-"----------------------------------------------------------------------
-" terminal palette of 256 colors
-"----------------------------------------------------------------------
-let g:quickui#palette#colors = [
+#----------------------------------------------------------------------
+# terminal palette of 256 colors
+#----------------------------------------------------------------------
+final color_definition = [
     \ { 'color': 0, 'name': 'Black', 'hex': '#000000' },
     \ { 'color': 1, 'name': 'Maroon', 'hex': '#800000' },
     \ { 'color': 2, 'name': 'Green', 'hex': '#008000' },
@@ -273,225 +263,187 @@ let g:quickui#palette#colors = [
     \ ]
 
 
-"----------------------------------------------------------------------
-" color index to RGB
-"----------------------------------------------------------------------
-let g:quickui#palette#rgb = []
-let g:quickui#palette#name = {}
-let g:quickui#palette#number = get(g:, 'quickui_color_num', 256)
+#----------------------------------------------------------------------
+# initialize
+#----------------------------------------------------------------------
+var _palette: list<list<number>>
+var cnames = {}
 
-let s:palette = []
-let s:matched = {}
-let s:names = {}
-let s:diff_lookup = repeat([0], 512 * 3)
-
-for color in g:quickui#palette#colors
-	let cc = str2nr(strpart(color.hex, 1), 16)
-	let r = and(cc / 0x10000, 0xff)
-	let g = and(cc / 0x100, 0xff)
-	let b = and(cc, 0xff)
-	let g:quickui#palette#rgb += [[r, g, b]]
-	let s:palette += [[r, g, b]]
-	let g:quickui#palette#name[tolower(color.name)] = color.color
-	let s:names[tolower(color.name)] = color.color
+for color in color_definition
+	final cc: number = str2nr(strpart(color.hex, 1), 16)
+	final r: number = and(cc / 0x10000, 0xff)
+	final g: number = and(cc / 0x100, 0xff)
+	final b: number = and(cc, 0xff)
+	final p: list<number> = [r, g, b]
+	_palette += [p]
+	cnames[tolower(color.name)] = color.color
 endfor
 
+final palette: list<list<number>> = deepcopy(_palette)
+var _diff_lookup: list<number> = repeat([0], 512 * 3)
 
-"----------------------------------------------------------------------
-" bestfit color
-"----------------------------------------------------------------------
-function! s:bestfit_color(r, g, b, limit)
-	if s:diff_lookup[0] == 0
-		for i in range(256)
-			let k = i * i
-			let dr = k * 30 * 30
-			let dg = k * 59 * 59
-			let db = k * 11 * 11
-			let s:diff_lookup[ 256 + i] = dr
-			let s:diff_lookup[ 256 - i] = dr
-			let s:diff_lookup[ 768 + i] = dg
-			let s:diff_lookup[ 768 - i] = dg
-			let s:diff_lookup[1280 + i] = db
-			let s:diff_lookup[1280 - i] = db
-		endfor
-		let s:diff_lookup[0] = 1
-	endif
-	let r = (a:r < 256)? (a:r) : 255
-	let g = (a:g < 256)? (a:g) : 255
-	let b = (a:b < 256)? (a:b) : 255
-	let lowest = 0x7fffffff
-	let bestfit = 0
-	let index = 0
-	let limit = (a:limit < 256)? (a:limit) : 256
-	let palette = s:palette
-	let lookup = s:diff_lookup
-	while index < limit
-		let rgb = palette[index]
-		let diff = lookup[ 768 + rgb[1] - g]
+for i in range(256)
+	final k: number = i * i
+	final dr: number = k * 30 * 30
+	final dg: number = k * 59 * 59
+	final db: number = k * 11 * 11
+	_diff_lookup[ 256 + i] = dr
+	_diff_lookup[ 256 - i] = dr
+	_diff_lookup[ 768 + i] = dg
+	_diff_lookup[ 768 - i] = dg
+	_diff_lookup[1280 + i] = db
+	_diff_lookup[1280 - i] = db
+endfor
+
+final diff_lookup: list<number> = deepcopy(_diff_lookup)
+
+
+#----------------------------------------------------------------------
+# bestfit color
+#----------------------------------------------------------------------
+export def BestfitColor(r: number, g: number, b: number, limit: number = 256): number
+	final R: number = (r < 256) ? r : 255
+	final G: number = (g < 256) ? g : 255
+	final B: number = (b < 256) ? b : 255
+	final LIMIT: number = (limit < 256) ? limit : 256
+	final lookup: list<number> = diff_lookup
+	var lowest = 0x7fffffff
+	var bestfit = 0
+	var index = 0
+	while index < LIMIT
+		final rgb: list<number> = palette[index]
+		var diff = lookup[768 + rgb[1] - G]
 		if diff < lowest
-			let diff += lookup[ 256 + rgb[0] - r]
+			diff += lookup[256 + rgb[0] - R]
 			if diff < lowest
-				let diff += lookup[1280 + rgb[2] - b]
+				diff += lookup[1280 + rgb[2] - B]
 				if diff < lowest
-					let lowest = diff
-					let bestfit = index
+					lowest = diff
+					bestfit = index
 				endif
 				if diff <= 0
 					break
 				endif
 			endif
 		endif
-		let index += 1
+		index += 1
 	endwhile
 	return bestfit
-endfunc
+enddef
 
 
-"----------------------------------------------------------------------
-" find match in 8 colors
-"----------------------------------------------------------------------
-function! quickui#palette#bestfit8(r, g, b)
-	return s:bestfit_color(a:r, a:g, a:b, 8)
-endfunc
+#----------------------------------------------------------------------
+# for 8 colors
+#----------------------------------------------------------------------
+export def Bestfit8(r: number, g: number, b: number): number
+	return BestfitColor(r, g, b, 8)
+enddef
 
 
-"----------------------------------------------------------------------
-" find match in 8 colors
-"----------------------------------------------------------------------
-function! quickui#palette#bestfit16(r, g, b)
-	return s:bestfit_color(a:r, a:g, a:b, 16)
-endfunc
+#----------------------------------------------------------------------
+# for 16 colors
+#----------------------------------------------------------------------
+export def Bestfit16(r: number, g: number, b: number): number
+	return BestfitColor(r, g, b, 16)
+enddef
+
+#----------------------------------------------------------------------
+# for 256 colors
+#----------------------------------------------------------------------
+export def Bestfit256(r: number, g: number, b: number): number
+	return BestfitColor(r, g, b, 256)
+enddef
 
 
-"----------------------------------------------------------------------
-" find match in 8 colors
-"----------------------------------------------------------------------
-function! quickui#palette#bestfit256(r, g, b)
-	return s:bestfit_color(a:r, a:g, a:b, 256)
-endfunc
+#----------------------------------------------------------------------
+# for 256 colors
+#----------------------------------------------------------------------
+var matched = {}
 
-
-"----------------------------------------------------------------------
-" consider config
-"----------------------------------------------------------------------
-function! quickui#palette#bestfit(r, g, b)
-	return s:bestfit_color(a:r, a:g, a:b, g:quickui#palette#number)
-endfunc
-
-
-"----------------------------------------------------------------------
-" matched
-"----------------------------------------------------------------------
-function! quickui#palette#match(r, g, b)
-	let r = (a:r < 256)? (a:r) : 255
-	let g = (a:g < 256)? (a:g) : 255
-	let b = (a:b < 256)? (a:b) : 255
-	let key = (r * 4096 / 4) + (g * 64 / 4) + (b / 4)
-	if !has_key(s:matched, key)
-		let n = g:quickui#palette#number
-		let s:matched[key] = s:bestfit_color(a:r, a:g, a:b, n)
-	endif
-	return s:matched[key]
-endfunc
-
-
-"----------------------------------------------------------------------
-" convert #112233 to [0x11, 0x22, 0x33]
-"----------------------------------------------------------------------
-function! quickui#palette#hex2rgb(hex)
-	let [r, g, b] = [0, 0, 0]
-	let head = strpart(a:hex, 0, 1)
-	if head == '#'
-		let cc = str2nr(strpart(a:hex, 1), 16)
-		let r = and(cc / 0x10000, 0xff)
-		let g = and(cc / 0x100, 0xff)
-		let b = and(cc, 0xff)
-	elseif head == '('
-		let head = strpart(a:hex, 1, len(a:hex) - 2)
-		let part = split(head, ',')
-		let r = str2nr(part[0])
-		let g = str2nr(part[1])
-		let b = str2nr(part[2])
-	endif
-	return [r, g, b]
-endfunc
-
-
-"----------------------------------------------------------------------
-" hex to palette index
-"----------------------------------------------------------------------
-function! quickui#palette#hex2index(hex)
-	let [r, g, b] = quickui#palette#hex2rgb(a:hex)
-	return quickui#palette#match(r, g, b)
-endfunc
-
-
-"----------------------------------------------------------------------
-" search name
-"----------------------------------------------------------------------
-function! quickui#palette#name2index(name, ...)
-	let head = strpart(a:name, 0, 1)
-	if head == '#' || head == '('
-		return quickui#palette#hex2index(a:name)
-	else
-		let default = (a:0 < 1)? 0 : (a:1)
-		let name = tolower(a:name)
-		if exists('v:colornames')
-			if has_key(v:colornames, name)
-				let hex = v:colornames[name]
-				return quickui#palette#hex2index(hex)
+export def Match(r: number, g: number, b: number, num: number = -1): number
+	final rr = (r < 256) ? r : 255
+	final gg = (g < 256) ? g : 255
+	final bb = (b < 256) ? b : 255
+	final key: number = (rr * 4096 / 4) + (gg * 64 / 4) + (bb / 4)
+	if !has_key(matched, key)
+		var N: number = 256
+		if num >= 0
+			N = num
+		else
+			if exists('g:quickui#palette#number')
+				N = g:quickui#palette#number
 			endif
 		endif
-		return get(s:names, tolower(a:name), default)
+		final cc: number = BestfitColor(rr, gg, bb, N)
+		matched[key] = cc
 	endif
-endfunc
+	return matched[key]
+enddef
 
 
-"----------------------------------------------------------------------
-" benchmark
-"----------------------------------------------------------------------
-function! quickui#palette#timing()
-	let ts = reltime()
+#----------------------------------------------------------------------
+# convert #112233 to [0x11, 0x22, 0x33]
+#----------------------------------------------------------------------
+export def Hex2RGB(hex: string): list<number>
+	var head: string = strpart(hex, 0, 1)
+	var r: number = 0
+	var g: number = 0
+	var b: number = 0
+	if head == '#'
+		final c: number = str2nr(strpart(hex, 1), 16)
+		r = and(c / 0x10000, 0xff)
+		g = and(c / 0x100, 0xff)
+		b = and(c, 0xff)
+	elseif head == '('
+		head = strpart(hex, 1, len(hex) - 2)
+		final part: list<string> = split(head, ',')
+		r = str2nr(part[0])
+		g = str2nr(part[1])
+		b = str2nr(part[2])
+	endif
+	return [r, g, b]
+enddef
+
+
+#----------------------------------------------------------------------
+# hex to palette index
+#----------------------------------------------------------------------
+export def Hex2Index(hex: string, num: number = -1): number
+	final cc: list<number> = Hex2RGB(hex)
+	return Match(cc[0], cc[1], cc[2], num)
+enddef
+
+
+#----------------------------------------------------------------------
+# search name
+#----------------------------------------------------------------------
+export def Name2Index(name: string, default: number = 0): number
+	final head = strpart(name, 0, 1)
+	if head == '#' || head == '('
+		return Hex2Index(name)
+	else
+		final nm = tolower(name)
+		if exists('v:colornames')
+			if has_key(v:colornames, nm)
+				final hex = v:colornames[nm]
+				return Hex2Index(hex)
+			endif
+		endif
+		return get(cnames, tolower(name), default)
+	endif
+enddef
+
+
+#----------------------------------------------------------------------
+# benchmark 
+#----------------------------------------------------------------------
+export def Timing(): string
+	var ts = reltime()
 	for i in range(256)
-		call quickui#palette#match(i, i, i)
+		Match(i, i, i)
 	endfor
-	let tt = reltime(ts)
+	var tt = reltime(ts)
 	return reltimestr(tt)
-endfunc
-
-
-"----------------------------------------------------------------------
-" speedup
-"----------------------------------------------------------------------
-if has('vim9script')
-	import './palette9.vim'
-	function! s:bestfit_color(r, g, b, limit)
-		return s:palette9.BestfitColor(a:r, a:g, a:b, a:limit)
-	endfunc
-	function! quickui#palette#bestfit8(r, g, b)
-		return s:palette9.Bestfit8(a:r, a:g, a:b)
-	endfunc
-	function! quickui#palette#bestfit16(r, g, b)
-		return s:palette9.Bestfit16(a:r, a:g, a:b)
-	endfunc
-	function! quickui#palette#bestfit256(r, g, b)
-		return s:palette9.Bestfit256(a:r, a:g, a:b)
-	endfunc
-	function! quickui#palette#match(r, g, b)
-		return s:palette9.Match(a:r, a:g, a:b, g:quickui#palette#number)
-	endfunc
-	function! quickui#palette#hex2rgb(hex)
-		return s:palette9.Hex2RGB(a:hex)
-	endfunc
-	function! quickui#palette#hex2index(hex)
-		return s:palette9.Hex2Index(a:hex)
-	endfunc
-	function! quickui#palette#name2index(name, ...)
-		let default = (a:0 == 0)? 0 : (a:1)
-		return s:palette9.Name2Index(a:name, default)
-	endfunc
-endif
-
-
+enddef
 
 
