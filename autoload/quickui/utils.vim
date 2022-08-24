@@ -825,3 +825,74 @@ function! quickui#utils#match_ft(filetype, pattern)
 endfunc
 
 
+"----------------------------------------------------------------------
+" format table
+"----------------------------------------------------------------------
+function! quickui#utils#tabulify(rows)
+	let content = []
+	let rows = []
+	let nrows = len(a:rows)
+	let ncols = 0
+	for row in a:rows
+		if len(row) > ncols
+			let ncols = len(row)
+		endif
+	endfor
+	if nrows == 0 || ncols == 0
+		return content
+	endif
+	let sizes = repeat([0], ncols)
+	let index = range(ncols)
+	for row in a:rows
+		let newrow = deepcopy(row)
+		if len(newrow) < ncols
+			let newrow += repeat([''], ncols - len(newrow))
+		endif
+		for i in index
+			let size = strwidth(newrow[i])
+			let sizes[i] = (sizes[i] < size)? size : sizes[i]
+		endfor
+		let rows += [newrow]
+	endfor
+	for row in rows
+		let ni = []
+		for i in index
+			let x = row[i]
+			let size = strwidth(x)
+			if size < sizes[i]
+				let x = x . repeat(' ', sizes[i] - size)
+			endif
+			let ni += [x]
+		endfor
+		let content += [ni]
+	endfor
+	return content
+endfunc
+
+
+"----------------------------------------------------------------------
+" print table
+"----------------------------------------------------------------------
+function! quickui#utils#print_table(rows, highmap)
+	let content = quickui#utils#tabulify(a:rows)
+	let index = 0
+	for line in content
+		let col = 0
+		echon (index == 0)? " " : "\n "
+		for cell in line
+			let key = index . ',' . col
+			if !has_key(a:highmap, key)
+				echohl None
+			else
+				exec 'echohl ' . a:highmap[key]
+			endif
+			echon cell . '  '
+			let col += 1
+		endfor
+		let index += 1
+	endfor
+	echohl None
+endfunc
+
+
+

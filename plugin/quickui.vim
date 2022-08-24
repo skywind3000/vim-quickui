@@ -30,6 +30,13 @@ let s:rtp = fnamemodify(s:home, ':h')
 
 
 "----------------------------------------------------------------------
+" QuickUI command
+"----------------------------------------------------------------------
+command! -bang -nargs=* -complete=customlist,quickui#command#complete
+			\ QuickUI  call quickui#command#run('<bang>', <q-args>)
+
+
+"----------------------------------------------------------------------
 " setup variables
 "----------------------------------------------------------------------
 let g:quickui#style#border = get(g:, 'quickui_border_style', 1)

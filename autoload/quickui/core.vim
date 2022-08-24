@@ -880,3 +880,19 @@ function! quickui#core#extract_opts(command)
 endfunc
 
 
+"----------------------------------------------------------------------
+" split cmdline to argv
+"----------------------------------------------------------------------
+function! quickui#core#split_argv(cmdline)
+	let cmd = quickui#core#string_strip(a:cmdline)
+	let argv = []
+	while cmd =~# '^\%(\\.\|\S\)\+'
+		let arg = matchstr(cmd, '^\%(\\.\|\S\)\+')
+		let cmd = substitute(cmd, '^\%(\\.\|\S\)\+\s*', '', '')
+		let val = substitute(arg, '\\\(\s\)', '\1', 'g')
+		let argv += [val]
+	endwhile
+	return argv
+endfunc
+
+
