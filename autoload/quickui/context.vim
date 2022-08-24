@@ -3,7 +3,7 @@
 " context.vim - 
 "
 " Created by skywind on 2019/12/19
-" Last Modified: 2021/11/28 03:57
+" Last Modified: 2022/08/24 20:05
 "
 "======================================================================
 
@@ -666,17 +666,10 @@ function! quickui#context#reduce_items(textlist)
 					let output += [item]
 					let state = 0
 				else
-					for check in split(item[3], ',')
-						if '-'.&ft == check
-							break
-						endif
-
-						if &ft == check
-							let output += [item]
-							let state = 0
-							break
-						endif
-					endfor
+					if quickui#utils#match_ft(&ft, item[3])
+						let output += [item]
+						let state = 0
+					endif
 				endif
 			endif
 		endif

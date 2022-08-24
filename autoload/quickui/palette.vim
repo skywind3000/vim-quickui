@@ -461,7 +461,7 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" speedup
+" optimize if possible: achieve 30x times faster
 "----------------------------------------------------------------------
 if has('vim9script')
 	import './palette9.vim'

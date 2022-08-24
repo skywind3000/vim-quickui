@@ -3,7 +3,7 @@
 " utils.vim - 
 "
 " Created by skywind on 2019/12/19
-" Last Modified: 2021/12/22 19:29
+" Last Modified: 2022/08/24 20:05
 "
 "======================================================================
 
@@ -785,5 +785,43 @@ function! quickui#utils#switch(filename, opts)
 	return 1
 endfunc
 
+
+
+"----------------------------------------------------------------------
+" returns 1 if filetype matches pattern, otherwise returns 0
+"----------------------------------------------------------------------
+function! quickui#utils#match_ft(filetype, pattern)
+	let pattern = quickui#core#string_strip(a:pattern)
+	let ft = a:filetype
+	if pattern == ''
+		return 0
+	elseif pattern =~ '^/'
+		let pattern = strpart(pattern, 1)
+		if match(ft, pattern) >= 0
+			return 1
+		endif
+	elseif pattern =~ '^!'
+		let pattern = strpart(pattern, 1)
+		if match(ft, pattern) < 0
+			return 1
+		endif
+	endif
+	let blacklist = []
+	let whitelist = []
+	for check in split(pattern, ',')
+		if pattern[0] == '-'
+			let blacklist += [check]
+		else
+			let whitelist += [check]
+		endif
+	endfor
+	if index(blacklist, '-' . ft) >= 0
+		return 0
+	endif
+	if empty(whitelist) || index(whitelist, ft) >= 0
+		return 1
+	endif
+	return 0
+endfunc
 
 
