@@ -193,4 +193,17 @@ let s:quickui.context = {
 			\ }
 
 
+"----------------------------------------------------------------------
+" sub: terminal
+"----------------------------------------------------------------------
+function! s:sub_terminal(opts, argv) abort
+	let cmd = a:opts.cmdline
+	return quickui#terminal#open(cmd, a:opts)
+endfunc
+
+let s:quickui.terminal = {
+			\ 'run': function('s:sub_terminal'),
+			\ 'help': 'open terminal window',
+			\ }
+
 

@@ -3,7 +3,7 @@
 " core.vim - 
 "
 " Created by skywind on 2019/12/18
-" Last Modified: 2022/08/24 03:40
+" Last Modified: 2022/08/31 16:25
 "
 "======================================================================
 
@@ -853,7 +853,7 @@ endfunc
 " string strip
 "----------------------------------------------------------------------
 function! quickui#core#string_strip(text)
-	return substitute(a:text, '^\s*\(.\{-}\)[\s\r\n]*$', '\1', '')
+	return substitute(a:text, '^\s*\(.\{-}\)[\t\r\n ]*$', '\1', '')
 endfunc
 
 
