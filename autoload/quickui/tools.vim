@@ -14,8 +14,9 @@
 " list buffer ids
 "----------------------------------------------------------------------
 function! s:buffer_list()
+    let l:ls_cli = get(g:, 'quickui_buffer_list_cli', 'ls t')
     redir => buflist
-    silent! ls
+    silent execute l:ls_cli
     redir END
     let bids = []
     for curline in split(buflist, '\n')
