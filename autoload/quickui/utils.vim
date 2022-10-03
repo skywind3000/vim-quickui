@@ -15,19 +15,26 @@
 "----------------------------------------------------------------------
 function! quickui#utils#item_parse(description)
 	let obj = {'text':'', 'key_pos':-1, 'key_char':'', 'is_sep':0, 'help':''}
-	let obj.info = []
 	let text = ''
+	let child = 0
 	if type(a:description) == v:t_string
 		let text = a:description
 		let obj.help = ''
 		let obj.cmd = ''
-		let obj.info = [ text ]
 	elseif type(a:description) == v:t_list
 		let size = len(a:description)
 		let text = (size >= 1)? a:description[0] : ''
-		let obj.cmd = (size >= 2)? a:description[1] : ''
 		let obj.help = (size >= 3)? a:description[2] : ''
-		let obj.info = deepcopy(a:description)
+		let obj.cmd = ''
+		if size >= 2
+			if type(a:description[1]) == v:t_string
+				let obj.cmd = a:description[1]
+			elseif type(a:description[1]) == v:t_list
+				let obj.cmd = ''
+				let obj.child = a:description[1]
+				let child = 1
+			endif
+		endif
 	endif
 	if text =~ '^-\+$'
 		let obj.is_sep = 1
@@ -44,6 +51,7 @@ function! quickui#utils#item_parse(description)
 			let obj.enable = 0
 		endif
 		let pos = stridx(text, "\t")
+		let sep = ">"
 		if pos < 0 
 			let obj.text = text
 			let obj.desc = ""
@@ -52,6 +60,7 @@ function! quickui#utils#item_parse(description)
 			let obj.desc = strpart(text, pos + 1)
 			let obj.desc = substitute(obj.desc, "\t", " ", "g")
 		endif
+		let obj.desc = (child == 0)? obj.desc : sep
 		let text = obj.text
 		let rest = ''
 		let start = 0

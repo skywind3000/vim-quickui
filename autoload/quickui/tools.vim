@@ -432,7 +432,7 @@ function! quickui#tools#clever_context(name, content, opts)
 	let opts.keep_name = a:name
 	let opts.callback = function('s:remember_cursor_context')
 	let content = quickui#context#reduce_items(a:content)
-	call quickui#context#open(content, opts)
+	call quickui#context#open_nested(content, opts)
 endfunc
 
 function! quickui#tools#clever_listbox(name, content, opts)

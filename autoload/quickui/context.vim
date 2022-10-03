@@ -693,6 +693,197 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" open the context window and wait for selection
+"----------------------------------------------------------------------
+function! s:context_wait(textlist, opts) abort
+	let border = get(a:opts, 'border', g:quickui#style#border)
+	let ignore_case = get(a:opts, 'ignore_case', 1)
+	let hwnd = quickui#context#compile(a:textlist, border)
+	let cwnd = quickui#window#new()
+	let w = hwnd.width
+	let h = hwnd.height
+	let hwnd.index = get(a:opts, 'index', -1)
+	let hwnd.opts = a:opts
+	let opts = {'w':w, 'h':h, 'border':0}
+	if has_key(a:opts, 'x') && has_key(a:opts, 'y')
+		let opts.x = a:opts.x
+		let opts.y = a:opts.y
+	else
+		let pos = quickui#core#around_cursor(w, h)
+		let opts.y = pos[0] - 1
+		let opts.x = pos[1] - 1
+	endif
+	let opts.z = get(a:opts, 'z', 500)
+	let opts.color = get(a:opts, 'color', 'QuickBG')
+	let hwnd.direct = get(a:opts, 'direct', 0)
+	if hwnd.direct == 0
+		let hwnd.direct = (opts.x <= (&columns / 2))? 1 : -1
+	endif
+	call cwnd.open(hwnd.image, opts)
+	call cwnd.show(1)
+	let keymap = quickui#utils#keymap()
+	let keymap['J'] = 'BOTTOM'
+	let keymap['K'] = 'TOP'
+	let hwnd.code = 0
+	let hwnd.state = 1
+	let hwnd.keymap = keymap
+	let hwnd.hotkey = {}
+	for item in hwnd.items
+		if item.enable != 0 && item.key_pos >= 0
+			let key = ignore_case ? tolower(item.key_char) : item.key_char
+			if get(a:opts, 'reserve', 0) == 0
+				let hwnd.hotkey[key] = item.index
+			elseif get(g:, 'quickui_protect_hjkl', 0) != 0
+				let hwnd.hotkey[key] = item.index
+			else
+				if key != 'h' && key != 'j' && key != 'k' && key != 'l'
+					let hwnd.hotkey[key] = item.index
+				endif
+			endif
+		endif
+	endfor
+	let hwnd.winid = cwnd.winid
+	let retval = -1
+	while 1
+		noautocmd call quickui#context#update(hwnd)
+		redraw
+		try
+			let code = getchar()
+		catch /^Vim:Interrupt$/
+			let code = "\<C-C>"
+		endtry
+		let ch = (type(code) == v:t_number)? nr2char(code) : code
+		if ch == "\<ESC>" || ch == "\<c-c>"
+			break
+		elseif ch == " " || ch == "\<cr>"
+			let index = hwnd.index
+			if index >= 0 && index < len(hwnd.items)
+				let item = hwnd.items[index]
+				if item.is_sep == 0 && item.enable != 0
+					let retval = index
+					break
+				endif
+			endif
+		elseif ch == "\<LeftMouse>"
+			let pos = cwnd.mouse_click()
+			if pos.x >= 0
+				let x1 = (hwnd.border == 0)? 0 : 1
+				let x2 = (hwnd.border == 0)? w : (w - 1)
+				let ii = (hwnd.border == 0)? pos.y : (pos.y - 1)
+				if pos.x >= x1 && pos.x < x2
+					if ii >= 0 && ii < len(hwnd.items)
+						let item = hwnd.items[ii]
+						if item.is_sep == 0 && item.enable != 0
+							let hwnd.index = ii
+							let retval = ii
+							noautocmd call quickui#context#update(hwnd)
+							redraw
+							break
+						endif
+					endif
+				endif
+			endif
+		elseif has_key(hwnd.hotkey, ch)
+			let hr = hwnd.hotkey[ch]
+			if hr >= 0
+				let hwnd.index = hr
+				let retval = hr
+				break
+			endif
+		elseif has_key(hwnd.keymap, ch)
+			let key = hwnd.keymap[ch]
+			if key == 'ESC'
+				break
+			elseif key == 'UP'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
+			elseif key == 'DOWN'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
+			elseif key == 'TOP'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'TOP')
+			elseif key == 'BOTTOM'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'BOTTOM')
+			endif
+		endif
+	endwhile
+	noautocmd call quickui#context#update(hwnd)
+	let hr = ''
+	if retval >= 0 && retval < len(hwnd.items)
+		let item = hwnd.items[retval]
+		if item.is_sep == 0 && item.enable != 0
+			let hwnd.index = retval
+			if !has_key(item, 'child')
+				let hr = item.cmd
+			else
+				let child = item.child
+				let cc = quickui#context#compile(child, border)
+				let cw = cc.width
+				let ch = cc.height
+				unlet cc
+				let op = {}
+				let op.z = opts.z + 1
+				let op.y = opts.y + retval
+				let op.y = (op.y + ch > &lines)? (&lines - ch) : op.y
+				let op.y = (op.y < 0)? 0 : op.y
+				for i in range(5)
+					if hwnd.direct >= 0
+						let tx = opts.x + opts.w
+						if tx + cw > &columns
+							let hwnd.direct = -1
+						else
+							let op.x = tx
+							break
+						endif
+					elseif hwnd.direct < 0
+						let tx = opts.x - cw
+						if tx < 0
+							let hwnd.direct = 1
+						else
+							let op.x = tx
+							break
+						endif
+					endif
+				endfor
+				if !has_key(op, 'x')
+					let op.x = 1
+				endif
+				let op.direct = hwnd.direct
+				let op.border = get(a:opts, 'border', border)
+				let hr = s:context_wait(child, op)
+			endif
+		endif
+	endif
+	let g:quickui#context#cursor = hwnd.index
+	let g:quickui#context#current = hwnd
+	call cwnd.close()
+	unlet cwnd
+	return hr
+endfunc
+
+
+"----------------------------------------------------------------------
+" open the context window and wait for selection
+"----------------------------------------------------------------------
+function! quickui#context#wait(textlist, opts) abort
+	return s:context_wait(a:textlist, a:opts)
+endfunc
+
+
+"----------------------------------------------------------------------
+" open context menu and execute commands
+"----------------------------------------------------------------------
+function! quickui#context#open_nested(textlist, opts) abort
+	let cmd = s:context_wait(a:textlist, a:opts)
+	if has_key(a:opts, 'callback')
+		call a:opts.callback(0)
+	endif
+	if cmd != ''
+		exec cmd
+	endif
+endfunc
+
+
+
+"----------------------------------------------------------------------
 " testing suit 
 "----------------------------------------------------------------------
 if 0

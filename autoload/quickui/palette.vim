@@ -3,7 +3,7 @@
 " palette.vim - 
 "
 " Created by skywind on 2021/12/23
-" Last Modified: 2021/12/23 13:29:47
+" Last Modified: 2022/09/25 01:31
 "
 "======================================================================
 
@@ -461,7 +461,7 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" optimize if possible: achieve 30x times faster
+" optimize if possible: achieve 40x times faster
 "----------------------------------------------------------------------
 if has('vim9script')
 	import './palette9.vim'
