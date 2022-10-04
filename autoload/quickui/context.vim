@@ -766,7 +766,9 @@ function! s:context_wait(textlist, opts) abort
 			endif
 		elseif ch == "\<LeftMouse>"
 			let pos = cwnd.mouse_click()
-			if pos.x >= 0
+			if pos.x < 0
+				break
+			else
 				let x1 = (hwnd.border == 0)? 0 : 1
 				let x2 = (hwnd.border == 0)? w : (w - 1)
 				let ii = (hwnd.border == 0)? pos.y : (pos.y - 1)
