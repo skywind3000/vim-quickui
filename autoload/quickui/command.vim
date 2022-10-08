@@ -198,6 +198,8 @@ let s:quickui.context = {
 "----------------------------------------------------------------------
 function! s:sub_terminal(opts, argv) abort
 	let cmd = a:opts.cmdline
+	" echom printf("cmd is '%s', type: %d", cmd, type(cmd))
+	" echom a:opts
 	return quickui#terminal#open(cmd, a:opts)
 endfunc
 
