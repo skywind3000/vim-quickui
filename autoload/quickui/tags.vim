@@ -308,7 +308,7 @@ function! quickui#tags#ctags_function(bid, ft)
 	let ctags = get(g:, 'quickui_ctags_exe', 'ctags')
 	let filename = bufname(a:bid)
 	let extname = fnamemodify(filename, ':e')
-	let extras = get(parameters, ft, '')
+	let extras  = get(get(g:, 'quickui_ctags_opts', {}), ft, get(parameters, ft, ''))
 	let srcname = fnamemodify(filename, ':p')
 	if modified || filename == ''
 		if filename == '' || extname == ''
