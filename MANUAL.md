@@ -172,7 +172,7 @@ When you have hundres of items to deal with, menu is not enough to hold them. Th
 - `j` / `CTRL+j` / `UP`: move up.
 - `k` / `CTRL+k` / `DOWN`: move down.
 - `J` / `CTRL+d`: half page down.
-- `K` / `CTRL+d`: half page up.
+- `K` / `CTRL+u`: half page up.
 - `H` / `CTRL+b` / `PageUp`: page up.
 - `L` / `CTRL+f` / `PageDown`: page down.
 - `SPACE` / `ENTER`: confirm.
