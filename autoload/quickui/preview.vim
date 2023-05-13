@@ -172,7 +172,7 @@ function! quickui#preview#display(content, opts)
 	let s:private.state = 1
 	if has('nvim')
 		if get(a:opts, 'persist', 0) == 0
-			autocmd CursorMoved * ++once call s:nvim_autocmd()
+			autocmd CursorMoved <buffer> ++once call s:autoclose_preview_window()
 		endif
 	endif
 	return winid
@@ -220,7 +220,7 @@ endfunc
 "----------------------------------------------------------------------
 " quit
 "----------------------------------------------------------------------
-function! s:nvim_autocmd()
+function! s:autoclose_preview_window()
 	if s:private.state != 0
 		if s:private.winid >= 0
 			call quickui#preview#close()
