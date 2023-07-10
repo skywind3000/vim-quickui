@@ -1,15 +1,16 @@
-let choices = "&OK\nDis&card\n&Quit"
-let question = "Make your choice:"
+let g:quickui_confirm_border = 'double'
 
-if 0
-	let hwnd = quickui#confirm#init(question, choices, -1, 'Confirm')
+let question = "What do you want ?"
+let choices = "&Apples\n&Oranges\n&Bananas"
 
-	for text in hwnd.content
-		echo text 
-	endfor
+let choice = quickui#confirm#open(question, choices, 1, 'Confirm')
+
+if choice == 0
+	echo "make up your mind!"
+elseif choice == 3
+	echo "tasteful"
+else
+	echo "I prefer bananas myself."
 endif
 
-let accept = quickui#confirm#open(question, choices, 1, 'Confirm')
-
-echo accept
 

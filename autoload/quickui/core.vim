@@ -402,6 +402,8 @@ function! quickui#core#buffer_alloc()
 			call bufload(bid)
 			call setbufvar(bid, '&buflisted', 0)
 			call setbufvar(bid, '&bufhidden', 'hide')
+			call setbufvar(bid, '&buftype', 'nofile')
+			call setbufvar(bid, 'noswapfile', 1)
 		else
 			let bid = nvim_create_buf(v:false, v:true)
 		endif
@@ -893,6 +895,28 @@ function! quickui#core#split_argv(cmdline)
 		let argv += [val]
 	endwhile
 	return argv
+endfunc
+
+
+"----------------------------------------------------------------------
+" execute string
+"----------------------------------------------------------------------
+function! quickui#core#execute_string(text) 
+	let cmd = a:text
+	if cmd =~ '^[a-zA-Z0-9_#]\+(.*)$'
+		exec 'call ' . cmd
+	elseif cmd =~ '^<key>'
+		let keys = strpart(cmd, 5)
+		call feedkeys(keys)
+	elseif cmd =~ '^@'
+		let keys = strpart(cmd, 1)
+		call feedkeys(keys)
+	elseif cmd =~ '^<plug>'
+		let keys = strpart(cmd, 6)
+		call feedkeys("\<plug>" . keys)
+	else
+		exec cmd
+	endif
 endfunc
 
 

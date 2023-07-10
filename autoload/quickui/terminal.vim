@@ -79,6 +79,11 @@ function! quickui#terminal#create(cmd, opts)
 		let g:quickui#terminal#current = hwnd
 		let s:current = hwnd
 		call popup_show(winid)
+		let init = []
+		let init += ['setlocal nonumber norelativenumber scrolloff=0']
+		let init += ['setlocal signcolumn=no']
+		let init += ['setlocal bufhidden=wipe']
+		call quickui#core#win_execute(winid, init)
 	else
 		let bid = quickui#core#scratch_buffer('terminal', [])
 		let opts = {'focusable':1, 'style':'minimal', 'relative':'editor'}
@@ -129,6 +134,7 @@ function! quickui#terminal#create(cmd, opts)
 		let init = []
 		let init += ['setlocal nonumber norelativenumber scrolloff=0']
 		let init += ['setlocal signcolumn=no']
+		let init += ['setlocal bufhidden=wipe']
 		call quickui#core#win_execute(winid, init)
 		startinsert
 	endif

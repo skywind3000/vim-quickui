@@ -904,4 +904,25 @@ function! quickui#utils#print_table(rows, highmap)
 endfunc
 
 
+"----------------------------------------------------------------------
+" hide cursor
+"----------------------------------------------------------------------
+function! quickui#utils#hide_cursor()
+	let s:t_ve = &t_ve
+	let s:guicursor = &guicursor
+	set t_ve=
+	set guicursor=a:Normal
+endfunc
+
+
+"----------------------------------------------------------------------
+" show cursor
+"----------------------------------------------------------------------
+function! quickui#utils#show_cursor()
+	if exists('s:t_ve')
+		let &t_ve = s:t_ve
+		let &guicursor = s:guicursor
+	endif
+endfunc
+
 
