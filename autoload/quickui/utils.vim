@@ -3,7 +3,7 @@
 " utils.vim - 
 "
 " Created by skywind on 2019/12/19
-" Last Modified: 2022/08/24 20:05
+" Last Modified: 2023/07/23 18:44
 "
 "======================================================================
 
@@ -904,25 +904,5 @@ function! quickui#utils#print_table(rows, highmap)
 endfunc
 
 
-"----------------------------------------------------------------------
-" hide cursor
-"----------------------------------------------------------------------
-function! quickui#utils#hide_cursor()
-	let s:t_ve = &t_ve
-	let s:guicursor = &guicursor
-	set t_ve=
-	set guicursor=a:Normal
-endfunc
-
-
-"----------------------------------------------------------------------
-" show cursor
-"----------------------------------------------------------------------
-function! quickui#utils#show_cursor()
-	if exists('s:t_ve')
-		let &t_ve = s:t_ve
-		let &guicursor = s:guicursor
-	endif
-endfunc
 
 
