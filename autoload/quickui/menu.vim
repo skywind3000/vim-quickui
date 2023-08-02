@@ -453,7 +453,7 @@ endfunc
 function! s:movement(key)
 	if a:key == 'ESC'
 		if g:quickui#core#has_nvim == 0
-			call popup_close(a:winid, -1)
+			call popup_close(s:cmenu.winid, -1)
 		endif
 		return 1
 	elseif a:key == 'LEFT' || a:key == 'RIGHT'
@@ -481,6 +481,7 @@ function! s:movement(key)
 			return s:neovim_dropdown()
 		endif
 	endif
+	return 0
 endfunc
 
 
