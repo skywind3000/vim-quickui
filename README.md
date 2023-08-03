@@ -24,7 +24,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 - [What Is It ?](#what-is-it-)
 - [Content](#content)
-  - [Relative projects](#relative-projects)
+  - [Relative Projects](#relative-projects)
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Gallery Screenshot](#gallery-screenshot)
@@ -42,7 +42,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 <!-- /TOC -->
 
-## Relative projects
+## Relative Projects
 
 Plugins powered by QuickUI:
 
