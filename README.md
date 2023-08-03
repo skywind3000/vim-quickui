@@ -24,7 +24,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 - [What Is It ?](#what-is-it-)
 - [Content](#content)
-  - [Powered by QuickUI](#powered-by-quickui)
+  - [Relative projects](#relative-projects)
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Gallery Screenshot](#gallery-screenshot)
@@ -42,7 +42,9 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 <!-- /TOC -->
 
-## Powered by QuickUI
+## Relative projects
+
+Plugins powered by QuickUI:
 
 - [vim-navigator](https://github.com/skywind3000/vim-navigator): Navigate your commands easily.
 
