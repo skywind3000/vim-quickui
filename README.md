@@ -24,6 +24,7 @@ Trying to share my configuration to my friends, I found that they did't have pat
 
 - [What Is It ?](#what-is-it-)
 - [Content](#content)
+  - [Powered by QuickUI](#powered-by-quickui)
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Gallery Screenshot](#gallery-screenshot)
@@ -40,6 +41,10 @@ Trying to share my configuration to my friends, I found that they did't have pat
   - [Credit](#credit)
 
 <!-- /TOC -->
+
+## Powered by QuickUI
+
+- [vim-navigator](https://github.com/skywind3000/vim-navigator): Navigate your commands easily.
 
 ## Requirements
 
