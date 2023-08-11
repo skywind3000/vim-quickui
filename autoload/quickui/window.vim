@@ -105,6 +105,9 @@ function! s:window.__prepare_opts(textlist, opts)
 	if has_key(opts, 'cursorline')
 		let need = (opts.cursorline)? 'cursorline' : 'nocursorlin'
 		let cmd += ['setl ' . need]
+		if exists('+cursorlineopt')
+			let cmd += ['setl cursorlineopt=both']
+		endif
 	else
 		let cmd += ['setl nocursorline']
 	endif
@@ -266,6 +269,9 @@ function! s:window.__nvim_create()
 		let init += ['setl tabstop=' . get(self.opts, 'tabstop', 4)]
 		let init += ['setl signcolumn=no scrolloff=0 nowrap nonumber']
 		let init += ['setl nocursorline nolist']
+		if exists('+cursorlineopt')
+			let init += ['setl cursorlineopt=both']
+		endif
 		let info.border_init = init
 	endif
 	let self.mode = 1

@@ -405,6 +405,9 @@ function! quickui#utils#show_cursor(winid, row)
 				call popup_setoptions(a:winid, {'cursorline': 1})
 			else
 				call quickui#core#win_execute(a:winid, 'setl cursorline')
+				if exists('+cursorlineopt')
+					call quickui#core#win_execute(a:winid, 'setl cursorlineopt=both')
+				endif
 			endif
 		endif
 		let w:__quickui_line__ = 1

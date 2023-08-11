@@ -559,6 +559,9 @@ function! s:nvim_create_listbox(textlist, opts)
 	endif
 	call s:highlight_keys(winid, items)
 	call quickui#core#win_execute(winid, "setlocal cursorline scrolloff=0")
+	if exists('+cursorlineopt')
+		call quickui#core#win_execute(winid, "setlocal cursorlineopt=both")
+	endif
 	let retval = -1
 	while 1
 		noautocmd redraw!
