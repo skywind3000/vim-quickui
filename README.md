@@ -187,7 +187,7 @@ For more examples, see [my config](test/menu_example.vim).
 
 ## Who Am I ?
 
-My name is Lin Wei, an open source believer and vim enthusiast. I started learning programming in early 1990s. Borland's Turbo Pascal/C++ was the most popular IDE at that time and I really enjoyed the old days, back home from school, powered on my computer, started Turbo c++ 3.1 and studied how to make a game in MS-DOS.
+My name is Lin Wei, and I am a strong advocate of open source and a passionate vim user. I embarked on my programming journey in the early 1990s. During that time, Borland’s Turbo Pascal/C++ served as the prevailing IDE, and I fondly reminisce about those days. After returning home from school, I would eagerly power on my computer, launch Turbo C++ 3.1, and delve into the world of creating games in MS-DOS.
 
 I even imitated Turbo C++ and made my own editor when I moved to Watcom C++:
 
@@ -195,11 +195,11 @@ I even imitated Turbo C++ and made my own editor when I moved to Watcom C++:
 
 Because I didn't own a proper editor/IDE for Watcom C++ at that time.
 
-After coming to windows, I tried a lot of GUI-editors, from UltraEdit, editplus to NotePad++, from gedit to geany, none of them could fully satisfy me. Every day I was busy, tired to learn new IDEs/editors or new frameworks, I even forgot the true joy of programming. Eventually I met vim, and soon fell in love with it.
+During my transition to Windows, I encountered a multitude of GUI editors, ranging from UltraEdit and EditPlus to Notepad++ and even gedit and geany. However, none of them managed to fulfill my requirements completely. Each day, I found myself grappling with the constant need to learn new IDEs, editors, or frameworks, which left me exhausted and disconnected from the true joy of programming. It was not until I discovered vim that everything changed. Instantly, I became enamored with its capabilities and found my passion for programming reignited.
 
-As Vim is evolving nowadays, due to the effort of Bram, 8.2 released. Finally I realise, maybe, it is possible to bring some cool things from 25 years ago to vim now. Maybe I can have a Borland/Turbo C++ flavor vim in my everyday work just like I was learning making PC games in the golden 1990s as a middle school student.
+With the continuous evolution of Vim, thanks to Bram’s unwavering efforts, the release of version 8.2 has brought forth exciting possibilities. It dawned on me that perhaps I can now incorporate some of the cool features from 25 years ago into Vim. Just like my experiences as a middle school student, learning to create PC games during the golden era of the 1990s, I can now infuse my everyday work with a nostalgic Borland/Turbo C++ flavor, courtesy of Vim.
 
-It is time for me to bring these ideas to reality, just start from this plugin.
+The time has come for me to transform these ideas into reality, and it all begins with this plugin.
 
 ## Credit
 
