@@ -406,6 +406,9 @@ function! quickui#core#buffer_alloc()
 			call setbufvar(bid, 'noswapfile', 1)
 		else
 			let bid = nvim_create_buf(v:false, v:true)
+			call setbufvar(bid, '&buftype', 'nofile')
+			call setbufvar(bid, '&bufhidden', 'hide')
+			call setbufvar(bid, 'noswapfile', 1)
 		endif
 	endif
 	call setbufvar(bid, '&modifiable', 1)
