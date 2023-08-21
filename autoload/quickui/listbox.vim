@@ -354,6 +354,7 @@ function! quickui#listbox#cursor_movement(where)
 		let curline = curline - height / 2
 	elseif a:where == 'HALFDOWN'
 		let curline = curline + height / 2
+	elseif a:where == 'KEEP'
 	endif
 	if curline < 1
 		let curline = 1
@@ -595,6 +596,8 @@ function! s:nvim_create_listbox(textlist, opts)
 			endif
 		elseif ch == ':' || ch == '/' || ch == '?'
 			call quickui#utils#search_or_jump(winid, ch)
+			let cmd = 'call quickui#listbox#cursor_movement("KEEP")'
+			noautocmd call quickui#core#win_execute(winid, cmd)
 		elseif has_key(hwnd.hotkey, ch)
 			let retval = hwnd.hotkey[ch]
 			break

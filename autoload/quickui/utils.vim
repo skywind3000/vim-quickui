@@ -556,6 +556,9 @@ function! quickui#utils#search_next(winid, cmd)
 		endtry
 		noautocmd call quickui#core#win_execute(a:winid, 'nohl')
 	endif
+	let cmds = ['exec line(".")']
+	let cmds += ['normal! 0']
+	silent call quickui#core#win_execute(a:winid, cmds)
 endfunc
 
 
