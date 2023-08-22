@@ -275,7 +275,11 @@ function! quickui#tools#preview_quickfix(...)
 		let obj.version = -1
 	endif
 	if b:changedtick != obj.version
-		let obj.items = getqflist()
+		if getwininfo(win_getid())[0].loclist != 0
+			let obj.items = getloclist(0)
+		else
+			let obj.items = getqflist()
+		endif
 		let obj.version = b:changedtick
 	endif
 	let index = (a:0 > 0)? a:1 : line('.')
