@@ -349,6 +349,34 @@ function! quickui#tags#ctags_function(bid, ft)
 endfunc
 
 
+"----------------------------------------------------------------------
+" ctags vim help file
+"----------------------------------------------------------------------
+function! quickui#tags#ctags_vim_help(bid)
+	let content = getbufline(a:bid, 1, '$')
+	let tags = []
+	let lnum = 0
+	for text in content
+		let lnum += 1
+		let p1 = stridx(text, '*')
+		if p1 < 0
+			continue
+		endif
+		let p = matchstr(text, '\*\(\S\+\)\*')
+		if p == ''
+			continue
+		endif
+		let tag = {}
+		let tag.tag = p
+		let tag.line = lnum
+		let sp = substitute(text, '^\s*\(.\{-}\)\s*$', '\1', '')
+		let tag.text = tr(sp, "\t", ' ')
+		let tag.mode = 't'
+		call add(tags, tag)
+	endfor
+	return tags
+endfunc
+
 
 "----------------------------------------------------------------------
 " query function list
@@ -358,7 +386,11 @@ function! quickui#tags#function_list(bid, ft)
 	let currenttick = getbufvar(a:bid, '__quickui_tags_tick', -100)
 	let start = reltime()
 	if currenttick != changedtick
-		let items = quickui#tags#ctags_function(a:bid, a:ft)
+		if &ft != 'help'
+			let items = quickui#tags#ctags_function(a:bid, a:ft)
+		else
+			let items = quickui#tags#ctags_vim_help(a:bid)
+		endif
 		call setbufvar(a:bid, '__quickui_tags_func', items)
 		call setbufvar(a:bid, '__quickui_tags_tick', changedtick)
 	endif
