@@ -3,7 +3,7 @@
 " listbox.vim - 
 "
 " Created by skywind on 2019/12/20
-" Last Modified: 2020/02/20 02:00
+" Last Modified: 2023/08/30 14:47
 "
 "======================================================================
 
@@ -486,10 +486,11 @@ function! s:nvim_create_listbox(textlist, opts)
 	else
 		let limit1 = (&lines - 2) * 90 / 100
 		let limit2 = (&lines - 2)
+		" echom printf("limit1=%d limit2=%d h=%d hh=%d", limit1, limit2, h, hh)
 		if h + 4 < limit1
-			let opts.row = (limit1 - hh) / 2 - 1
+			let opts.row = (limit1 - hh) / 2
 		else
-			let opts.row = (limit2 - hh) / 2 - 1
+			let opts.row = (limit2 - hh) / 2
 		endif
 		let opts.row = (opts.row < 0)? 0 : opts.row
 	endif
