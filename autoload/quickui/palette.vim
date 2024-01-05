@@ -448,6 +448,25 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" alpha blend
+"----------------------------------------------------------------------
+function! quickui#palette#blend(c1, c2, alpha)
+	let c1 = a:c1
+	let c2 = a:c2
+	let alpha = a:alpha
+	if type(c1) == 0 && type(c2) == 0
+		return (c1 * (255 - alpha) + c2 * alpha) / 255
+	endif
+	let dst = quickui#palette#hex2rgb(c1)
+	let src = quickui#palette#hex2rgb(c2)
+	let r = (dst[0] * (255 - alpha) + src[0] * alpha) / 255
+	let g = (dst[1] * (255 - alpha) + src[1] * alpha) / 255
+	let b = (dst[2] * (255 - alpha) + src[2] * alpha) / 255
+	return printf('#%02x%02x%02x', r, g, b)
+endfunc
+
+
+"----------------------------------------------------------------------
 " benchmark
 "----------------------------------------------------------------------
 function! quickui#palette#timing()
