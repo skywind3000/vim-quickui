@@ -141,8 +141,10 @@ function! s:vim_create_listbox(textlist, opts)
 	let hwnd.hotkey = items.keymap
 	let hwnd.opts = deepcopy(a:opts)
 	let hwnd.context = has_key(a:opts, 'context')? a:opts.context : {}
+	let minsize = strdisplaywidth(get(a:opts, 'title', ''))
+	let minsize = max([items.displaywidth, minsize])
 	let border = get(a:opts, 'border', g:quickui#style#border)
-	let w = has_key(a:opts, 'w')? a:opts.w : items.displaywidth
+	let w = has_key(a:opts, 'w')? a:opts.w : minsize
 	let h = has_key(a:opts, 'h')? a:opts.h : items.nrows
 	if h + 6 > &lines
 		let h = &lines - 6
@@ -467,7 +469,9 @@ function! s:nvim_create_listbox(textlist, opts)
 	let hwnd.opts = deepcopy(a:opts)
 	let hwnd.context = has_key(a:opts, 'context')? a:opts.context : {}
 	let border = get(a:opts, 'border', g:quickui#style#border)
-	let w = has_key(a:opts, 'w')? a:opts.w : items.displaywidth
+	let minsize = strdisplaywidth(get(a:opts, 'title', ''))
+	let minsize = max([items.displaywidth, minsize])
+	let w = has_key(a:opts, 'w')? a:opts.w : minsize + 2
 	let h = has_key(a:opts, 'h')? a:opts.h : items.nrows
 	if h + 6 > &lines
 		let h = &lines - 6

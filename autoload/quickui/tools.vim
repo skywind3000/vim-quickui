@@ -432,7 +432,7 @@ endfunc
 
 function! quickui#tools#clever_context(name, content, opts)
 	let opts = deepcopy(a:opts)
-	let opts.index = get(s:previous_cursor, a:name, -1)
+	let opts.index = get(s:previous_cursor, a:name, 0)
 	let opts.keep_name = a:name
 	let opts.callback = function('s:remember_cursor_context')
 	let content = quickui#context#reduce_items(a:content)
@@ -441,10 +441,22 @@ endfunc
 
 function! quickui#tools#clever_listbox(name, content, opts)
 	let opts = deepcopy(a:opts)
-	let opts.index = get(s:previous_cursor, a:name, -1)
+	let opts.index = get(s:previous_cursor, a:name, 0)
 	let opts.keep_name = a:name
 	let opts.callback = function('s:remember_cursor_listbox')
 	call quickui#listbox#open(a:content, opts)
+endfunc
+
+function! quickui#tools#clever_inputlist(name, content, opts)
+	let opts = deepcopy(a:opts)
+	let opts.index = get(s:previous_cursor, a:name, 0)
+	let opts.keep_name = a:name
+	" let opts.callback = function('s:remember_cursor_listbox')
+	let hr = quickui#listbox#inputlist(a:content, opts)
+	if hr >= 0
+		let s:previous_cursor[a:name] = hr
+	endif
+	return hr
 endfunc
 
 
