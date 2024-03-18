@@ -246,7 +246,7 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#core#object(bid)
 	let name = '__quickui__'
-	let bid = (a:bid > 0)? a:bid : (bufnr())
+	let bid = (a:bid > 0)? a:bid : (bufnr(''))
 	if bufexists(bid) == 0
 		return v:null
 	endif
