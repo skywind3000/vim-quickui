@@ -412,7 +412,7 @@ function! quickui#core#buffer_alloc()
 		endif
 	endif
 	call setbufvar(bid, '&modifiable', 1)
-	call deletebufline(bid, 1, '$')
+	silent call deletebufline(bid, 1, '$')
 	call setbufvar(bid, '&modified', 0)
 	call setbufvar(bid, '&filetype', '')
 	return bid
@@ -429,7 +429,7 @@ function! quickui#core#buffer_free(bid)
 	let index = len(s:buffer_array)
 	let s:buffer_array[index] = a:bid
 	call setbufvar(a:bid, '&modifiable', 1)
-	call deletebufline(a:bid, 1, '$')
+	silent call deletebufline(a:bid, 1, '$')
 	call setbufvar(a:bid, '&modified', 0)
 endfunc
 
@@ -444,7 +444,7 @@ function! quickui#core#buffer_update(bid, textlist)
 		let textlist = split('' . a:textlist, '\n', 1)
 	endif
 	call setbufvar(a:bid, '&modifiable', 1)
-	call deletebufline(a:bid, 1, '$')
+	silent call deletebufline(a:bid, 1, '$')
 	call setbufline(a:bid, 1, textlist)
 	call setbufvar(a:bid, '&modified', 0)
 endfunc
