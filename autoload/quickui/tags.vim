@@ -3,7 +3,7 @@
 " tags.vim - 
 "
 " Created by skywind on 2020/01/07
-" Last Modified: 2020/01/07 03:17:49
+" Last Modified: 2024/03/23 21:14
 "
 "======================================================================
 
@@ -302,6 +302,9 @@ function! quickui#tags#ctags_function(bid, ft)
 			\ "go": "--go-kinds=f --language-force=Go",  
 			\ "rust": "--rust-kinds=fPM",
 			\ "ocaml": "--ocaml-kinds=mf", 
+			\ "dosini": "--iniconf-kinds=s --language-force=iniconf",
+			\ "taskini": "--iniconf-kinds=s --language-force=iniconf",
+			\ "ini": "--iniconf-kinds=s --language-force=iniconf",
 			\ }
 	let ft = (a:ft != '')? a:ft : getbufvar(a:bid, '&ft')
 	let modified = getbufvar(a:bid, '&modified')
@@ -330,12 +333,13 @@ function! quickui#tags#ctags_function(bid, ft)
 	endif
 	let items = []
 	for line in split(output, "\n")
+		let line = substitute(line, '[\t\r\n ]*$', '', '')
 		let item = split(line, "\t")
 		if len(item) >= 4
 			let ni = {}
 			let ni.tag = item[0]    " tagname
 			let ni.line = str2nr(substitute(item[2], '[;"\s]', '', 'g'))
-			let ni.mode = substitute(item[3], '[\r\n\s]*$', '', 'g')
+			let ni.mode = substitute(item[3], '[\r\n\t ]*$', '', 'g')
 			let ni.text = ''
 			let code = getbufline(a:bid, ni.line)
 			if len(code) == 1
