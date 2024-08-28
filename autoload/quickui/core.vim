@@ -835,7 +835,7 @@ function! quickui#core#write_script(command, pause)
 		endif
 		let tmpname = fnamemodify(tempname(), ':h') . '/quickui1.sh'
 	endif
-	call writefile(lines, tmpname)
+	silent! call writefile(lines, tmpname)
 	if s:windows == 0
 		if exists('*setfperm')
 			silent! call setfperm(tmpname, 'rwxrwxrws')

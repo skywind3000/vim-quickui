@@ -406,6 +406,18 @@ function! quickui#tags#function_list(bid, ft)
 	endif
 	let g:quickui#tags#elapse = reltimestr(reltime(start))
 	" echo g:quickui#tags#elapse
+	if a:ft == 'python'
+		let output = []
+		for ni in items
+			if ni.mode == 'f'
+				if ni.text =~ '\v<lambda>\s.*\:\s*\S+'
+					continue
+				endif
+			endif
+			let output += [ni]
+		endfor
+		return output
+	endif
 	return items
 endfunc
 

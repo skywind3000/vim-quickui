@@ -39,7 +39,9 @@ command! -bang -nargs=* -complete=customlist,quickui#command#complete
 "----------------------------------------------------------------------
 " setup variables
 "----------------------------------------------------------------------
-let g:quickui#style#border = get(g:, 'quickui_border_style', 1)
+if exists('g:quickui_border_style')
+	let g:quickui#style#border = get(g:, 'quickui_border_style', 1)
+endif
 
 function! s:set_quickui_hi()
 	" hi! QuickDefaultSel ctermbg=
