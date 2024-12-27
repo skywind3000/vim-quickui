@@ -470,7 +470,7 @@ function! quickui#core#scratch_buffer(name, textlist)
 	else
 		let bid = -1
 	endif
-	if bid < 0
+	if bid < 0 || (g:quickui#core#has_nvim != 0 && !nvim_buf_is_valid(bid))
 		let bid = quickui#core#buffer_alloc()
 		if a:name != ''
 			let s:buffer_cache[a:name] = bid
