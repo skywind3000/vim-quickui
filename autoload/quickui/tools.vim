@@ -451,8 +451,15 @@ function! quickui#tools#clever_inputlist(name, content, opts)
 	let opts = deepcopy(a:opts)
 	let opts.index = get(s:previous_cursor, a:name, 0)
 	let opts.keep_name = a:name
+	let hide_system_cursor = get(a:opts, 'hide_system_cursor', 0)
 	" let opts.callback = function('s:remember_cursor_listbox')
+	if hide_system_cursor != 0
+		call quickui#utils#hide_system_cursor(1)
+	endif
 	let hr = quickui#listbox#inputlist(a:content, opts)
+	if hide_system_cursor != 0
+		call quickui#utils#hide_system_cursor(0)
+	endif
 	if hr >= 0
 		let s:previous_cursor[a:name] = hr
 	endif
