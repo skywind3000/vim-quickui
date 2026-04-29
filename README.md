@@ -155,6 +155,7 @@ QuickUI also provides several additional widgets:
 Created by **Lin Wei** ([@skywind3000](https://github.com/skywind3000)), an open-source advocate and long-time Vim user. This project is inspired by the Borland/Turbo C++ IDE from the 1990s — an attempt to bring that classic TUI experience into modern Vim.
 
 ![](https://skywind3000.github.io/images/p/quickui/editor.png)
+
 *A Turbo C++ style editor I wrote for Watcom C++ back in the day*
 
 ## License
