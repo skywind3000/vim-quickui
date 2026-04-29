@@ -154,7 +154,6 @@ function! Test_dialog_project_form()
 		\  'value': 1},
 		\ {'type': 'check', 'name': 'ci', 'text': 'Add CI config',
 		\  'value': 0},
-		\ {'type': 'separator'},
 		\ {'type': 'button', 'name': 'confirm',
 		\  'items': [' &Create ', '  Cancel  ']},
 		\ ]

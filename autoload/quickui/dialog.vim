@@ -1758,6 +1758,12 @@ function! quickui#dialog#open(items, ...) abort
 
 	let hwnd.padding_left = padding[3]
 
+	" -- hide system cursor --
+	let hide_system_cursor = get(opts, 'hide_system_cursor', 1)
+	if hide_system_cursor != 0
+		call quickui#utils#hide_system_cursor(1)
+	endif
+
 	" -- create window --
 	let hwnd.win = quickui#window#new()
 	call hwnd.win.open(content, win_opts)
@@ -1856,6 +1862,11 @@ function! quickui#dialog#open(items, ...) abort
 
 	" -- close window --
 	call hwnd.win.close()
+
+	" -- restore system cursor --
+	if hide_system_cursor != 0
+		call quickui#utils#hide_system_cursor(0)
+	endif
 
 	" -- build return value --
 	let result = s:collect_result(hwnd)
