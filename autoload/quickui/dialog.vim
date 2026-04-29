@@ -124,6 +124,36 @@ function! s:parse_items(items) abort
 				let parsed = quickui#utils#item_parse(text)
 				let ctrl.parsed += [parsed]
 			endfor
+		elseif tp ==# 'separator'
+			let ctrl.line_count = 1
+			let ctrl.focusable = 0
+		elseif tp ==# 'dropdown'
+			let name = get(item, 'name', '')
+			if name ==# ''
+				echoerr 'quickui#dialog: dropdown control missing name'
+				return []
+			endif
+			if has_key(names, name)
+				echoerr 'quickui#dialog: duplicate name "' . name . '"'
+				return []
+			endif
+			let names[name] = 1
+			let ctrl.name = name
+			let ctrl.prompt = get(item, 'prompt', '')
+			let ctrl.prompt_width = 0
+			let ctrl.items = get(item, 'items', [])
+			let ctrl.value = get(item, 'value', 0)
+			if len(ctrl.items) > 0
+				if ctrl.value < 0 | let ctrl.value = 0 | endif
+				if ctrl.value >= len(ctrl.items)
+					let ctrl.value = len(ctrl.items) - 1
+				endif
+			else
+				let ctrl.value = 0
+			endif
+			let ctrl.focusable = 1
+			let ctrl.dropdown_col = 0
+			let ctrl.dropdown_width = 0
 		else
 			echoerr 'quickui#dialog: unknown control type "' . tp . '"'
 			return []
@@ -143,7 +173,7 @@ function! s:calc_layout(hwnd, opts) abort
 	let gap = get(a:opts, 'gap', 1)
 	let content_w = hwnd.w
 
-	" ── pass 1: compute prompt alignment groups ──
+	" -- pass 1: compute prompt alignment groups --
 	" A group is a maximal consecutive run of controls that have a non-empty
 	" prompt field. Only a focusable control without a prompt breaks a group;
 	" labels never break groups.
@@ -151,13 +181,13 @@ function! s:calc_layout(hwnd, opts) abort
 	let cur_group = []
 	for ctrl in controls
 		let has_prompt = 0
-		if ctrl.type ==# 'input' || ctrl.type ==# 'radio'
+		if ctrl.type ==# 'input' || ctrl.type ==# 'radio' || ctrl.type ==# 'dropdown'
 			let has_prompt = (ctrl.prompt !=# '') ? 1 : 0
 		elseif ctrl.type ==# 'check'
 			let has_prompt = (ctrl.prompt !=# '') ? 1 : 0
 		endif
-		if ctrl.type ==# 'label'
-			" labels don't break alignment groups
+		if ctrl.type ==# 'label' || ctrl.type ==# 'separator'
+			" labels/separators don't break alignment groups
 			continue
 		endif
 		if has_prompt
@@ -197,9 +227,12 @@ function! s:calc_layout(hwnd, opts) abort
 		if ctrl.type ==# 'check' && ctrl.prompt_width == 0 && ctrl.prompt ==# ''
 			let ctrl.prompt_width = 0
 		endif
+		if ctrl.type ==# 'dropdown' && ctrl.prompt_width == 0 && ctrl.prompt ==# ''
+			let ctrl.prompt_width = 0
+		endif
 	endfor
 
-	" ── pass 2: compute radio vertical layout ──
+	" -- pass 2: compute radio vertical layout --
 	for ctrl in controls
 		if ctrl.type !=# 'radio'
 			continue
@@ -226,10 +259,16 @@ function! s:calc_layout(hwnd, opts) abort
 		endif
 	endfor
 
-	" ── pass 3: assign line positions with gap insertion ──
+	" -- pass 3: assign line positions with gap insertion --
 	let y = 0
 	let prev_type = ''
 	for ctrl in controls
+		if ctrl.type ==# 'separator'
+			let ctrl.line_start = y
+			let y += ctrl.line_count
+			let prev_type = ''
+			continue
+		endif
 		if prev_type !=# '' && prev_type !=# ctrl.type
 			let y += gap
 		endif
@@ -239,7 +278,7 @@ function! s:calc_layout(hwnd, opts) abort
 	endfor
 	let hwnd.content_h = y
 
-	" ── pass 4: compute input col/width ──
+	" -- pass 4: compute input/dropdown col/width --
 	for ctrl in controls
 		if ctrl.type ==# 'input'
 			let ctrl.input_col = ctrl.prompt_width
@@ -247,10 +286,16 @@ function! s:calc_layout(hwnd, opts) abort
 			if ctrl.input_width < 4
 				let ctrl.input_width = 4
 			endif
+		elseif ctrl.type ==# 'dropdown'
+			let ctrl.dropdown_col = ctrl.prompt_width
+			let ctrl.dropdown_width = content_w - ctrl.dropdown_col
+			if ctrl.dropdown_width < 4
+				let ctrl.dropdown_width = 4
+			endif
 		endif
 	endfor
 
-	" ── height overflow check ──
+	" -- height overflow check --
 	let pad = get(a:opts, 'padding', [1,1,1,1])
 	let border = get(a:opts, 'border', g:quickui#style#border)
 	let total_h = hwnd.content_h + pad[0] + pad[2]
@@ -361,6 +406,10 @@ function! s:build_content(hwnd) abort
 			call s:build_check_line(hwnd, ctrl, lines)
 		elseif ctrl.type ==# 'button'
 			call s:build_button_line(hwnd, ctrl, lines)
+		elseif ctrl.type ==# 'separator'
+			let lines[y] = repeat(hwnd.sep_char, w)
+		elseif ctrl.type ==# 'dropdown'
+			call s:build_dropdown_line(hwnd, ctrl, lines)
 		endif
 	endfor
 	let hwnd.content = lines
@@ -489,6 +538,50 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" build dropdown display line (collapsed state)
+"----------------------------------------------------------------------
+function! s:build_dropdown_line(hwnd, ctrl, lines) abort
+	let ctrl = a:ctrl
+	let y = ctrl.line_start
+	let w = a:hwnd.w
+	let prefix = ''
+	if ctrl.prompt_width > 0
+		let prefix = ctrl.prompt . repeat(' ', ctrl.prompt_width - strdisplaywidth(ctrl.prompt))
+	endif
+	let sel_text = get(ctrl.items, ctrl.value, '')
+	let inner_w = ctrl.dropdown_width - 2
+	if inner_w < 1
+		let inner_w = 1
+	endif
+	let display = sel_text
+	let pad = inner_w - strdisplaywidth(display) - 2
+	if pad < 0
+		let display = ''
+		let dw = 0
+		for ch in split(sel_text, '\zs')
+			let cw = strdisplaywidth(ch)
+			if dw + cw > inner_w - 2
+				break
+			endif
+			let display .= ch
+			let dw += cw
+		endfor
+		let pad = inner_w - strdisplaywidth(display) - 2
+	endif
+	if pad < 0
+		let pad = 0
+	endif
+	let dropdown_text = '[' . display . repeat(' ', pad) . ' v]'
+	let line = prefix . dropdown_text
+	let remain = w - strdisplaywidth(line)
+	if remain > 0
+		let line .= repeat(' ', remain)
+	endif
+	let a:lines[y] = line
+endfunc
+
+
+"----------------------------------------------------------------------
 " calculate auto width
 "----------------------------------------------------------------------
 function! s:calc_width(controls, opts) abort
@@ -525,6 +618,18 @@ function! s:calc_width(controls, opts) abort
 			endif
 			let cw = pw + 4 + ctrl.parsed.text_width
 			let w = (w < cw) ? cw : w
+		elseif ctrl.type ==# 'dropdown'
+			let pw = strdisplaywidth(get(ctrl, 'prompt', ''))
+			if pw > 0
+				let pw += 2
+			endif
+			let max_iw = 0
+			for text in ctrl.items
+				let iw = strdisplaywidth(text)
+				let max_iw = (max_iw < iw) ? iw : max_iw
+			endfor
+			let need = pw + max_iw + 4
+			let w = (w < need) ? need : w
 		elseif ctrl.type ==# 'button'
 			" estimate button line width
 			let bw = 0
@@ -788,6 +893,55 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" render dropdown control (collapsed state)
+"----------------------------------------------------------------------
+function! s:render_dropdown(hwnd, ctrl, focused) abort
+	let ctrl = a:ctrl
+	let win = a:hwnd.win
+	let y = ctrl.line_start
+	let w = a:hwnd.w
+	let prefix = ''
+	if ctrl.prompt_width > 0
+		let prefix = ctrl.prompt . repeat(' ', ctrl.prompt_width - strdisplaywidth(ctrl.prompt))
+	endif
+	let sel_text = get(ctrl.items, ctrl.value, '')
+	let inner_w = ctrl.dropdown_width - 2
+	if inner_w < 1
+		let inner_w = 1
+	endif
+	let display = sel_text
+	let pad = inner_w - strdisplaywidth(display) - 2
+	if pad < 0
+		let display = ''
+		let dw = 0
+		for ch in split(sel_text, '\zs')
+			let cw = strdisplaywidth(ch)
+			if dw + cw > inner_w - 2
+				break
+			endif
+			let display .= ch
+			let dw += cw
+		endfor
+		let pad = inner_w - strdisplaywidth(display) - 2
+	endif
+	if pad < 0
+		let pad = 0
+	endif
+	let dropdown_text = '[' . display . repeat(' ', pad) . ' v]'
+	let line = prefix . dropdown_text
+	let remain = w - strdisplaywidth(line)
+	if remain > 0
+		let line .= repeat(' ', remain)
+	endif
+	call win.set_line(y, line, 0)
+	if a:focused
+		let col = ctrl.dropdown_col
+		call win.syntax_region('QuickSel', col, y, col + ctrl.dropdown_width, y)
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
 " render all controls
 "----------------------------------------------------------------------
 function! s:render_all(hwnd) abort
@@ -807,6 +961,8 @@ function! s:render_all(hwnd) abort
 			call s:render_check(hwnd, ctrl, is_focused)
 		elseif ctrl.type ==# 'button'
 			call s:render_button(hwnd, ctrl, is_focused)
+		elseif ctrl.type ==# 'dropdown'
+			call s:render_dropdown(hwnd, ctrl, is_focused)
 		endif
 	endfor
 	call win.update()
@@ -825,6 +981,8 @@ function! s:collect_result(hwnd) abort
 		elseif ctrl.type ==# 'radio'
 			let result[ctrl.name] = ctrl.value
 		elseif ctrl.type ==# 'check'
+			let result[ctrl.name] = ctrl.value
+		elseif ctrl.type ==# 'dropdown'
 			let result[ctrl.name] = ctrl.value
 		endif
 	endfor
@@ -933,9 +1091,30 @@ function! s:dispatch_click(hwnd, x, a_y) abort
 				endif
 			endfor
 			return 0
+		elseif ctrl.type ==# 'separator'
+			return 0
+		elseif ctrl.type ==# 'dropdown'
+			call s:focus_to_ctrl(a:hwnd, ctrl)
+			let result = s:dropdown_open(a:hwnd, ctrl)
+			if result >= 0
+				let ctrl.value = result
+			endif
+			return 0
 		endif
 	endfor
 	return 0
+endfunc
+
+
+"----------------------------------------------------------------------
+" select all text in input control (Windows-style focus behavior)
+"----------------------------------------------------------------------
+function! s:input_select_all(ctrl) abort
+	let rl = a:ctrl.rl
+	if rl.size > 0
+		let rl.select = 0
+		call rl.seek(0, 2)
+	endif
 endfunc
 
 
@@ -991,7 +1170,7 @@ function! s:handle_key(hwnd, ch) abort
 	let ch = a:ch
 	let focus_size = len(hwnd.focus_list)
 
-	" ── global keys ──
+	" -- global keys --
 	if ch == "\<ESC>" || ch == "\<c-c>"
 		let hwnd.exit = 1
 		let hwnd.exit_button = ''
@@ -1001,14 +1180,34 @@ function! s:handle_key(hwnd, ch) abort
 
 	if ch == "\<Tab>"
 		if focus_size > 0
-			let hwnd.focus_index = (hwnd.focus_index + 1) % focus_size
+			let fi = hwnd.focus_index
+			let ctrl = hwnd.focus_list[fi].control
+			if ctrl.type ==# 'button' && ctrl.value < len(ctrl.parsed) - 1
+				let ctrl.value += 1
+			else
+				let hwnd.focus_index = (fi + 1) % focus_size
+				let new_ctrl = hwnd.focus_list[hwnd.focus_index].control
+				if new_ctrl.type ==# 'button'
+					let new_ctrl.value = 0
+				endif
+			endif
 		endif
 		return
 	endif
 
 	if ch == "\<S-Tab>"
 		if focus_size > 0
-			let hwnd.focus_index = (hwnd.focus_index - 1 + focus_size) % focus_size
+			let fi = hwnd.focus_index
+			let ctrl = hwnd.focus_list[fi].control
+			if ctrl.type ==# 'button' && ctrl.value > 0
+				let ctrl.value -= 1
+			else
+				let hwnd.focus_index = (fi - 1 + focus_size) % focus_size
+				let new_ctrl = hwnd.focus_list[hwnd.focus_index].control
+				if new_ctrl.type ==# 'button'
+					let new_ctrl.value = len(new_ctrl.parsed) - 1
+				endif
+			endif
 		endif
 		return
 	endif
@@ -1029,12 +1228,12 @@ function! s:handle_key(hwnd, ch) abort
 		endif
 	endif
 
-	" ── dispatch to focused control ──
+	" -- dispatch to focused control --
 	" When focus is on an input, skip hotkey processing: all printable
 	" characters go to readline first.  Hotkeys only fire when focus is
 	" NOT on an input control.
 	if focus_size == 0
-		" no focusable controls — try hotkeys then return
+		" no focusable controls -- try hotkeys then return
 		call s:dispatch_hotkey(hwnd, ch)
 		return
 	endif
@@ -1060,6 +1259,11 @@ function! s:handle_key(hwnd, ch) abort
 			return
 		endif
 		call s:handle_button(hwnd, ctrl, ch)
+	elseif tp ==# 'dropdown'
+		if s:dispatch_hotkey(hwnd, ch)
+			return
+		endif
+		call s:handle_dropdown(hwnd, ctrl, ch)
 	endif
 endfunc
 
@@ -1078,7 +1282,7 @@ function! s:handle_input(hwnd, ctrl, ch) abort
 		return
 	endif
 
-	" Up/Down: navigate focus (not history — history uses Ctrl+Up/Down)
+	" Up/Down: navigate focus (not history -- history uses Ctrl+Up/Down)
 	if ch == "\<Up>"
 		let size = len(a:hwnd.focus_list)
 		if size > 0
@@ -1227,46 +1431,268 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" handle dropdown keys
+"----------------------------------------------------------------------
+function! s:handle_dropdown(hwnd, ctrl, ch) abort
+	let ch = a:ch
+	let size = len(a:ctrl.items)
+
+	if ch == "\<CR>" || ch == "\<Space>"
+		if size > 0
+			let result = s:dropdown_open(a:hwnd, a:ctrl)
+			if result >= 0
+				let a:ctrl.value = result
+			endif
+		endif
+		return
+	endif
+
+	if ch == "\<Up>"
+		let fsize = len(a:hwnd.focus_list)
+		if fsize > 0
+			let a:hwnd.focus_index = (a:hwnd.focus_index - 1 + fsize) % fsize
+		endif
+		return
+	endif
+	if ch == "\<Down>"
+		let fsize = len(a:hwnd.focus_list)
+		if fsize > 0
+			let a:hwnd.focus_index = (a:hwnd.focus_index + 1) % fsize
+		endif
+		return
+	endif
+
+	if size == 0
+		return
+	endif
+	if ch == "\<Left>" || ch ==# 'h'
+		let a:ctrl.value = (a:ctrl.value - 1 + size) % size
+	elseif ch == "\<Right>" || ch ==# 'l'
+		let a:ctrl.value = (a:ctrl.value + 1) % size
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" build visible lines for dropdown popup (handles scrolling)
+"----------------------------------------------------------------------
+function! s:dropdown_visible(items, offset, height, width) abort
+	let inner_w = a:width - 2
+	if inner_w < 1
+		let inner_w = 1
+	endif
+	let lines = []
+	for i in range(a:height)
+		let idx = i + a:offset
+		if idx < len(a:items)
+			let text = a:items[idx]
+			let tw = strdisplaywidth(text)
+			if tw > inner_w
+				let vis = ''
+				let vw = 0
+				for ch in split(text, '\zs')
+					let cw = strdisplaywidth(ch)
+					if vw + cw > inner_w
+						break
+					endif
+					let vis .= ch
+					let vw += cw
+				endfor
+				let text = vis
+				let tw = vw
+			endif
+			let line = ' ' . text . repeat(' ', inner_w - tw) . ' '
+		else
+			let line = repeat(' ', a:width)
+		endif
+		let lines += [line]
+	endfor
+	return lines
+endfunc
+
+
+"----------------------------------------------------------------------
+" open dropdown popup: returns selected index or -1 if cancelled
+"----------------------------------------------------------------------
+function! s:dropdown_open(hwnd, ctrl) abort
+	let ctrl = a:ctrl
+	let items = ctrl.items
+	let size = len(items)
+	if size == 0
+		return -1
+	endif
+
+	" popup dimensions
+	let popup_w = ctrl.dropdown_width
+	let popup_h = size
+	let max_h = &lines - 6
+	if popup_h > max_h
+		let popup_h = max_h
+	endif
+	if popup_h < 1
+		let popup_h = 1
+	endif
+
+	" compute screen position of dropdown control area
+	let has_border = a:hwnd.win.info.has_border
+	let pad = a:hwnd.win.opts.padding
+	let content_x = a:hwnd.win.x + (has_border ? 1 : 0) + pad[3]
+	let content_y = a:hwnd.win.y + (has_border ? 1 : 0) + pad[0]
+
+	let popup_x = content_x + ctrl.dropdown_col
+	let popup_y = content_y + ctrl.line_start + 1
+
+	" if not enough space below, show above
+	let dropdown_border = get(a:hwnd.win.opts, 'border', g:quickui#style#border)
+	let border_extra = (dropdown_border > 0) ? 2 : 0
+	if popup_y + popup_h + border_extra > &lines
+		let popup_y = content_y + ctrl.line_start - popup_h - border_extra
+		if popup_y < 0
+			let popup_y = 0
+		endif
+	endif
+
+	" create popup window
+	let win = quickui#window#new()
+	let win_opts = {}
+	let win_opts.w = popup_w
+	let win_opts.h = popup_h
+	let win_opts.x = popup_x
+	let win_opts.y = popup_y
+	let win_opts.z = a:hwnd.win.z + 10
+	let win_opts.border = dropdown_border
+	let win_opts.color = 'QuickBG'
+	let win_opts.bordercolor = 'QuickBorder'
+	if s:has_nvim
+		let win_opts.focusable = 1
+	endif
+
+	" initial selection and scroll
+	let selected = ctrl.value
+	if selected < 0 || selected >= size
+		let selected = 0
+	endif
+	let offset = 0
+	if selected >= popup_h
+		let offset = selected - popup_h + 1
+	endif
+
+	let vis_lines = s:dropdown_visible(items, offset, popup_h, popup_w)
+	call win.open(vis_lines, win_opts)
+
+	" event loop
+	let result = -1
+	while 1
+		call win.syntax_begin(1)
+		let vis_sel = selected - offset
+		if vis_sel >= 0 && vis_sel < popup_h
+			call win.syntax_region('QuickSel', 0, vis_sel, popup_w, vis_sel)
+		endif
+		call win.syntax_end()
+		redraw
+
+		try
+			let code = getchar()
+		catch /^Vim:Interrupt$/
+			let code = "\<C-C>"
+		endtry
+
+		let ch = (type(code) == v:t_number) ? nr2char(code) : code
+		if ch ==# ''
+			continue
+		endif
+
+		if ch == "\<ESC>" || ch == "\<C-C>"
+			break
+		elseif ch == "\<CR>" || ch == "\<Space>"
+			let result = selected
+			break
+		elseif ch == "\<Up>" || ch ==# 'k'
+			let selected = (selected > 0) ? (selected - 1) : (size - 1)
+		elseif ch == "\<Down>" || ch ==# 'j'
+			let selected = (selected < size - 1) ? (selected + 1) : 0
+		elseif ch == "\<Home>"
+			let selected = 0
+		elseif ch == "\<End>"
+			let selected = size - 1
+		elseif ch == "\<PageUp>"
+			let selected = selected - popup_h
+			if selected < 0 | let selected = 0 | endif
+		elseif ch == "\<PageDown>"
+			let selected = selected + popup_h
+			if selected >= size | let selected = size - 1 | endif
+		elseif ch == "\<LeftMouse>"
+			let click = win.mouse_click()
+			if click.x >= 0 && click.y >= 0
+				let clicked = click.y + offset
+				if clicked >= 0 && clicked < size
+					let result = clicked
+					break
+				endif
+			else
+				break
+			endif
+		endif
+
+		" adjust scroll offset
+		if selected < offset
+			let offset = selected
+		elseif selected >= offset + popup_h
+			let offset = selected - popup_h + 1
+		endif
+
+		" update visible lines
+		let vis_lines = s:dropdown_visible(items, offset, popup_h, popup_w)
+		call win.set_text(vis_lines)
+	endwhile
+
+	call win.close()
+	return result
+endfunc
+
+
+"----------------------------------------------------------------------
 " main entry: quickui#dialog#open(items, opts)
 "----------------------------------------------------------------------
 function! quickui#dialog#open(items, ...) abort
 	let opts = (a:0 >= 1) ? a:1 : {}
 
-	" ── empty items check ──
+	" -- empty items check --
 	if len(a:items) == 0
 		return {'button': '', 'button_index': -1}
 	endif
 
-	" ── parse items ──
+	" -- parse items --
 	let controls = s:parse_items(a:items)
 	if type(controls) == v:t_list && len(controls) == 0
 		return {'button': '', 'button_index': -1}
 	endif
 
-	" ── build hwnd ──
+	" -- build hwnd --
 	let hwnd = {}
 	let hwnd.controls = controls
 	let hwnd.focus_index = 0
 	let hwnd.exit = 0
 	let hwnd.exit_button = ''
 	let hwnd.exit_index = -1
+	let hwnd.validator = get(opts, 'validator', v:null)
 
-	" ── calculate width ──
+	" -- calculate width --
 	if has_key(opts, 'w')
 		let hwnd.w = opts.w
 	else
 		let hwnd.w = s:calc_width(controls, opts)
 	endif
 
-	" ── calculate layout ──
+	" -- calculate layout --
 	if s:calc_layout(hwnd, opts) < 0
 		return {'button': '', 'button_index': -1}
 	endif
 
-	" ── build focus list ──
+	" -- build focus list --
 	call s:build_focus_list(hwnd)
 
-	" ── initial focus ──
+	" -- initial focus --
 	if has_key(opts, 'focus')
 		let focus_name = opts.focus
 		let fi = 0
@@ -1279,18 +1705,35 @@ function! quickui#dialog#open(items, ...) abort
 		endfor
 	endif
 
-	" ── build keymap ──
+	" -- select all for initially focused input --
+	if len(hwnd.focus_list) > 0
+		let fc = hwnd.focus_list[hwnd.focus_index].control
+		if fc.type ==# 'input'
+			call s:input_select_all(fc)
+		endif
+	endif
+
+	" -- build keymap --
 	if s:build_keymap(hwnd) < 0
 		return {'button': '', 'button_index': -1}
 	endif
 
-	" ── build content ──
+	" -- compute separator character from border style --
+	let border_style = get(opts, 'border', g:quickui#style#border)
+	let border_chars = quickui#core#border_get(border_style)
+	if len(border_chars) > 4 && border_chars[4] !=# ' '
+		let hwnd.sep_char = border_chars[4]
+	else
+		let hwnd.sep_char = '-'
+	endif
+
+	" -- build content --
 	let content = s:build_content(hwnd)
 
-	" ── prepare highlight ──
+	" -- prepare highlight --
 	call s:hl_prepare(hwnd)
 
-	" ── window options ──
+	" -- window options --
 	let border = get(opts, 'border', g:quickui#style#border)
 	let padding = get(opts, 'padding', [1,1,1,1])
 	let win_opts = {}
@@ -1315,11 +1758,11 @@ function! quickui#dialog#open(items, ...) abort
 
 	let hwnd.padding_left = padding[3]
 
-	" ── create window ──
+	" -- create window --
 	let hwnd.win = quickui#window#new()
 	call hwnd.win.open(content, win_opts)
 
-	" ── main event loop ──
+	" -- main event loop --
 	silent! exec 'nohl'
 	while hwnd.exit == 0
 		" determine wait mode based on focused control type
@@ -1366,17 +1809,44 @@ function! quickui#dialog#open(items, ...) abort
 			continue
 		endif
 
+		let prev_fi = hwnd.focus_index
 		call s:handle_key(hwnd, ch)
+
+		" select all when keyboard navigation moves focus to an input
+		if hwnd.focus_index != prev_fi && hwnd.exit == 0
+			if ch != "\<LeftMouse>"
+				let fc = hwnd.focus_list[hwnd.focus_index].control
+				if fc.type ==# 'input'
+					call s:input_select_all(fc)
+				endif
+			endif
+		endif
+
+		" -- validator check before exit --
+		if hwnd.exit != 0 && hwnd.exit_index >= 0 && hwnd.validator != v:null
+			let vresult = s:collect_result(hwnd)
+			let vresult.button = hwnd.exit_button
+			let vresult.button_index = hwnd.exit_index
+			let errmsg = call(hwnd.validator, [vresult])
+			if type(errmsg) == v:t_string && errmsg !=# ''
+				let hwnd.exit = 0
+				call s:render_all(hwnd)
+				redraw
+				echohl ErrorMsg
+				echo errmsg
+				echohl None
+			endif
+		endif
 	endwhile
 
-	" ── brief render of final state ──
+	" -- brief render of final state --
 	if hwnd.exit_button !=# '' && hwnd.exit_index > 0
 		call s:render_all(hwnd)
 		redraw
 		sleep 15m
 	endif
 
-	" ── save history ──
+	" -- save history --
 	for ctrl in hwnd.controls
 		if ctrl.type ==# 'input' && ctrl.history_key !=# ''
 			call ctrl.rl.history_save()
@@ -1384,10 +1854,10 @@ function! quickui#dialog#open(items, ...) abort
 		endif
 	endfor
 
-	" ── close window ──
+	" -- close window --
 	call hwnd.win.close()
 
-	" ── build return value ──
+	" -- build return value --
 	let result = s:collect_result(hwnd)
 	let result.button = hwnd.exit_button
 	let result.button_index = hwnd.exit_index

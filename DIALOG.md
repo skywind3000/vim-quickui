@@ -1,6 +1,6 @@
 # QuickUI Dialog User Guide
 
-`quickui#dialog#open()` provides a data-driven dialog system. Simply declare a list of controls, and it pops up a dialog containing inputs, radio buttons, checkboxes, buttons, etc. Once the user finishes interacting, all control values are returned.
+`quickui#dialog#open()` provides a data-driven dialog system. Simply declare a list of controls, and it pops up a dialog containing inputs, radio buttons, checkboxes, dropdowns, buttons, separators, etc. Once the user finishes interacting, all control values are returned.
 
 ## Quick Start
 
@@ -23,7 +23,7 @@ endif
 Result:
 
 ```
-┌─ User Info ──────────────────────────────X┐
+┌─ User Info ──────────────────────────────┐
 │                                           │
 │  Please fill in:                          │
 │                                           │
@@ -177,6 +177,83 @@ Layout: `< OK >    < Cancel >`
 | `Right` / `l` | Switch to right button |
 | `Space` / `Enter` | Activate current button and close dialog |
 
+### separator — Separator Line
+
+Not focusable. Draws a horizontal line to visually group controls.
+
+```vim
+{'type': 'separator'}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | String | Yes | `'separator'` |
+
+Layout (using border character):
+```
+├───────────────────────────────────────────┤
+```
+
+The separator character matches the dialog border style (e.g., `─` for single-line borders, `-` for ASCII borders). When the dialog has no border, a plain `-` is used.
+
+**Note**: Separators replace the automatic gap between controls — no blank lines are inserted before or after a separator.
+
+### dropdown — Dropdown List
+
+Focusable. Displays a collapsed selection field that opens a self-drawn popup list when activated.
+
+```vim
+{'type': 'dropdown', 'name': 'lang', 'prompt': 'Language:',
+ \ 'items': ['Python', 'C/C++', 'Java', 'Go'], 'value': 1}
+```
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | String | Yes | — | `'dropdown'` |
+| `name` | String | Yes | — | Control name, used as key in return value |
+| `prompt` | String | No | `''` | Label text on the left side (participates in prompt alignment) |
+| `items` | List | Yes | — | Option text list |
+| `value` | Number | No | `0` | Default selected index (0-based); clamped to valid range |
+
+Collapsed layout:
+```
+Language:  [C/C++                        v]
+```
+
+When activated (Enter/Space/click), a popup list appears below the control:
+
+```
+Language:  [C/C++                        v]
+           ┌────────────────────────────┐
+           │  Python                     │
+           │> C/C++                      │
+           │  Java                       │
+           │  Go                         │
+           └────────────────────────────┘
+```
+
+**Collapsed keybindings** (when dropdown is focused in dialog):
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` | Open popup list |
+| `Left` / `h` | Select previous item (wraps) |
+| `Right` / `l` | Select next item (wraps) |
+| `Up` / `Down` | Move focus to adjacent control |
+
+**Popup keybindings** (when popup list is open):
+
+| Key | Action |
+|-----|--------|
+| `Up` / `k` | Move highlight up |
+| `Down` / `j` | Move highlight down |
+| `Home` / `gg` | Jump to first item |
+| `End` / `G` | Jump to last item |
+| `PageUp` / `PageDown` | Scroll by page |
+| `Enter` / `Space` | Confirm selection and close popup |
+| `Esc` | Cancel and close popup (value unchanged) |
+| Mouse click | Select clicked item and close popup |
+
 ## Dialog Options
 
 Passed via the second parameter `opts`:
@@ -194,6 +271,29 @@ Passed via the second parameter `opts`:
 | `gap` | Number | `1` | Number of blank lines between different control types |
 | `button` | Number | `1` | Whether to show the close button |
 | `focus` | String | — | Name of the control to receive initial focus |
+| `validator` | Funcref | — | Validation function called before normal exit (see below) |
+
+### Validator
+
+If `opts.validator` is provided, it is called before the dialog exits normally (i.e., `button_index >= 0`). It is **not** called on cancel (ESC / Ctrl-C / close button).
+
+The function receives a single argument — the same Dict that `open()` would return — and should return:
+- `0` or `''` (empty string) — validation passed, dialog exits normally
+- A non-empty string — validation failed, the string is displayed as an error message with `ErrorMsg` highlight, and the dialog remains open
+
+```vim
+function! MyValidator(result) abort
+    if a:result.username ==# ''
+        return 'Username cannot be empty!'
+    endif
+    return ''
+endfunc
+
+let result = quickui#dialog#open(items, {
+    \ 'title': 'Form',
+    \ 'validator': function('MyValidator'),
+    \ })
+```
 
 ## Return Value
 
@@ -206,6 +306,7 @@ Returns a Dict. **All control values are always included, regardless of confirm 
 | `<input.name>` | String | Text content of the input |
 | `<radio.name>` | Number | Selected option index (0-based) |
 | `<check.name>` | Number | Checked state (0/1) |
+| `<dropdown.name>` | Number | Selected item index (0-based) |
 
 ### Detecting Exit Method
 
@@ -263,24 +364,27 @@ Controls are arranged top-to-bottom in the order of `items`.
 
 - Adjacent controls of **different** types are separated by `gap` blank lines (default: 1)
 - Adjacent controls of the **same** type have **no** blank lines, forming a visual group
+- **Separators** replace gaps — no blank lines are inserted before or after a separator
 
 ### Prompt Alignment
 
-Consecutive controls with prompts (input, radio, check with prompt) are automatically aligned:
+Consecutive controls with prompts (input, radio, dropdown, check with prompt) are automatically aligned:
 
 ```
-Name:   [skywind                       ]
-Email:  [                              ]
-Role:   (*) Dev  ( ) QA  ( ) PM
+Name:      [skywind                       ]
+Email:     [                              ]
+Language:  [Python                       v]
+Role:      (*) Dev  ( ) QA  ( ) PM
 ```
 
-Labels do not break alignment groups; only interactive controls without a prompt break the group.
+Labels and separators do not break alignment groups; only interactive controls without a prompt break the group.
 
 ## Mouse Support
 
 - Click input — focus and position cursor
 - Click radio option — focus and select that option
 - Click check — focus and toggle check state
+- Click dropdown — focus and open popup list
 - Click button — activate that button and close dialog
 - Click close button (X) — cancel
 
@@ -361,6 +465,57 @@ let items = [
     \ ]
 
 let result = quickui#dialog#open(items, {'title': 'Build Result'})
+```
+
+### Project Settings with Separator and Dropdown
+
+```vim
+let items = [
+    \ {'type': 'input', 'name': 'project', 'prompt': 'Project:',
+    \  'value': 'MyApp'},
+    \ {'type': 'dropdown', 'name': 'lang', 'prompt': 'Language:',
+    \  'items': ['Python', 'C/C++', 'Java', 'Go', 'Rust'], 'value': 0},
+    \ {'type': 'dropdown', 'name': 'build', 'prompt': 'Build:',
+    \  'items': ['Debug', 'Release', 'MinSizeRel'], 'value': 1},
+    \ {'type': 'separator'},
+    \ {'type': 'check', 'name': 'verbose', 'text': '&Verbose output'},
+    \ {'type': 'check', 'name': 'parallel', 'text': '&Parallel build',
+    \  'value': 1},
+    \ {'type': 'separator'},
+    \ {'type': 'button', 'name': 'action',
+    \  'items': [' &Save ', ' &Cancel ']},
+    \ ]
+
+let result = quickui#dialog#open(items, {
+    \ 'title': 'Project Settings', 'w': 50})
+
+if result.button ==# 'action' && result.button_index == 1
+    echo 'Project: ' . result.project
+    echo 'Language: ' . result.lang        " index (0-based)
+    echo 'Build: ' . result.build          " index (0-based)
+    echo 'Verbose: ' . result.verbose
+    echo 'Parallel: ' . result.parallel
+endif
+```
+
+Result:
+```
+┌─ Project Settings ────────────────────────────┐
+│                                                │
+│  Project:   [MyApp                          ]  │
+│  Language:  [Python                        v]  │
+│  Build:     [Release                       v]  │
+│                                                │
+├────────────────────────────────────────────────┤
+│                                                │
+│  [ ] Verbose output                            │
+│  [x] Parallel build                            │
+│                                                │
+├────────────────────────────────────────────────┤
+│                                                │
+│            < Save >    < Cancel >              │
+│                                                │
+└────────────────────────────────────────────────┘
 ```
 
 ## Notes
