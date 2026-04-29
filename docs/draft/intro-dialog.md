@@ -72,6 +72,12 @@ Or use Vim's built-in packages:
 cd ~/.vim/pack/vendor/start && git clone https://github.com/skywind3000/vim-quickui
 ```
 
+Optional step, you can tell quickui to use Unicode borders:
+
+```vim
+let g:quickui_border_style = 2
+```
+
 That's it. No build step. No dependencies.
 
 ## Your First Dialog
@@ -98,7 +104,7 @@ endfunc
 
 Call `:call MySettings()` and you get this:
 
-![dialog screenshot](https://skywind3000.github.io/images/p/quickui/dialog1.png)
+![dialog screenshot](https://skywind3000.github.io/images/p/quickui/dialog2.png)
 
 A real dialog. In Vim. With multiple controls.
 
@@ -192,7 +198,6 @@ function! NewProject()
         \  'text': 'Initialize git repo', 'value': 1},
         \ {'type': 'check', 'name': 'ci',
         \  'text': 'Add CI config'},
-        \ {'type': 'separator'},
         \ {'type': 'button', 'name': 'confirm',
         \  'items': [' &Create ', '  Cancel  ']},
         \ ]
@@ -219,7 +224,9 @@ function! NewProject()
 endfunc
 ```
 
-<!-- TODO: Insert screenshot of the New Project dialog here -->
+Screenshot:
+
+![](https://skywind3000.github.io/images/p/quickui/dialog3.png)
 
 This example shows several things:
 
