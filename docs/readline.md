@@ -1,470 +1,470 @@
-# QuickUI Readline 模块参考文档
+# QuickUI Readline Module Reference
 
-> **文件路径**: `autoload/quickui/readline.vim`
-> **依赖**: 无外部依赖（纯 VimL 实现）
-> **适用**: Vim 8.0+ / Neovim 0.4+
+> **File**: `autoload/quickui/readline.vim`
+> **Dependencies**: None (pure VimL implementation)
+> **Requires**: Vim 8.0+ / Neovim 0.4+
 
-## 概述
+## Overview
 
-`quickui#readline` 是 QuickUI 的单行文本编辑引擎，提供类似 Readline/Emacs 风格的行编辑能力。它管理一个字符级别的编辑缓冲区，支持光标移动、文本插入/删除、可视选择、历史记录、光标闪烁、以及视口滚动渲染。
+`quickui#readline` is QuickUI's single-line text editing engine, providing Readline/Emacs-style line editing capabilities. It manages a character-level editing buffer with support for cursor movement, text insertion/deletion, visual selection, history browsing, cursor blinking, and viewport scrolling/rendering.
 
-该模块是 `quickui#input` 输入框的核心依赖——input.vim 将用户按键通过 `rl.feed()` 传递给 readline 对象，readline 处理编辑逻辑后通过 `rl.render()` 输出渲染结果，input.vim 再将渲染结果绘制到 popup/floating window 中。
+This module is the core dependency of the `quickui#input` input box — input.vim passes user keystrokes to the readline object via `rl.feed()`, readline processes the editing logic and produces rendering output via `rl.render()`, and input.vim then draws the rendering result into a popup/floating window.
 
-### 设计特点
+### Design Highlights
 
-- **字符级编辑**：内部使用 `str2list()` / `list2str()` 将文本拆为 Unicode 码点数组，天然支持 CJK 等多字节字符
-- **宽度感知**：维护每个字符的 `strdisplaywidth`，正确处理全角/半角混排
-- **可视选择**：支持 Shift+方向键的选区操作，类似现代编辑器的行为
-- **视口滚动**：当文本超出显示宽度时，自动滑动视口跟随光标
-- **独立于 UI**：readline 本身不涉及任何窗口操作，纯粹管理编辑状态和渲染输出
+- **Character-level editing**: Internally uses `str2list()` / `list2str()` to split text into Unicode codepoint arrays, natively supporting CJK and other multi-byte characters
+- **Width-aware**: Maintains `strdisplaywidth` for each character, correctly handling mixed full-width/half-width text
+- **Visual selection**: Supports Shift+arrow key selection operations, similar to modern editor behavior
+- **Viewport scrolling**: Automatically slides the viewport to follow the cursor when text exceeds the display width
+- **UI-independent**: readline itself performs no window operations — it purely manages editing state and rendering output
 
-## 数据模型
+## Data Model
 
-readline 将一行文本表示为三个并行数组：
+readline represents a line of text as three parallel arrays:
 
 ```
 text:  "Hello世界"
-code:  [72, 101, 108, 108, 111, 19990, 30028]    " Unicode 码点
-wide:  [1,  1,   1,   1,   1,   2,     2    ]    " 各字符的显示宽度
-size:  7                                          " 字符个数
-cursor: 5                                         " 光标位于 '世' 上
+code:  [72, 101, 108, 108, 111, 19990, 30028]    " Unicode codepoints
+wide:  [1,  1,   1,   1,   1,   2,     2    ]    " display width of each character
+size:  7                                          " character count
+cursor: 5                                         " cursor is on '世'
 ```
 
-- `code`：`str2list()` 的结果，每个元素是一个 Unicode 码点
-- `wide`：每个字符的 `strdisplaywidth()`，用于视口计算
-- `size`：`len(code)`，字符个数（非字节数）
-- `cursor`：光标所在字符位置（0-based，范围 `[0, size]`，等于 size 时光标在末尾）
+- `code`: Result of `str2list()`, each element is a Unicode codepoint
+- `wide`: `strdisplaywidth()` of each character, used for viewport calculations
+- `size`: `len(code)`, character count (not byte count)
+- `cursor`: Cursor position as character index (0-based, range `[0, size]`, equals size when cursor is at end)
 
-## 类定义：`s:readline`
+## Class Definition: `s:readline`
 
-### 属性一览
+### Properties
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `cursor` | Number | 0 | 光标位置（字符索引，0-based） |
-| `code` | List | [] | 字符码点数组（`str2list()` 结果） |
-| `wide` | List | [] | 每个字符的显示宽度 |
-| `size` | Number | 0 | 字符总数 |
-| `text` | String | '' | 文本缓存（`update()` 后同步） |
-| `dirty` | Number | 0 | `code` 是否已修改但 `text` 未同步 |
-| `select` | Number | -1 | 可视选择起始位置（-1 表示无选区） |
-| `history` | List | [] | 历史记录列表 |
-| `index` | Number | 0 | 当前历史记录指针（0 为最新） |
-| `timer` | Number | -1 | 光标闪烁计时器起点（毫秒时间戳，-1 表示重置） |
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `cursor` | Number | 0 | Cursor position (character index, 0-based) |
+| `code` | List | [] | Character codepoint array (`str2list()` result) |
+| `wide` | List | [] | Display width of each character |
+| `size` | Number | 0 | Total character count |
+| `text` | String | '' | Text cache (synced after `update()`) |
+| `dirty` | Number | 0 | Whether `code` has been modified but `text` not yet synced |
+| `select` | Number | -1 | Visual selection anchor position (-1 means no selection) |
+| `history` | List | [] | History record list |
+| `index` | Number | 0 | Current history pointer (0 is the most recent) |
+| `timer` | Number | -1 | Cursor blink timer start (millisecond timestamp, -1 means reset) |
 
-### 关于 `dirty` 和 `text`
+### About `dirty` and `text`
 
-`code` 数组是编辑操作的主数据源。每次修改 `code` 后 `dirty` 会置为 1，但 `text` 字符串不会立即更新（避免频繁的 `list2str` 转换）。调用 `update()` 会同步 `text` 并清除 `dirty`。
+The `code` array is the primary data source for editing operations. After each modification to `code`, `dirty` is set to 1, but the `text` string is not immediately updated (to avoid frequent `list2str` conversions). Calling `update()` syncs `text` and clears `dirty`.
 
-`text` 主要用于：
-- 返回最终输入结果
-- `history_save()` 保存历史时使用
+`text` is primarily used for:
+- Returning the final input result
+- Saving history via `history_save()`
 
-## 构造函数
+## Constructor
 
 ### `quickui#readline#new()`
 
-创建并返回一个新的 readline 对象实例（`s:readline` 的深拷贝）。
+Creates and returns a new readline object instance (a deep copy of `s:readline`).
 
 ```vim
 let rl = quickui#readline#new()
 ```
 
-## 方法参考
+## Method Reference
 
-### 文本操作方法
+### Text Manipulation Methods
 
 #### `rl.set(text)`
 
-设置整个编辑缓冲区的内容。
+Sets the entire editing buffer content.
 
-**参数**: `text` - 字符串。
+**Parameter**: `text` - String.
 
-**行为**: 将 text 拆解为 `code` 和 `wide` 数组，更新 `size`，置 `dirty=1`，然后对当前 cursor 做边界修正。
+**Behavior**: Splits text into `code` and `wide` arrays, updates `size`, sets `dirty=1`, then clamps the current cursor to valid bounds.
 
 #### `rl.update()`
 
-将 `code` 数组同步回 `text` 字符串。
+Syncs the `code` array back to the `text` string.
 
-**返回值**: 同步后的文本字符串。
+**Returns**: The synced text string.
 
-**注意**: 这是获取编辑结果的标准方法。不要直接读取 `self.text`，因为它可能是过期的。
+**Note**: This is the standard method for obtaining the editing result. Do not read `self.text` directly, as it may be stale.
 
 #### `rl.insert(text)`
 
-在光标当前位置插入文本。
+Inserts text at the current cursor position.
 
-**参数**: `text` - 要插入的字符串。
+**Parameter**: `text` - String to insert.
 
-**行为**: 将 text 拆为码点和宽度数组，插入到 `code` 和 `wide` 的 cursor 位置，cursor 后移到插入文本之后。
+**Behavior**: Splits text into codepoint and width arrays, inserts them into `code` and `wide` at the cursor position, then advances the cursor past the inserted text.
 
 #### `rl.delete(size)`
 
-删除光标位置及之后的 size 个字符（类似 Delete 键）。
+Deletes `size` characters at and after the cursor position (like the Delete key).
 
-**参数**: `size` - 要删除的字符数。超出可用范围时自动裁剪。
+**Parameter**: `size` - Number of characters to delete. Automatically clamped if exceeding available range.
 
-光标位置不变。
+Cursor position remains unchanged.
 
 #### `rl.backspace(size)`
 
-删除光标之前的 size 个字符（类似 Backspace 键）。
+Deletes `size` characters before the cursor (like the Backspace key).
 
-**参数**: `size` - 要删除的字符数。超出可用范围时自动裁剪。
+**Parameter**: `size` - Number of characters to delete. Automatically clamped if exceeding available range.
 
-光标前移 size 个位置。
+Cursor moves back by `size` positions.
 
 #### `rl.replace(text)`
 
-替换光标位置开始的字符。先删除 `strchars(text)` 个字符，再插入 text。
+Replaces characters starting at the cursor position. First deletes `strchars(text)` characters, then inserts text.
 
-### 光标移动方法
+### Cursor Movement Methods
 
 #### `rl.move(pos)`
 
-将光标移动到指定位置，自动裁剪到 `[0, size]` 范围。同时重置闪烁计时器。
+Moves the cursor to the specified position, automatically clamped to `[0, size]` range. Also resets the blink timer.
 
-**返回值**: 裁剪后的实际位置。
+**Returns**: The clamped actual position.
 
 #### `rl.seek(pos, mode)`
 
-相对/绝对光标定位（类似 C 的 `fseek`）。
+Relative/absolute cursor positioning (similar to C's `fseek`).
 
-**参数**:
-- `pos`：偏移量
-- `mode`：基准点
-  - `0`：从行首开始（绝对位置）
-  - `1`：从当前位置开始（相对偏移）
-  - `2`：从行尾开始（`size + pos`）
+**Parameters**:
+- `pos`: Offset
+- `mode`: Reference point
+  - `0`: From line start (absolute position)
+  - `1`: From current position (relative offset)
+  - `2`: From line end (`size + pos`)
 
-**示例**:
+**Examples**:
 ```vim
-call rl.seek(0, 0)    " 跳到行首
-call rl.seek(0, 2)    " 跳到行尾
-call rl.seek(-1, 1)   " 左移一个字符
-call rl.seek(1, 1)    " 右移一个字符
+call rl.seek(0, 0)    " jump to line start
+call rl.seek(0, 2)    " jump to line end
+call rl.seek(-1, 1)   " move left one character
+call rl.seek(1, 1)    " move right one character
 ```
 
 #### `rl.is_eol()`
 
-返回光标是否在行尾（`cursor >= size`）。
+Returns whether the cursor is at the end of line (`cursor >= size`).
 
-### 文本提取方法
+### Text Extraction Methods
 
 #### `rl.extract(locate)`
 
-提取光标相对位置的文本。
+Extracts text relative to the cursor position.
 
-**参数**:
-- `locate`：
-  - `-1`：光标之前的所有文本
-  - `0`：光标所在的字符
-  - `1`：光标之后的所有文本
+**Parameter**:
+- `locate`:
+  - `-1`: All text before the cursor
+  - `0`: The character at the cursor
+  - `1`: All text after the cursor
 
-**返回值**: 提取的文本字符串。
+**Returns**: The extracted text string.
 
-### 可视选择方法
+### Visual Selection Methods
 
-选区由 `select` 和 `cursor` 两个位置界定。`select` 是选区的锚点（起始位置），`cursor` 是活动端。`select == -1` 表示无选区。
+The selection is bounded by two positions: `select` and `cursor`. `select` is the anchor (start position), `cursor` is the active end. `select == -1` means no selection.
 
 #### `rl.visual_range()`
 
-返回选区的规范化范围 `[start, end)`（start <= end）。无选区时返回 `[-1, -1]`。
+Returns the normalized selection range `[start, end)` (start <= end). Returns `[-1, -1]` when there is no selection.
 
 #### `rl.visual_text()`
 
-返回选区内的文本字符串。无选区时返回空字符串。
+Returns the text string within the selection. Returns an empty string when there is no selection.
 
 #### `rl.visual_delete()`
 
-删除选区内容。行为取决于 cursor 和 select 的相对位置：
-- 如果 `cursor > select`：相当于 backspace 删除 cursor 到 select 之间的字符
-- 如果 `cursor < select`：相当于 delete 删除 cursor 到 select 之间的字符
+Deletes the selection content. Behavior depends on the relative positions of cursor and select:
+- If `cursor > select`: equivalent to backspace-deleting characters between cursor and select
+- If `cursor < select`: equivalent to forward-deleting characters between cursor and select
 
-删除后 `select` 重置为 -1。
+After deletion, `select` is reset to -1.
 
 #### `rl.visual_replace(text)`
 
-用 text 替换选区内容（先 `visual_delete()` 再 `insert(text)`）。
+Replaces the selection content with text (calls `visual_delete()` then `insert(text)`).
 
-### 显示与渲染方法
+### Display and Rendering Methods
 
-这组方法负责将编辑状态转换为可显示的带属性文本片段列表。
+This group of methods converts the editing state into displayable attributed text fragment lists.
 
-#### 属性值定义
+#### Attribute Value Definitions
 
-渲染输出中每个文本片段带有属性值：
+Each text fragment in the rendering output carries an attribute value:
 
-| 属性值 | 含义 | 对应高亮组（input.vim 中） |
-|--------|------|---------------------------|
-| `0` | 普通文本 | `QuickInput` |
-| `1` | 光标 | `QuickCursor`（闪烁时为 `QuickInput`） |
-| `2` | 选区 | `QuickVisual` |
-| `3` | 选区 + 光标 | `QuickCursor`（闪烁时为 `QuickVisual`） |
+| Attribute | Meaning | Corresponding highlight group (in input.vim) |
+|-----------|---------|----------------------------------------------|
+| `0` | Normal text | `QuickInput` |
+| `1` | Cursor | `QuickCursor` (or `QuickInput` when blinking) |
+| `2` | Selection | `QuickVisual` |
+| `3` | Selection + Cursor | `QuickCursor` (or `QuickVisual` when blinking) |
 
 #### `rl.display()`
 
-生成完整编辑缓冲区的带属性显示列表。
+Generates the full editing buffer as an attributed display list.
 
-**返回值**: `List<[attr, text]>` — 属性值和文本片段的列表。
+**Returns**: `List<[attr, text]>` — List of attribute values and text fragments.
 
-**示例**（缓冲区为 `"Hello, World!!"`, 光标在 `W` 上，无选区）:
+**Example** (buffer is `"Hello, World!!"`, cursor on `W`, no selection):
 ```
 [[0, "Hello, "], [1, "W"], [0, "orld !!"]]
 ```
 
-**示例**（有选区，select=2, cursor=5）:
+**Example** (with selection, select=2, cursor=5):
 ```
 [[0, "He"], [2, "llo"], [3, ","], [0, " World!!"]]
 ```
 
-光标在行尾时，会生成一个空格字符作为光标占位符。
+When the cursor is at the end of line, a space character is generated as a cursor placeholder.
 
 #### `rl.window(display, start, endup)`
 
-对 `display()` 的结果进行视口裁剪，只保留字符位置 `[start, endup)` 范围内的内容。
+Clips the result of `display()` to a viewport, keeping only content within the character position range `[start, endup)`.
 
-**参数**:
-- `display`：`display()` 的返回值
-- `start`：起始字符位置（可以为负数，负数部分用空格填充）
-- `endup`：结束字符位置（不含）
+**Parameters**:
+- `display`: Return value of `display()`
+- `start`: Start character position (can be negative; negative portion is filled with spaces)
+- `endup`: End character position (exclusive)
 
-**返回值**: 裁剪后的 `List<[attr, text]>`。如果文本不足以填满 `[start, endup)` 范围，末尾用 `[0, spaces]` 填充。
+**Returns**: Clipped `List<[attr, text]>`. If the text is insufficient to fill the `[start, endup)` range, the end is padded with `[0, spaces]`.
 
 #### `rl.render(pos, display_width)`
 
-核心渲染方法：生成指定视口位置和宽度下的完整显示列表。
+Core rendering method: generates a complete display list for a given viewport position and width.
 
-**参数**:
-- `pos`：视口起始字符位置
-- `display_width`：视口显示宽度（字符列数）
+**Parameters**:
+- `pos`: Viewport start character position
+- `display_width`: Viewport display width (column count)
 
-**返回值**: `List<[attr, text]>` — 填满整个视口宽度的带属性文本片段列表。
+**Returns**: `List<[attr, text]>` — Attributed text fragment list filling the entire viewport width.
 
-**行为**:
-1. 调用 `avail()` 计算视口能容纳的字符数
-2. 调用 `display()` 获取完整显示列表
-3. 调用 `window()` 裁剪到视口范围
-4. 如果总宽度不足 `display_width`，用带正确属性的空格填充（考虑光标和选区延伸到视口末尾的情况）
+**Behavior**:
+1. Calls `avail()` to calculate how many characters the viewport can hold
+2. Calls `display()` to get the full display list
+3. Calls `window()` to clip to viewport range
+4. If total width is less than `display_width`, pads with spaces carrying the correct attribute (considering cursor and selection extending to the viewport end)
 
 #### `rl.slide(window_pos, display_width)`
 
-计算视口滑动位置，确保光标始终可见。
+Calculates the viewport sliding position to ensure the cursor is always visible.
 
-**参数**:
-- `window_pos`：当前视口起始位置
-- `display_width`：视口显示宽度
+**Parameters**:
+- `window_pos`: Current viewport start position
+- `display_width`: Viewport display width
 
-**返回值**: 新的视口起始位置。
+**Returns**: New viewport start position.
 
-**逻辑**:
-- 如果光标在视口左边（`cursor < window_pos`），视口左移到光标位置
-- 如果光标在视口内，保持不变
-- 如果光标超出视口右边，右移视口使光标刚好出现在视口右边缘
+**Logic**:
+- If the cursor is to the left of the viewport (`cursor < window_pos`), slide the viewport left to the cursor position
+- If the cursor is within the viewport, keep unchanged
+- If the cursor exceeds the viewport right edge, slide the viewport right so the cursor just appears at the right edge
 
-**典型使用模式**（在 input.vim 中）:
+**Typical usage pattern** (in input.vim):
 ```vim
 let hwnd.pos = rl.slide(hwnd.pos, hwnd.w)
 let display = rl.render(hwnd.pos, hwnd.w)
 ```
 
-### 宽度计算方法
+### Width Calculation Methods
 
 #### `rl.avail(pos, length)`
 
-计算从 pos 位置开始，在给定显示宽度内能容纳多少个字符。
+Calculates how many characters can fit starting from `pos` within the given display width.
 
-**参数**:
-- `pos`：起始字符位置
-- `length`：显示宽度（正数向右计算，负数向左计算）
+**Parameters**:
+- `pos`: Start character position
+- `length`: Display width (positive counts rightward, negative counts leftward)
 
-**返回值**: 能容纳的字符数量。
+**Returns**: Number of characters that can fit.
 
-**说明**: 该方法考虑了每个字符的实际显示宽度（`wide` 数组），全角字符占 2 列。当下一个字符放不下时停止。
+**Note**: This method accounts for each character's actual display width (`wide` array); full-width characters occupy 2 columns. Stops when the next character would not fit.
 
 #### `rl.width(start, endup)`
 
-计算 `[start, endup)` 范围内所有字符的总显示宽度。
+Calculates the total display width of all characters in the `[start, endup)` range.
 
 #### `rl.read_data(pos, width, what)`
 
-读取指定范围的码点数组或宽度数组。
+Reads a range of the codepoint or width array.
 
-**参数**:
-- `pos`：起始位置
-- `width`：读取的字符数
-- `what`：0 返回 `code` 数组，非 0 返回 `wide` 数组
+**Parameters**:
+- `pos`: Start position
+- `width`: Number of characters to read
+- `what`: 0 returns the `code` array, non-zero returns the `wide` array
 
-自动处理边界裁剪。
+Automatically handles boundary clamping.
 
-### 光标闪烁方法
+### Cursor Blink Methods
 
 #### `rl.blink(millisec)`
 
-根据当前时间戳判断光标是否应该闪烁（不可见）。
+Determines whether the cursor should be blinking (invisible) based on the current timestamp.
 
-**参数**: `millisec` — 当前时间毫秒数（通过 `float2nr(reltimefloat(reltime()) * 1000)` 获取）。
+**Parameter**: `millisec` — Current time in milliseconds (obtained via `float2nr(reltimefloat(reltime()) * 1000)`).
 
-**返回值**: `0` 光标可见，`1` 光标隐藏（闪烁中）。
+**Returns**: `0` cursor visible, `1` cursor hidden (blinking).
 
-**闪烁节奏**:
-- 首次调用后等待 500ms 不闪烁
-- 之后以 300ms 亮 / 300ms 灭 的节奏交替
+**Blink rhythm**:
+- After the first call, waits 500ms without blinking
+- Then alternates at 300ms visible / 300ms hidden
 
-**计时器重置**: 任何导致光标移动的操作（`move`、`insert`、`delete`、`backspace`）都会将 `timer` 重置为 -1，下次 `blink()` 调用重新开始计时。
+**Timer reset**: Any operation that moves the cursor (`move`, `insert`, `delete`, `backspace`) resets `timer` to -1, and the next `blink()` call restarts the timer.
 
-### 鼠标交互方法
+### Mouse Interaction Methods
 
 #### `rl.mouse_click(winpos, offset)`
 
-将鼠标点击的显示位置转换为字符位置。
+Converts a mouse click display position to a character position.
 
-**参数**:
-- `winpos`：视口起始字符位置
-- `offset`：点击位置相对于视口左边缘的列偏移
+**Parameters**:
+- `winpos`: Viewport start character position
+- `offset`: Click position column offset relative to the viewport left edge
 
-**返回值**: 对应的字符位置（裁剪到 `[0, size]`）。
+**Returns**: Corresponding character position (clamped to `[0, size]`).
 
-### 历史记录方法
+### History Methods
 
-历史记录是一个字符串列表，`index` 指向当前浏览的历史条目。`index=0` 通常是当前输入（空字符串或用户正在编辑的文本）。
+History is a list of strings, with `index` pointing to the currently browsed entry. `index=0` is typically the current input (empty string or text the user is editing).
 
 #### `rl.history_init(history)`
 
-初始化历史记录。
+Initializes the history.
 
-**参数**: `history` — 历史字符串列表（从旧到新）。
+**Parameter**: `history` — List of history strings (oldest to newest).
 
-**行为**: 将输入列表反转，追加一个空字符串作为 "当前输入" 的占位，`index` 设为 0。
+**Behavior**: Reverses the input list, appends an empty string as a placeholder for "current input", and sets `index` to 0.
 
 #### `rl.history_save()`
 
-将当前编辑内容保存到历史记录的当前位置。
+Saves the current editing content to the history at the current position.
 
 #### `rl.history_prev()`
 
-浏览上一条历史记录。先保存当前内容，然后 `index+1`（循环），加载对应的历史文本。
+Browses the previous history entry. First saves the current content, then increments `index` (wrapping around), and loads the corresponding history text.
 
 #### `rl.history_next()`
 
-浏览下一条历史记录。先保存当前内容，然后 `index-1`（循环），加载对应的历史文本。
+Browses the next history entry. First saves the current content, then decrements `index` (wrapping around), and loads the corresponding history text.
 
-### 按键处理方法
+### Key Handling Methods
 
 #### `rl.feed(char)`
 
-处理单个按键输入，这是 readline 的核心输入入口。
+Processes a single key input — this is readline's core input entry point.
 
-**参数**: `char` — 按键字符串（可以是特殊键如 `"\<BS>"`、`"\<LEFT>"` 等）。
+**Parameter**: `char` — Key string (can be special keys like `"\<BS>"`, `"\<LEFT>"`, etc.).
 
-**返回值**: `0` 表示按键已处理，`-1` 表示未识别的控制键。
+**Returns**: `0` means the key was handled, `-1` means an unrecognized control key.
 
-**支持的按键**:
+**Supported keys**:
 
-| 按键 | 行为 |
-|------|------|
-| `<BS>` | 有选区时删除选区，否则退格删除一个字符 |
-| `<Delete>` / `<C-d>` | 有选区时删除选区，否则向前删除一个字符 |
-| `<Left>` / `<C-b>` | 有选区时跳到选区左端并清除选区，否则左移一个字符 |
-| `<Right>` / `<C-f>` | 有选区时跳到选区右端并清除选区，否则右移一个字符 |
-| `<Home>` / `<C-a>` | 跳到行首，清除选区 |
-| `<End>` / `<C-e>` | 跳到行尾，清除选区 |
-| `<Up>` | 浏览上一条历史，清除选区 |
-| `<Down>` | 浏览下一条历史，清除选区 |
-| `<S-Left>` | 向左扩展选区（首次按下时设置锚点） |
-| `<S-Right>` | 向右扩展选区（首次按下时设置锚点） |
-| `<S-Home>` | 选区扩展到行首 |
-| `<S-End>` | 选区扩展到行尾 |
-| `<C-k>` | 有选区时删除选区，否则删除光标到行尾的所有字符 |
-| `<C-w>` | 有选区时删除选区，否则向后删除一个单词（含尾部空白） |
-| `<C-c>` | 复制选区文本到寄存器 `"0` |
-| `<C-x>` | 剪切选区文本到寄存器 `"0` |
-| `<C-v>` | 从寄存器 `"0` 粘贴（有选区时先删除选区） |
-| `<C-Insert>` | 复制选区文本到系统剪贴板 `"*` |
-| `<S-Insert>` | 从系统剪贴板 `"*` 粘贴（有选区时先删除选区） |
-| 普通字符 | 有选区时先删除选区，然后在光标位置插入 |
+| Key | Behavior |
+|-----|----------|
+| `<BS>` | If selection exists, delete selection; otherwise backspace one character |
+| `<Delete>` / `<C-d>` | If selection exists, delete selection; otherwise forward-delete one character |
+| `<Left>` / `<C-b>` | If selection exists, jump to selection left end and clear selection; otherwise move left one character |
+| `<Right>` / `<C-f>` | If selection exists, jump to selection right end and clear selection; otherwise move right one character |
+| `<Home>` / `<C-a>` | Jump to line start, clear selection |
+| `<End>` / `<C-e>` | Jump to line end, clear selection |
+| `<Up>` | Browse previous history, clear selection |
+| `<Down>` | Browse next history, clear selection |
+| `<S-Left>` | Extend selection leftward (sets anchor on first press) |
+| `<S-Right>` | Extend selection rightward (sets anchor on first press) |
+| `<S-Home>` | Extend selection to line start |
+| `<S-End>` | Extend selection to line end |
+| `<C-k>` | If selection exists, delete selection; otherwise delete from cursor to line end |
+| `<C-w>` | If selection exists, delete selection; otherwise delete previous word (including trailing whitespace) |
+| `<C-c>` | Copy selection text to register `"0` |
+| `<C-x>` | Cut selection text to register `"0` |
+| `<C-v>` | Paste from register `"0` (deletes selection first if exists) |
+| `<C-Insert>` | Copy selection text to system clipboard `"*` |
+| `<S-Insert>` | Paste from system clipboard `"*` (deletes selection first if exists) |
+| Regular characters | If selection exists, delete selection first, then insert at cursor position |
 
-**注意**: `feed()` 不处理 `<CR>`、`<ESC>` 和 `<C-C>`，这些由上层（input.vim）直接处理。
+**Note**: `feed()` does not handle `<CR>`, `<ESC>`, and `<C-C>` — these are handled directly by the upper layer (input.vim).
 
-### 调试方法
+### Debug Methods
 
 #### `rl.echo(blink [, pos, size])`
 
-在命令行直接显示编辑状态（使用 `echohl` + `echon`）。
+Displays the editing state directly in the command line (using `echohl` + `echon`).
 
-**参数**:
-- `blink`：闪烁状态（0=光标可见, 1=光标隐藏）
-- `pos`（可选）：视口起始位置
-- `size`（可选）：视口宽度
+**Parameters**:
+- `blink`: Blink state (0=cursor visible, 1=cursor hidden)
+- `pos` (optional): Viewport start position
+- `size` (optional): Viewport width
 
-不带 pos/size 时显示完整内容。主要用于独立测试（`quickui#readline#cli` 函数）。
+Without pos/size, displays the full content. Primarily used for standalone testing (the `quickui#readline#cli` function).
 
-## input.vim 中的使用流程
+## Usage Flow in input.vim
 
-以下是 `quickui#input` 如何使用 readline 对象的典型流程：
+Here is the typical flow of how `quickui#input` uses the readline object:
 
 ```vim
-" 1. 创建 readline 实例
+" 1. Create a readline instance
 let rl = quickui#readline#new()
 
-" 2. 设置初始文本（如有）
+" 2. Set initial text (if any)
 call rl.set('initial text')
-call rl.seek(0, 2)          " 光标移到末尾
+call rl.seek(0, 2)          " move cursor to end
 
-" 3. 初始化历史
+" 3. Initialize history
 let rl.history = [''] + previous_history_list
 
-" 4. 主循环
-let pos = 0                 " 视口起始位置
+" 4. Main loop
+let pos = 0                 " viewport start position
 while not_exited
-    " 4a. 计算视口位置
+    " 4a. Calculate viewport position
     let pos = rl.slide(pos, window_width)
 
-    " 4b. 渲染
+    " 4b. Render
     let display = rl.render(pos, window_width)
 
-    " 4c. 绘制到 popup window（根据 attr 设置高亮）
+    " 4c. Draw to popup window (set highlight based on attr)
     for [attr, text] in display
-        " 使用 quickui#core#high_region 设置对应高亮组
+        " Use quickui#core#high_region to set corresponding highlight groups
     endfor
 
-    " 4d. 获取按键
+    " 4d. Get keypress
     let ch = getchar()
 
-    " 4e. 特殊键处理
+    " 4e. Special key handling
     if ch == "\<CR>"
-        let result = rl.update()    " 获取最终文本
+        let result = rl.update()    " get final text
         call rl.history_save()
         break
     elseif ch == "\<ESC>"
         break
     endif
 
-    " 4f. 其他按键交给 readline 处理
+    " 4f. Pass other keys to readline
     call rl.feed(ch)
 endwhile
 ```
 
-## 测试
+## Testing
 
-模块内置了测试函数：
+The module includes built-in test functions:
 
-- `quickui#readline#test()` — 单元测试，验证基本编辑操作的正确性
-- `quickui#readline#cli(prompt)` — 交互式命令行测试，可在 Vim 中运行体验 readline 行为
+- `quickui#readline#test()` — Unit tests verifying basic editing operation correctness
+- `quickui#readline#cli(prompt)` — Interactive command-line test for experiencing readline behavior in Vim
 
 ```vim
-" 运行单元测试
+" Run unit tests
 :echo quickui#readline#test()
 
-" 运行交互测试
+" Run interactive test
 :echo quickui#readline#cli(">>> ")
 ```
 
-## 注意事项
+## Notes
 
-1. **`text` 可能过期**：修改操作只更新 `code`/`wide`/`size`，`text` 字符串需要显式调用 `update()` 才会同步。不要直接读取 `self.text` 获取当前内容。
-2. **选区约定**：`select` 是锚点，`cursor` 是活动端。`select` 可以大于也可以小于 `cursor`。`visual_range()` 返回的是规范化的 `[min, max)` 范围。
-3. **Vim/Neovim 兼容**：`s:list_slice()` 辅助函数处理了 Vim 的 `slice()` 和 Neovim 的列表切片语法差异（Neovim 没有 `slice()` 内置函数）。
-4. **粘贴行为**：粘贴时只取第一行（`split(text, "\n", 1)[0]`），并将换行符和 Tab 替换为空格。
-5. **单词删除**（`<C-w>`）：使用 `\S\+\s*$` 匹配光标前的最后一个非空白单词及其尾部空白。
-6. **历史循环**：`history_prev()` 和 `history_next()` 在到达列表边界时会循环到另一端。
+1. **`text` may be stale**: Modification operations only update `code`/`wide`/`size`; the `text` string requires an explicit `update()` call to sync. Do not read `self.text` directly to get the current content.
+2. **Selection convention**: `select` is the anchor, `cursor` is the active end. `select` can be greater than or less than `cursor`. `visual_range()` returns a normalized `[min, max)` range.
+3. **Vim/Neovim compatibility**: The `s:list_slice()` helper function handles the difference between Vim's `slice()` and Neovim's list slicing syntax (Neovim lacks the `slice()` built-in function).
+4. **Paste behavior**: Only the first line is taken when pasting (`split(text, "\n", 1)[0]`), and newlines and tabs are replaced with spaces.
+5. **Word deletion** (`<C-w>`): Uses `\S\+\s*$` to match the last non-whitespace word before the cursor along with its trailing whitespace.
+6. **History wrapping**: `history_prev()` and `history_next()` wrap around when reaching the list boundary.
