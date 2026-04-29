@@ -125,7 +125,7 @@ function! s:readline.insert(text) abort
 	let cursor = self.cursor
 	for cc in code
 		let ch = nr2char(cc)
-		let ww = strwidth(ch)
+		let ww = strdisplaywidth(ch)
 		let wide += [ww]
 	endfor
 	call extend(self.code, code, cursor)
@@ -226,6 +226,8 @@ function! s:readline.visual_delete() abort
 		elseif length < 0
 			call self.delete(-length)
 			let self.select = -1
+		else
+			let self.select = -1
 		endif
 	endif
 endfunc
@@ -265,6 +267,7 @@ function! s:readline.blink(millisec)
 	if offset < delay_wait
 		return 0
 	else
+		let offset -= delay_wait
 		let size = max([delay_on + delay_off, 1])
 		return ((offset % size) < delay_on)? 0 : 1
 	endif
@@ -318,8 +321,8 @@ function! s:readline.avail(pos, length)
 		return pos - a:pos
 	else
 		let length = -length
-		while 1
-			let char_width = (pos >= 0 && pos < size)? wide[pos] : 1
+		while pos >= 0
+			let char_width = (pos < size)? wide[pos] : 1
 			let sum += char_width
 			if sum > length
 				break
@@ -471,10 +474,11 @@ function! s:readline.slide(window_pos, display_width)
 	endif
 	let window_pos = (window_pos < 0)? 0 : window_pos
 	let wides = self.read_data(window_pos, cursor - window_pos, 1)
+	let cursor_width = (cursor < self.size)? self.wide[cursor] : 1
 	if s:has_nvim == 0
-		let width = reduce(wides, { acc, val -> acc + val }, 0) + 1
+		let width = reduce(wides, { acc, val -> acc + val }, 0) + cursor_width
 	else
-		let width = 1
+		let width = cursor_width
 		for w in wides
 			let width += w
 		endfor
@@ -486,7 +490,6 @@ function! s:readline.slide(window_pos, display_width)
 		let pos = cursor - avail + 1
 		return max([pos, 0])
 	endif
-	return window_pos
 endfunc
 
 
@@ -700,7 +703,9 @@ function! s:readline.feed(char) abort
 				if text != ''
 					let @0 = text
 				endif
+				let self.select = -1
 			endif
+			return -1
 		elseif char == "\<c-x>"
 			if self.select >= 0
 				let text = self.visual_text()
