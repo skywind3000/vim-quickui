@@ -23,7 +23,7 @@ endif
 Result:
 
 ```
-┌─ User Info ──────────────────────────────┐
+┌─ User Info ──────────────────────────────X┐
 │                                           │
 │  Please fill in:                          │
 │                                           │
@@ -224,12 +224,12 @@ When activated (Enter/Space/click), a popup list appears below the control:
 
 ```
 Language:  [C/C++                        v]
-           ┌────────────────────────────┐
+           ┌─────────────────────────────┐
            │  Python                     │
            │> C/C++                      │
            │  Java                       │
            │  Go                         │
-           └────────────────────────────┘
+           └─────────────────────────────┘
 ```
 
 **Collapsed keybindings** (when dropdown is focused in dialog):
@@ -500,7 +500,7 @@ endif
 
 Result:
 ```
-┌─ Project Settings ────────────────────────────┐
+┌─ Project Settings ────────────────────────────X┐
 │                                                │
 │  Project:   [MyApp                          ]  │
 │  Language:  [Python                        v]  │
