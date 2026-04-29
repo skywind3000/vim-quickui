@@ -141,7 +141,7 @@ function! quickui#core#expand_text(string) abort
 		endif
 		let endup = stridx(a:string, '}', pos + 2)
 		if endup < 0
-			let partial += [strpart(a:stirng, index)]
+			let partial += [strpart(a:string, index)]
 			break
 		endif
 		let index = endup + 1
@@ -403,12 +403,12 @@ function! quickui#core#buffer_alloc()
 			call setbufvar(bid, '&buflisted', 0)
 			call setbufvar(bid, '&bufhidden', 'hide')
 			call setbufvar(bid, '&buftype', 'nofile')
-			call setbufvar(bid, 'noswapfile', 1)
+			call setbufvar(bid, '&swapfile', 0)
 		else
 			let bid = nvim_create_buf(v:false, v:true)
 			call setbufvar(bid, '&buftype', 'nofile')
 			call setbufvar(bid, '&bufhidden', 'hide')
-			call setbufvar(bid, 'noswapfile', 1)
+			call setbufvar(bid, '&swapfile', 0)
 		endif
 	endif
 	call setbufvar(bid, '&modifiable', 1)
@@ -842,15 +842,6 @@ function! quickui#core#write_script(command, pause)
 		endif
 	endif
 	return tmpname
-endfunc
-
-
-"----------------------------------------------------------------------
-" string replace
-"----------------------------------------------------------------------
-function! quickui#core#string_replace(text, old, new)
-	let data = split(a:text, a:old, 1)
-	return join(data, a:new)
 endfunc
 
 
