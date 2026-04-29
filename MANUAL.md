@@ -12,14 +12,14 @@ QuickUI is fully customizable and easy to configure.
   - [Installation](#installation)
   - [Available Widgets](#available-widgets)
     - [Menu](#menu)
-    - [Listbox](#listbox)
-    - [Inputbox](#inputbox)
     - [Context menu](#context-menu)
+    - [Dialog](#dialog)
+    - [Listbox](#listbox)
     - [Textbox](#textbox)
     - [Preview window](#preview-window)
+    - [Inputbox](#inputbox)
     - [Terminal](#terminal)
     - [Confirm dialog](#confirm-dialog)
-    - [Dialog](#dialog)
   - [Tools](#tools)
     - [Buffer switcher](#buffer-switcher)
     - [Function list](#function-list)
@@ -151,152 +151,6 @@ call quickui#menu#open('abc')
 
 When invoked with the argument `"abc"`, menus in the `"abc"` namespace are displayed. If the argument is omitted, the default namespace `"system"` is used.
 
-### Listbox
-
-When you have hundreds of items to deal with, a menu cannot hold them all — use a listbox instead.
-
-![](https://skywind3000.github.io/images/p/quickui/listbox.png)
-
-**Features**:
-
-- Pick an item from thousands of entries.
-- Columns separated by `"\t"` are automatically aligned.
-- A scroll bar appears when there are too many items.
-- Mouse wheel scrolls the content.
-- Characters prefixed with `&` serve as shortcuts.
-- Has a title and can be dragged with the mouse.
-- Search items with `/` or `?`.
-- Jump to a line number with `:`.
-
-**Usage**:
-
-- `j` / `CTRL+j` / `UP`: move up.
-- `k` / `CTRL+k` / `DOWN`: move down.
-- `J` / `CTRL+d`: half page down.
-- `K` / `CTRL+u`: half page up.
-- `H` / `CTRL+b` / `PageUp`: page up.
-- `L` / `CTRL+f` / `PageDown`: page down.
-- `SPACE` / `ENTER`: confirm.
-- `ESC` / `CTRL+[`: cancel.
-- `g`: go to the first item.
-- `G`: go to the last item.
-- `/`: search forwards.
-- `?`: search backwards.
-- `:`: go to line number.
-- `n` / `CTRL+n`: next match.
-- `N` / `CTRL+p`: previous match.
-
-Note: `hjkl` or `n` may be overridden by user hotkeys, so `CTRL`+`hjkl` or `CTRL`+`n` can always be used.
-
-**APIs**:
-
-Open the listbox:
-
-```VimL
-quickui#listbox#open(content, opts)
-```
-
-Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options:
-
-- `title`: title of the listbox.
-- `index`: initial cursor position, starting from 0.
-- `w`: listbox width.
-- `h`: listbox height.
-- `col`: screen position in columns, starting from 1.
-- `line`: screen position in lines, starting from 1.
-- `color`: background color, defaults to `QuickBG`.
-- `syntax`: the `filetype` applied to the `listbox`.
-- `callback`: a function (`"fn(code)"` form) called after the listbox closes (on Enter or ESC).
-
-All options are optional. The `callback` function receives a parameter `code` representing the selected item index. If you quit (`ESC`/`CTRL+[`) without making a selection, `code` will be `-1`.
-
-The internal variable `g:quickui#listbox#cursor` stores the last cursor position (index) in the listbox. It can be used to restore the previous location.
-
-**Sample code**:
-
-```VimL
-let content = [
-            \ [ 'echo 1', 'echo 100' ],
-            \ [ 'echo 2', 'echo 200' ],
-            \ [ 'echo 3', 'echo 300' ],
-            \ [ 'echo 4' ],
-            \ [ 'echo 5', 'echo 500' ],
-            \]
-let opts = {'title': 'select one'}
-call quickui#listbox#open(content, opts)
-```
-
-It can also work like the `inputlist()` function via `quickui#listbox#inputlist`, which returns the selected index immediately instead of executing a Vim command:
-
-```VimL
-let linelist = [
-            \ "line &1",
-            \ "line &2",
-            \ "line &3",
-            \ ]
-" restore last position in previous listbox
-let opts = {'index':g:quickui#listbox#cursor, 'title': 'select'}
-echo quickui#listbox#inputlist(linelist, opts)
-```
-
-The key difference is that `open` returns immediately to Vim's event loop, while `inputlist` blocks until you select an item or press `ESC`.
-
-### Inputbox
-
-Prompts the user to input a string in a TUI box:
-
-![](https://skywind3000.github.io/images/p/quickui/input1.png)
-
-Can serve as a drop-in replacement for the `input()` function.
-
-**APIs**:
-
-```VimL
-quickui#input#open(prompt [, text [, history_key]])
-```
-
-**Sample code**
-
-```VimL
-echo quickui#input#open('Enter your name:', 'nobody')
-```
-
-**Usage**:
-
-- `Left` / `Ctrl+B`: move cursor left.
-- `Right` / `Ctrl+F`: move cursor right.
-- `Shift+Left`: select left.
-- `Shift+Right`: select right.
-- `Ctrl+g`: select all.
-- `Up` / `Ctrl+P`: previous history.
-- `Down` / `Ctrl+N`: next history.
-- `Ctrl+Insert`: copy to register `*`.
-- `Shift+Insert`: paste from register `*`.
-- `Ctrl+K`: kill all characters from cursor to end of line.
-- `Ctrl+D`: delete character under cursor.
-- `Ctrl+W`: delete word before cursor.
-- `Home` / `Ctrl+A`: move cursor to the beginning.
-- `End` / `Ctrl+E`: move cursor to the end.
-- `Ctrl+R Ctrl+W`: read current word.
-- `Ctrl+R =`: read evaluation.
-- `Ctrl+R {reg}`: read register.
-
-**Another sample**
-
-```VimL
-function! SearchBox()
-	let cword = expand('<cword>')
-	let title = 'Enter text to search:'
-	let text = quickui#input#open(title, cword, 'search')
-	if text != ''
-		let text = escape(text, '[\/*~^')
-		call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
-	endif
-endfunc
-```
-
-You can search text with this function without dealing with special character escaping.
-
 ### Context menu
 
 Context menu imitates the Windows right-click menu and appears near the cursor:
@@ -337,160 +191,6 @@ call quickui#context#open(content, opts)
 ```
 
 You can define your own context menu and map it to `K` (overriding the default `keywordprg` command) for a much more powerful `K` command.
-
-### Textbox
-
-Textbox displays arbitrary text in a popup window.
-
-![](https://skywind3000.github.io/images/p/quickui/textbox.png)
-
-**Features**:
-
-- HJKL to scroll up/down, ESC to quit
-- Supports syntax highlighting
-
-**APIs**:
-
-Open textbox:
-
-```VimL
-quickui#textbox#open(textlist, opts)
-```
-
-Run a shell command and display the output in the textbox:
-
-```VimL
-quickui#textbox#command(command, opts)
-```
-
-**Sample code**:
-
-```VimL
-" display vim messages in the textbox
-function! DisplayMessages()
-    let x = ''
-    redir => x
-    silent! messages
-    redir END
-    let x = substitute(x, '[\n\r]\+\%$', '', 'g')
-    let content = filter(split(x, "\n"), 'v:key != ""')
-    let opts = {"close":"button", "title":"Vim Messages"}
-    call quickui#textbox#open(content, opts)
-endfunc
-```
-
-This function displays Vim messages (`:messages`) in a text window:
-
-![](https://skywind3000.github.io/images/p/quickui/messages.png)
-
-Navigating the messages with `HJKL` or `PageUp/PageDown` is much handier than listing them in the command line with `:messages`.
-
-### Preview window
-
-The preview window replaces the traditional `:pedit` command, displaying a file in a small popup window near your cursor:
-
-![](https://skywind3000.github.io/images/p/quickui/preview.png)
-
-You can open the preview window with:
-
-```VimL
-quickui#preview#open(filename, opts)
-```
-
-It won't interfere with your work and closes automatically when you move the cursor. The second parameter `opts` is a dictionary with the following options:
-
-| Option | Type | Default | Description |
-|-|-|-|-|
-| cursor | Number | -1 | If set above zero, that line is highlighted (using cursorline). |
-| number | Number | 1 | Set to zero to disable line numbers |
-| syntax | String | `unset` | Syntax file type, e.g., `cpp` or `python` |
-| title | String | `unset` | Title for the preview window |
-| persist | Number | 0 | By default the preview window closes automatically on `CursorMoved`. Set to 1 to close it manually with `quickui#preview#close()` |
-| col | Number | `unset` | Window position (column) |
-| line | Number | `unset` | Window position (line) |
-| w | Number | `unset` | Window width |
-| h | Number | `unset` | Window height |
-
-Syntax highlighting and cursorline are especially useful when peeking at symbol definitions.
-
-The `filename` argument can also be a list of strings. In that case, the preview window displays the list content, and the `syntax` field in `opts` can be used for highlighting.
-
-You can scroll the content in the preview window with:
-
-```VimL
-quickui#preview#scroll(offset)
-```
-
-Parameter `offset` is an integer: positive to scroll down, negative to scroll up.
-
-### Terminal
-
-The `terminal` widget lets you open a terminal in a popup window:
-
-```VimL
-quickui#terminal#open(cmd, opts)
-```
-
-Parameter `cmd` can be a string or a list. `opts` is a dictionary with the following options:
-
-| Option | Type | Default | Description |
-|-|-|-|-|
-| w | Number | 80 | Terminal window width |
-| h | Number | 24 | Terminal window height |
-| col | Number | `unset` | Window horizontal position |
-| line | Number | `unset` | Window vertical position |
-| border | Number | 1 | Use `0` for no border |
-| title | String | `unset` | Window title |
-| callback | String/Function | `unset` | A function receiving the exit code when the terminal exits |
-
-e.g.
-
-```VimL
-function! TermExit(code)
-    echom "terminal exit code: ". a:code
-endfunc
-
-let opts = {'w':60, 'h':8, 'callback':'TermExit'}
-let opts.title = 'Terminal Popup'
-call quickui#terminal#open('python', opts)
-```
-
-This runs `python` in a popup window:
-
-![](https://skywind3000.github.io/images/p/quickui/terminal.png)
-
-This feature requires Vim `8.2.200` (NeoVim `0.4.0`) or later, enabling you to run various TUI programs in a popup window.
-
-### Confirm dialog
-
-This widget presents the user with a dialog from which a choice can be made. It returns the number of the choice. For the first choice, this is 1.
-
-```VimL
-quickui#confirm#open(msg, [choices, [default, [title]]])
-```
-
-e.g.
-
-```VimL
-let question = "What do you want ?"
-let choices = "&Apples\n&Oranges\n&Bananas"
-
-let choice = quickui#confirm#open(question, choices, 1, 'Confirm')
-
-if choice == 0
-	echo "make up your mind!"
-elseif choice == 3
-	echo "tasteful"
-else
-	echo "I prefer bananas myself."
-endif
-```
-
-Result:
-
-![](https://skywind3000.github.io/images/p/quickui/confirm1.png)
-
-Use `h` and `l` to move the cursor, `<space>` or `<cr>` to confirm, and `<ESC>` to cancel. Mouse is also supported.
 
 ### Dialog
 
@@ -1020,6 +720,306 @@ Result:
 4. **button_index is 1-based** — consistent with `quickui#confirm#open()`; the first button returns 1
 5. **Height limit** — total control lines must not exceed screen height, otherwise an error is raised
 6. **Values are preserved on cancel** — after ESC cancel, the return value still contains user-modified control values, useful for restoring state when reopening
+
+### Listbox
+
+When you have hundreds of items to deal with, a menu cannot hold them all — use a listbox instead.
+
+![](https://skywind3000.github.io/images/p/quickui/listbox.png)
+
+**Features**:
+
+- Pick an item from thousands of entries.
+- Columns separated by `"\t"` are automatically aligned.
+- A scroll bar appears when there are too many items.
+- Mouse wheel scrolls the content.
+- Characters prefixed with `&` serve as shortcuts.
+- Has a title and can be dragged with the mouse.
+- Search items with `/` or `?`.
+- Jump to a line number with `:`.
+
+**Usage**:
+
+- `j` / `CTRL+j` / `UP`: move up.
+- `k` / `CTRL+k` / `DOWN`: move down.
+- `J` / `CTRL+d`: half page down.
+- `K` / `CTRL+u`: half page up.
+- `H` / `CTRL+b` / `PageUp`: page up.
+- `L` / `CTRL+f` / `PageDown`: page down.
+- `SPACE` / `ENTER`: confirm.
+- `ESC` / `CTRL+[`: cancel.
+- `g`: go to the first item.
+- `G`: go to the last item.
+- `/`: search forwards.
+- `?`: search backwards.
+- `:`: go to line number.
+- `n` / `CTRL+n`: next match.
+- `N` / `CTRL+p`: previous match.
+
+Note: `hjkl` or `n` may be overridden by user hotkeys, so `CTRL`+`hjkl` or `CTRL`+`n` can always be used.
+
+**APIs**:
+
+Open the listbox:
+
+```VimL
+quickui#listbox#open(content, opts)
+```
+
+Parameter `content` is a list of `[text, command]` items. `opts` is a dictionary of options:
+
+- `title`: title of the listbox.
+- `index`: initial cursor position, starting from 0.
+- `w`: listbox width.
+- `h`: listbox height.
+- `col`: screen position in columns, starting from 1.
+- `line`: screen position in lines, starting from 1.
+- `color`: background color, defaults to `QuickBG`.
+- `syntax`: the `filetype` applied to the `listbox`.
+- `callback`: a function (`"fn(code)"` form) called after the listbox closes (on Enter or ESC).
+
+All options are optional. The `callback` function receives a parameter `code` representing the selected item index. If you quit (`ESC`/`CTRL+[`) without making a selection, `code` will be `-1`.
+
+The internal variable `g:quickui#listbox#cursor` stores the last cursor position (index) in the listbox. It can be used to restore the previous location.
+
+**Sample code**:
+
+```VimL
+let content = [
+            \ [ 'echo 1', 'echo 100' ],
+            \ [ 'echo 2', 'echo 200' ],
+            \ [ 'echo 3', 'echo 300' ],
+            \ [ 'echo 4' ],
+            \ [ 'echo 5', 'echo 500' ],
+            \]
+let opts = {'title': 'select one'}
+call quickui#listbox#open(content, opts)
+```
+
+It can also work like the `inputlist()` function via `quickui#listbox#inputlist`, which returns the selected index immediately instead of executing a Vim command:
+
+```VimL
+let linelist = [
+            \ "line &1",
+            \ "line &2",
+            \ "line &3",
+            \ ]
+" restore last position in previous listbox
+let opts = {'index':g:quickui#listbox#cursor, 'title': 'select'}
+echo quickui#listbox#inputlist(linelist, opts)
+```
+
+The key difference is that `open` returns immediately to Vim's event loop, while `inputlist` blocks until you select an item or press `ESC`.
+
+### Textbox
+
+Textbox displays arbitrary text in a popup window.
+
+![](https://skywind3000.github.io/images/p/quickui/textbox.png)
+
+**Features**:
+
+- HJKL to scroll up/down, ESC to quit
+- Supports syntax highlighting
+
+**APIs**:
+
+Open textbox:
+
+```VimL
+quickui#textbox#open(textlist, opts)
+```
+
+Run a shell command and display the output in the textbox:
+
+```VimL
+quickui#textbox#command(command, opts)
+```
+
+**Sample code**:
+
+```VimL
+" display vim messages in the textbox
+function! DisplayMessages()
+    let x = ''
+    redir => x
+    silent! messages
+    redir END
+    let x = substitute(x, '[\n\r]\+\%$', '', 'g')
+    let content = filter(split(x, "\n"), 'v:key != ""')
+    let opts = {"close":"button", "title":"Vim Messages"}
+    call quickui#textbox#open(content, opts)
+endfunc
+```
+
+This function displays Vim messages (`:messages`) in a text window:
+
+![](https://skywind3000.github.io/images/p/quickui/messages.png)
+
+Navigating the messages with `HJKL` or `PageUp/PageDown` is much handier than listing them in the command line with `:messages`.
+
+### Preview window
+
+The preview window replaces the traditional `:pedit` command, displaying a file in a small popup window near your cursor:
+
+![](https://skywind3000.github.io/images/p/quickui/preview.png)
+
+You can open the preview window with:
+
+```VimL
+quickui#preview#open(filename, opts)
+```
+
+It won't interfere with your work and closes automatically when you move the cursor. The second parameter `opts` is a dictionary with the following options:
+
+| Option | Type | Default | Description |
+|-|-|-|-|
+| cursor | Number | -1 | If set above zero, that line is highlighted (using cursorline). |
+| number | Number | 1 | Set to zero to disable line numbers |
+| syntax | String | `unset` | Syntax file type, e.g., `cpp` or `python` |
+| title | String | `unset` | Title for the preview window |
+| persist | Number | 0 | By default the preview window closes automatically on `CursorMoved`. Set to 1 to close it manually with `quickui#preview#close()` |
+| col | Number | `unset` | Window position (column) |
+| line | Number | `unset` | Window position (line) |
+| w | Number | `unset` | Window width |
+| h | Number | `unset` | Window height |
+
+Syntax highlighting and cursorline are especially useful when peeking at symbol definitions.
+
+The `filename` argument can also be a list of strings. In that case, the preview window displays the list content, and the `syntax` field in `opts` can be used for highlighting.
+
+You can scroll the content in the preview window with:
+
+```VimL
+quickui#preview#scroll(offset)
+```
+
+Parameter `offset` is an integer: positive to scroll down, negative to scroll up.
+
+### Inputbox
+
+Prompts the user to input a string in a TUI box:
+
+![](https://skywind3000.github.io/images/p/quickui/input1.png)
+
+Can serve as a drop-in replacement for the `input()` function.
+
+**APIs**:
+
+```VimL
+quickui#input#open(prompt [, text [, history_key]])
+```
+
+**Sample code**
+
+```VimL
+echo quickui#input#open('Enter your name:', 'nobody')
+```
+
+**Usage**:
+
+- `Left` / `Ctrl+B`: move cursor left.
+- `Right` / `Ctrl+F`: move cursor right.
+- `Shift+Left`: select left.
+- `Shift+Right`: select right.
+- `Ctrl+g`: select all.
+- `Up` / `Ctrl+P`: previous history.
+- `Down` / `Ctrl+N`: next history.
+- `Ctrl+Insert`: copy to register `*`.
+- `Shift+Insert`: paste from register `*`.
+- `Ctrl+K`: kill all characters from cursor to end of line.
+- `Ctrl+D`: delete character under cursor.
+- `Ctrl+W`: delete word before cursor.
+- `Home` / `Ctrl+A`: move cursor to the beginning.
+- `End` / `Ctrl+E`: move cursor to the end.
+- `Ctrl+R Ctrl+W`: read current word.
+- `Ctrl+R =`: read evaluation.
+- `Ctrl+R {reg}`: read register.
+
+**Another sample**
+
+```VimL
+function! SearchBox()
+	let cword = expand('<cword>')
+	let title = 'Enter text to search:'
+	let text = quickui#input#open(title, cword, 'search')
+	if text != ''
+		let text = escape(text, '[\/*~^')
+		call feedkeys("\<ESC>/" . text . "\<cr>", 'n')
+	endif
+endfunc
+```
+
+You can search text with this function without dealing with special character escaping.
+
+### Terminal
+
+The `terminal` widget lets you open a terminal in a popup window:
+
+```VimL
+quickui#terminal#open(cmd, opts)
+```
+
+Parameter `cmd` can be a string or a list. `opts` is a dictionary with the following options:
+
+| Option | Type | Default | Description |
+|-|-|-|-|
+| w | Number | 80 | Terminal window width |
+| h | Number | 24 | Terminal window height |
+| col | Number | `unset` | Window horizontal position |
+| line | Number | `unset` | Window vertical position |
+| border | Number | 1 | Use `0` for no border |
+| title | String | `unset` | Window title |
+| callback | String/Function | `unset` | A function receiving the exit code when the terminal exits |
+
+e.g.
+
+```VimL
+function! TermExit(code)
+    echom "terminal exit code: ". a:code
+endfunc
+
+let opts = {'w':60, 'h':8, 'callback':'TermExit'}
+let opts.title = 'Terminal Popup'
+call quickui#terminal#open('python', opts)
+```
+
+This runs `python` in a popup window:
+
+![](https://skywind3000.github.io/images/p/quickui/terminal.png)
+
+This feature requires Vim `8.2.200` (NeoVim `0.4.0`) or later, enabling you to run various TUI programs in a popup window.
+
+### Confirm dialog
+
+This widget presents the user with a dialog from which a choice can be made. It returns the number of the choice. For the first choice, this is 1.
+
+```VimL
+quickui#confirm#open(msg, [choices, [default, [title]]])
+```
+
+e.g.
+
+```VimL
+let question = "What do you want ?"
+let choices = "&Apples\n&Oranges\n&Bananas"
+
+let choice = quickui#confirm#open(question, choices, 1, 'Confirm')
+
+if choice == 0
+	echo "make up your mind!"
+elseif choice == 3
+	echo "tasteful"
+else
+	echo "I prefer bananas myself."
+endif
+```
+
+Result:
+
+![](https://skywind3000.github.io/images/p/quickui/confirm1.png)
+
+Use `h` and `l` to move the cursor, `<space>` or `<cr>` to confirm, and `<ESC>` to cancel. Mouse is also supported.
 
 ## Tools
 
