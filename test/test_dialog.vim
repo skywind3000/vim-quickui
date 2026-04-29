@@ -116,3 +116,61 @@ function! Test_dialog_history()
 	let result = quickui#dialog#open(items, {'title': 'Search'})
 	echo result
 endfunc
+
+
+"----------------------------------------------------------------------
+" form with dropdown + validator
+"----------------------------------------------------------------------
+function! s:validate_project(result) abort
+	if a:result.project_name =~# '^\s*$'
+		return 'Project name cannot be empty'
+	endif
+	if a:result.project_name =~# '[^a-zA-Z0-9_\-]'
+		return 'Project name: only letters, digits, _ and - are allowed'
+	endif
+	if a:result.email =~# '^\s*$'
+		return 'Email cannot be empty'
+	endif
+	if a:result.email !~# '@'
+		return 'Email must contain @'
+	endif
+	return ''
+endfunc
+
+function! Test_dialog_project_form()
+	let items = [
+		\ {'type': 'label', 'text': 'Create New Project:'},
+		\ {'type': 'input', 'name': 'project_name', 'prompt': 'Project:',
+		\  'value': 'my-app'},
+		\ {'type': 'input', 'name': 'email', 'prompt': 'Email:',
+		\  'value': 'dev@example.com'},
+		\ {'type': 'dropdown', 'name': 'language', 'prompt': 'Language:',
+		\  'items': ['Python', 'JavaScript', 'Go', 'Rust', 'C++'], 'value': 0},
+		\ {'type': 'dropdown', 'name': 'build', 'prompt': 'Build:',
+		\  'items': ['Make', 'CMake', 'Cargo', 'npm', 'pip'], 'value': 0},
+		\ {'type': 'radio', 'name': 'license', 'prompt': 'License:',
+		\  'items': ['&MIT', '&Apache', '&GPL', '&Proprietary'], 'value': 0},
+		\ {'type': 'check', 'name': 'git_init', 'text': 'Initialize git repo',
+		\  'value': 1},
+		\ {'type': 'check', 'name': 'ci', 'text': 'Add CI config',
+		\  'value': 0},
+		\ {'type': 'separator'},
+		\ {'type': 'button', 'name': 'confirm',
+		\  'items': [' &Create ', '  Cancel  ']},
+		\ ]
+	let opts = {'title': 'New Project', 'w': 50,
+		\ 'validator': function('s:validate_project'),
+		\ 'focus': 'project_name'}
+	let result = quickui#dialog#open(items, opts)
+	if result.button_index >= 0
+		echo 'Project:  ' . result.project_name
+		echo 'Email:    ' . result.email
+		echo 'Language: ' . items[3].items[result.language]
+		echo 'Build:    ' . items[4].items[result.build]
+		echo 'License:  ' . items[5].items[result.license]
+		echo 'Git:      ' . (result.git_init ? 'yes' : 'no')
+		echo 'CI:       ' . (result.ci ? 'yes' : 'no')
+	else
+		echo 'Cancelled'
+	endif
+endfunc

@@ -6,7 +6,7 @@ There are many keymaps defined in my `.vimrc`. Tired of checking it from time to
 - Keyboard-driven, with full mouse support.
 - Navigate with the usual Vim keys like `h/j/k/l`, confirm with `ENTER/SPACE` and cancel with `ESC/Ctrl+[`.
 - A tip for each entry can be displayed in the cmdline as you move the cursor around.
-- Available widgets: [menu](#menu), [listbox](#listbox), [inputbox](#inputbox), [textbox](#textbox).. (coming soon)
+- Available widgets: [menu](#menu), [listbox](#listbox), [inputbox](#inputbox), [textbox](#textbox), [dialog](#dialog), and more.
 - Fully customizable, including color schemes and borders.
 - Consistent experience across both `Vim` and `NeoVim`.
 - Pure VimScript, no `+python` required.
@@ -36,11 +36,12 @@ Trying to share my configuration with my friends, I found that they didn't have 
     - [Preview window](#preview-window)
     - [Terminal](#terminal)
     - [Confirm dialog](#confirm-dialog)
+    - [Dialog](#dialog)
   - [User Manual](#user-manual)
   - [Who Am I ?](#who-am-i-)
   - [Credit](#credit)
 
-<!-- /TOC -->
+  <!-- /TOC -->
 
 ## Related Projects
 
@@ -174,6 +175,33 @@ This widget presents the user with a dialog from which a choice can be made:
 It returns the number of the choice. For the first choice, this is 1.
 
 See: [Confirm dialog help](MANUAL.md#confirm-dialog).
+
+### Dialog
+
+The `dialog` widget provides a data-driven dialog system. Simply declare a list of controls, and it pops up a dialog containing inputs, radio buttons, checkboxes, dropdowns, buttons, separators, and more. Once the user finishes interacting, all control values are returned in a dictionary:
+
+![](https://skywind3000.github.io/images/p/quickui/dialog1.png)
+
+A minimal example:
+
+```vim
+let items = [
+	\ {'type': 'label', 'text': 'Test all controls:'},
+	\ {'type': 'input', 'name': 'name', 'prompt': 'Name:',
+	\  'value': 'test'},
+	\ {'type': 'radio', 'name': 'choice', 'prompt': 'Pick:',
+	\  'items': ['A', 'B', 'C']},
+	\ {'type': 'check', 'name': 'flag', 'text': 'Enable'},
+	\ {'type': 'button', 'name': 'confirm',
+	\  'items': [' &OK ', ' &Cancel ']},
+	\ ]
+let result = quickui#dialog#open(items, {'title': 'Test'})
+echo result
+```
+
+Supported control types: `label`, `input`, `radio`, `check`, `button`, `separator`, and `dropdown`. Navigate between controls with `Tab`/`Shift-Tab` or hotkeys, and confirm with `Enter`.
+
+See: [Dialog help](MANUAL.md#dialog), [Dialog guide](DIALOG.md).
 
 
 ## User Manual
