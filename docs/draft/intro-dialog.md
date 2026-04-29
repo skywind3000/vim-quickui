@@ -6,7 +6,7 @@ tags: vim, neovim, tui, vimscript
 cover_image: 
 ---
 
-<!-- TODO: Replace cover_image with a GIF showing the dialog in action -->
+![](https://skywind3000.github.io/images/p/quickui/dialog1.gif)
 
 Have you ever tried to build a form in Vim? Not just a single prompt — a real form, with text inputs, radio buttons, checkboxes, and buttons, all in one window?
 
@@ -55,8 +55,7 @@ In version 1.5.0, it ships a **data-driven dialog system**. You declare your con
 
 No `+python`. No Lua. No external tools. Just VimScript.
 
-<!-- TODO: Insert GIF here showing the full dialog interaction flow -->
-<!-- GIF should show: Tab between controls, type in input, select radio, toggle check, click OK -->
+![](https://skywind3000.github.io/images/p/quickui/dialog4.gif)
 
 ## Install
 
