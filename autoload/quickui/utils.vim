@@ -674,7 +674,7 @@ function! quickui#utils#getchar(wait)
 	if type(code) == v:t_number && code == 0
 		try
 			exec 'sleep 15m'
-			continue
+			return ''
 		catch /^Vim:Interrupt$/
 			let code = "\<c-c>"
 		endtry
@@ -815,16 +815,18 @@ function! quickui#utils#match_ft(filetype, pattern)
 		if match(ft, pattern) >= 0
 			return 1
 		endif
+		return 0
 	elseif pattern =~ '^!'
 		let pattern = strpart(pattern, 1)
 		if match(ft, pattern) < 0
 			return 1
 		endif
+		return 0
 	endif
 	let blacklist = []
 	let whitelist = []
 	for check in split(pattern, ',')
-		if pattern[0] == '-'
+		if check[0] == '-'
 			let blacklist += [check]
 		else
 			let whitelist += [check]
