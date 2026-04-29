@@ -122,7 +122,7 @@ echo result
 
 Supported controls: `label`, `input`, `radio`, `check`, `button`, `separator`, `dropdown`. Navigate with `Tab`/`Shift-Tab` or hotkeys.
 
-See: [Dialog API reference](MANUAL.md#dialog) | [Dialog guide](DIALOG.md)
+See: [Dialog guide](DIALOG.md) | [Diaglog Examples](test/test_dialog.vim)
 
 ### More Widgets
 
