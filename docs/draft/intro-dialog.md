@@ -125,8 +125,8 @@ When the dialog closes, you need to know: did the user confirm or cancel? And if
 
 The return value has two key fields:
 
-- `button_index` — which button was pressed (1-based), or `0` for Enter, or `-1` for cancel
-- `button` — the name of the button control, or `''` if none
+- `button_index` — which button was pressed (0-based), or `-1` for cancel
+- `button` — the name of the button control, or `''` if Enter was pressed on a non-button control or dialog was cancelled
 
 Here is the pattern you will use in every dialog:
 
@@ -137,20 +137,21 @@ if r.button_index == -1
     " User pressed ESC, Ctrl-C, or clicked the close button.
     " Dialog was cancelled.
     echo 'Cancelled'
-elseif r.button_index == 0
+elseif r.button == ''
     " User pressed Enter while on an input, radio, or checkbox.
-    " Treat this as a confirm.
+    " No button was clicked. Treat this as a confirm.
     echo 'Confirmed (Enter): name=' . r.name
 else
-    " User clicked a button. button_index is 1-based:
-    " 1 = first button, 2 = second button, etc.
+    " User clicked a button. button_index is 0-based:
+    " 0 = first button, 1 = second button, etc.
     echo 'Button pressed: ' . r.button . ' #' . r.button_index
 endif
 ```
 
 A few things to note:
 
-- **`button_index` is 1-based**, not 0-based. The first button returns `1`. This is consistent with Vim's built-in `confirm()`.
+- **`button_index` is 0-based**. The first button returns `0`, the second returns `1`, and so on.
+- **Distinguish Enter from button click using `button`.** When `button_index` is `0`, check `r.button`: if it is `''`, the user pressed Enter on a non-button control; if it is non-empty, the first button was clicked.
 - **Cancel still returns values.** Even after ESC, `r.name` and other fields contain whatever the user typed before cancelling. This is useful if you want to restore state when reopening the dialog.
 - **`button` tells you which button row was clicked.** If you have multiple button rows with different names, this field tells you which group the click came from.
 
@@ -159,7 +160,7 @@ In most cases, you just need this:
 ```vim
 let r = quickui#dialog#open(items, opts)
 
-if r.button_index >= 1
+if r.button_index >= 0 && r.button != ''
     " User clicked a button — do something with the values
     echo 'Name: ' . r.name
 endif
@@ -168,8 +169,8 @@ endif
 Or if you have OK and Cancel buttons:
 
 ```vim
-" ' &OK ' is button 1, ' &Cancel ' is button 2
-if r.button_index == 1
+" ' &OK ' is button 0, ' &Cancel ' is button 1
+if r.button_index == 0 && r.button != ''
     echo 'Accepted: ' . r.name
 endif
 ```
@@ -204,8 +205,8 @@ function! NewProject()
     let opts = {'title': 'New Project', 'w': 50, 'focus': 'project_name'}
     let result = quickui#dialog#open(items, opts)
 
-    " Check if the user clicked "Create" (button 1)
-    if result.button_index == 1
+    " Check if the user clicked "Create" (button 0)
+    if result.button_index == 0 && result.button != ''
         " dropdown returns an index — convert it to text
         let languages = ['Python', 'JavaScript', 'Go', 'Rust', 'C++']
         let builds = ['Make', 'CMake', 'Cargo', 'npm', 'pip']
