@@ -97,7 +97,7 @@ Focusable. Built-in readline editing (cursor movement, selection, clipboard, his
 
 ### radio — Radio Button Group
 
-Focusable. Use Left/Right/Space to switch between options.
+Focusable. Use Left/Right to move the visual cursor between options, Space to confirm selection (`(*)`). The `(*)` marker only moves on Space; arrow keys move the highlight only.
 
 ```vim
 {'type': 'radio', 'name': 'role', 'prompt': 'Role:',
@@ -124,10 +124,11 @@ Role:  (*) Development
 
 | Key | Action |
 |-----|--------|
-| `Left` / `h` | Select previous option |
-| `Right` / `l` / `Space` | Select next option |
+| `Left` / `h` | Move cursor to previous option (cycles) |
+| `Right` / `l` | Move cursor to next option (cycles) |
+| `Space` | Select the option under cursor (moves `(*)` marker) |
 | `Enter` | Confirm dialog |
-| `Up` / `Down` | Move focus |
+| `Up` / `Down` | Move focus (horizontal mode), or navigate within items with boundary overflow to adjacent control (vertical mode) |
 
 ### check — Checkbox
 
@@ -345,8 +346,8 @@ Hotkeys are globally active when focus is **not** on an input. When an input is 
 |-----|--------|
 | `Tab` | Move focus to next control (wraps around) |
 | `Shift-Tab` | Move focus to previous control (wraps around) |
-| `Up` | Move focus backward (vertical intuition) |
-| `Down` | Move focus forward (vertical intuition) |
+| `Up` | Move focus backward (vertical intuition); in vertical radio, moves cursor within items first |
+| `Down` | Move focus forward (vertical intuition); in vertical radio, moves cursor within items first |
 
 Initial focus defaults to the first focusable control. Use `opts.focus` to specify initial focus:
 

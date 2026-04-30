@@ -83,6 +83,7 @@ function! s:parse_items(items) abort
 			let ctrl.prompt_width = 0
 			let ctrl.items = get(item, 'items', [])
 			let ctrl.value = get(item, 'value', 0)
+			let ctrl.cursor = ctrl.value
 			let ctrl.vertical = get(item, 'vertical', -1)
 			let ctrl.focusable = 1
 			let ctrl.parsed = []
@@ -761,6 +762,11 @@ function! s:render_radio(hwnd, ctrl, focused) abort
 	let y = ctrl.line_start
 	let w = a:hwnd.w
 
+	" reset cursor to value when unfocused
+	if !a:focused
+		let ctrl.cursor = ctrl.value
+	endif
+
 	" rebuild lines
 	let lines = repeat([''], ctrl.line_count)
 	if ctrl.is_vertical
@@ -805,22 +811,22 @@ function! s:render_radio(hwnd, ctrl, focused) abort
 		let li += 1
 	endfor
 
-	" highlight focused: selected radio marker gets QuickSel
+	" highlight focused: cursor item gets QuickSel
 	if a:focused
 		if ctrl.is_vertical
-			" highlight the selected item's line marker
-			let sel_y = y + ctrl.value
+			" highlight the cursor item's line
+			let sel_y = y + ctrl.cursor
 			let mark_x = ctrl.prompt_width
-			let p = ctrl.parsed[ctrl.value]
+			let p = ctrl.parsed[ctrl.cursor]
 			let mark_end = mark_x + 4 + p.text_width
 			call win.syntax_region('QuickSel', mark_x, sel_y, mark_end, sel_y)
 		else
-			" highlight the selected option
+			" highlight the cursor option
 			let x = ctrl.prompt_width
 			let ri = 0
 			for p in ctrl.parsed
 				let item_w = 4 + p.text_width
-				if ri == ctrl.value
+				if ri == ctrl.cursor
 					call win.syntax_region('QuickSel', x, y, x + item_w, y)
 				endif
 				let x += item_w + 2
@@ -1058,6 +1064,7 @@ function! s:dispatch_click(hwnd, x, a_y) abort
 				let row_off = y - ctrl.line_start
 				if row_off >= 0 && row_off < len(ctrl.items)
 					let ctrl.value = row_off
+					let ctrl.cursor = row_off
 				endif
 			else
 				let rx = ctrl.prompt_width
@@ -1066,6 +1073,7 @@ function! s:dispatch_click(hwnd, x, a_y) abort
 					let item_w = 4 + p.text_width + 2
 					if x >= rx && x < rx + item_w
 						let ctrl.value = ri
+						let ctrl.cursor = ri
 						break
 					endif
 					let rx += item_w
@@ -1150,6 +1158,7 @@ function! s:dispatch_hotkey(hwnd, ch) abort
 			return 1
 		elseif km.action ==# 'radio'
 			let km.control.value = km.index
+			let km.control.cursor = km.index
 			call s:focus_to_ctrl(a:hwnd, km.control)
 			return 1
 		elseif km.action ==# 'check'
@@ -1334,25 +1343,59 @@ function! s:handle_radio(hwnd, ctrl, ch) abort
 		return
 	endif
 
-	if ch == "\<Up>"
-		let fsize = len(a:hwnd.focus_list)
-		if fsize > 0
-			let a:hwnd.focus_index = (a:hwnd.focus_index - 1 + fsize) % fsize
-		endif
-		return
-	endif
-	if ch == "\<Down>"
-		let fsize = len(a:hwnd.focus_list)
-		if fsize > 0
-			let a:hwnd.focus_index = (a:hwnd.focus_index + 1) % fsize
-		endif
+	" Space: select the item under cursor
+	if ch == "\<Space>"
+		let a:ctrl.value = a:ctrl.cursor
 		return
 	endif
 
+	if a:ctrl.is_vertical
+		" Vertical mode: Up/Down navigate within items, boundary -> control
+		if ch == "\<Up>"
+			if a:ctrl.cursor > 0
+				let a:ctrl.cursor -= 1
+			else
+				let fsize = len(a:hwnd.focus_list)
+				if fsize > 0
+					let a:hwnd.focus_index = (a:hwnd.focus_index - 1 + fsize) % fsize
+				endif
+			endif
+			return
+		endif
+		if ch == "\<Down>"
+			if a:ctrl.cursor < size - 1
+				let a:ctrl.cursor += 1
+			else
+				let fsize = len(a:hwnd.focus_list)
+				if fsize > 0
+					let a:hwnd.focus_index = (a:hwnd.focus_index + 1) % fsize
+				endif
+			endif
+			return
+		endif
+	else
+		" Horizontal mode: Up/Down switch between controls
+		if ch == "\<Up>"
+			let fsize = len(a:hwnd.focus_list)
+			if fsize > 0
+				let a:hwnd.focus_index = (a:hwnd.focus_index - 1 + fsize) % fsize
+			endif
+			return
+		endif
+		if ch == "\<Down>"
+			let fsize = len(a:hwnd.focus_list)
+			if fsize > 0
+				let a:hwnd.focus_index = (a:hwnd.focus_index + 1) % fsize
+			endif
+			return
+		endif
+	endif
+
+	" Left/Right: move cursor
 	if ch == "\<Left>" || ch ==# 'h'
-		let a:ctrl.value = (a:ctrl.value - 1 + size) % size
-	elseif ch == "\<Right>" || ch ==# 'l' || ch == "\<Space>"
-		let a:ctrl.value = (a:ctrl.value + 1) % size
+		let a:ctrl.cursor = (a:ctrl.cursor - 1 + size) % size
+	elseif ch == "\<Right>" || ch ==# 'l'
+		let a:ctrl.cursor = (a:ctrl.cursor + 1) % size
 	endif
 endfunc
 
