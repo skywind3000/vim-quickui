@@ -233,6 +233,42 @@ function! s:calc_layout(hwnd, opts) abort
 		endif
 	endfor
 
+	" -- pass 1.5: expand width for prompt alignment inflation --
+	" After alignment, check/radio may need more width than calc_width
+	" estimated (their content width is fixed, unlike input/dropdown which
+	" adapt via input_width/dropdown_width).
+	for ctrl in controls
+		let need = 0
+		if ctrl.type ==# 'check'
+			let need = ctrl.prompt_width + 4 + ctrl.parsed.text_width
+		elseif ctrl.type ==# 'radio'
+			" vertical-mode per-line width
+			for p in ctrl.parsed
+				let rn = ctrl.prompt_width + 4 + p.text_width
+				let need = (need < rn) ? rn : need
+			endfor
+			" forced-horizontal width
+			if ctrl.vertical == 0
+				let hw = ctrl.prompt_width
+				for p in ctrl.parsed
+					let hw += 4 + p.text_width + 2
+				endfor
+				if len(ctrl.parsed) > 0
+					let hw -= 2
+				endif
+				let need = (need < hw) ? hw : need
+			endif
+		endif
+		if need > content_w
+			let content_w = need
+		endif
+	endfor
+	let max_w = &columns * 80 / 100
+	if content_w > max_w
+		let content_w = max_w
+	endif
+	let hwnd.w = content_w
+
 	" -- pass 2: compute radio vertical layout --
 	for ctrl in controls
 		if ctrl.type !=# 'radio'
@@ -1093,7 +1129,7 @@ function! s:dispatch_click(hwnd, x, a_y) abort
 				if bx >= pos.start && bx < pos.endup
 					let ctrl.value = bi
 					let a:hwnd.exit_button = ctrl.name
-					let a:hwnd.exit_index = bi + 1
+					let a:hwnd.exit_index = bi
 					let a:hwnd.exit = 1
 					return 1
 				endif
@@ -1152,7 +1188,7 @@ function! s:dispatch_hotkey(hwnd, ch) abort
 		if km.action ==# 'button'
 			let km.control.value = km.index
 			let a:hwnd.exit_button = km.control.name
-			let a:hwnd.exit_index = km.index + 1
+			let a:hwnd.exit_index = km.index
 			let a:hwnd.exit = 1
 			call s:focus_to_ctrl(a:hwnd, km.control)
 			return 1
@@ -1467,7 +1503,7 @@ function! s:handle_button(hwnd, ctrl, ch) abort
 		endif
 	elseif ch == "\<Space>" || ch == "\<CR>"
 		let a:hwnd.exit_button = a:ctrl.name
-		let a:hwnd.exit_index = a:ctrl.value + 1
+		let a:hwnd.exit_index = a:ctrl.value
 		let a:hwnd.exit = 1
 	endif
 endfunc
@@ -1889,7 +1925,7 @@ function! quickui#dialog#open(items, ...) abort
 	endwhile
 
 	" -- brief render of final state --
-	if hwnd.exit_button !=# '' && hwnd.exit_index > 0
+	if hwnd.exit_button !=# '' && hwnd.exit_index >= 0
 		call s:render_all(hwnd)
 		redraw
 		sleep 15m

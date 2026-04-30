@@ -14,7 +14,7 @@ let items = [
 
 let result = quickui#dialog#open(items, {'title': 'User Info'})
 
-if result.button ==# 'confirm' && result.button_index == 1
+if result.button ==# 'confirm' && result.button_index == 0
     echo 'Name: ' . result.username
     echo 'Email: ' . result.email
 endif
@@ -303,7 +303,7 @@ Returns a Dict. **All control values are always included, regardless of confirm 
 | Field | Type | Description |
 |-------|------|-------------|
 | `button` | String | Name of the button that triggered exit; `''` for Enter confirm or cancel |
-| `button_index` | Number | Button index (**1-based**); `0` for Enter confirm; `-1` for cancel |
+| `button_index` | Number | Button index (**0-based**); `0` for Enter confirm or first button; `-1` for cancel |
 | `<input.name>` | String | Text content of the input |
 | `<radio.name>` | Number | Selected option index (0-based) |
 | `<check.name>` | Number | Checked state (0/1) |
@@ -315,11 +315,12 @@ Returns a Dict. **All control values are always included, regardless of confirm 
 let r = quickui#dialog#open(items, opts)
 
 " User clicked the OK button (button name='confirm', OK is the 1st button)
-if r.button ==# 'confirm' && r.button_index == 1
+if r.button ==# 'confirm' && r.button_index == 0
     " Handle confirm logic
 endif
 
 " User pressed Enter from input/radio/check (button='' but button_index=0)
+" NOTE: distinguish from button click by checking r.button ==# ''
 if r.button ==# '' && r.button_index == 0
     " Handle Enter confirm
 endif
@@ -411,7 +412,7 @@ let items = [
 let result = quickui#dialog#open(items, {
     \ 'title': 'User Form', 'w': 50})
 
-if result.button ==# 'confirm' && result.button_index == 1
+if result.button ==# 'confirm' && result.button_index == 0
     echo 'User: ' . result.username
     echo 'Email: ' . result.email
     echo 'Role: ' . result.role
@@ -431,7 +432,7 @@ let items = [
 
 let result = quickui#dialog#open(items, {'title': 'Confirm Delete'})
 
-if result.button ==# 'confirm' && result.button_index == 1
+if result.button ==# 'confirm' && result.button_index == 0
     echo 'Deleted!'
 endif
 ```
@@ -490,7 +491,7 @@ let items = [
 let result = quickui#dialog#open(items, {
     \ 'title': 'Project Settings', 'w': 50})
 
-if result.button ==# 'action' && result.button_index == 1
+if result.button ==# 'action' && result.button_index == 0
     echo 'Project: ' . result.project
     echo 'Language: ' . result.lang        " index (0-based)
     echo 'Build: ' . result.build          " index (0-based)
@@ -524,6 +525,6 @@ Result:
 1. **Names must be unique** — all controls with a name must not share the same name
 2. **Multiple button rows need different names** — the default name is `'button'`; multiple button controls must each specify a different name
 3. **Hotkeys must not conflict** — the `&` hotkey characters across different controls must be unique
-4. **button_index is 1-based** — consistent with `quickui#confirm#open()`; the first button returns 1
+4. **button_index is 0-based** — consistent with radio/check/dropdown value indexing; the first button returns 0; use `button` field (empty or not) to distinguish button click from Enter confirm
 5. **Height limit** — total control lines must not exceed screen height, otherwise an error is raised
 6. **Values are preserved on cancel** — after ESC cancel, the return value still contains user-modified control values, useful for restoring state when reopening

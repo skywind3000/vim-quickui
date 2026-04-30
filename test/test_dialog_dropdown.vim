@@ -77,7 +77,7 @@ function! Test_dropdown_full()
 		\ ]
 	let opts = {'title': 'Project Setup', 'w': 50}
 	let result = quickui#dialog#open(items, opts)
-	if result.button_index > 0
+	if result.button_index >= 0 && result.button !=# ''
 		echo 'Project: ' . result.project
 		echo 'Language: ' . result.lang . ' (' .
 			\ ['Python','C++','Rust','Go','Java'][result.lang] . ')'
@@ -131,7 +131,7 @@ function! Test_dropdown_scroll()
 		\  'items': [' &OK ', ' &Cancel ']},
 		\ ]
 	let result = quickui#dialog#open(items, {'title': 'Scroll Test'})
-	if result.button_index > 0
+	if result.button_index >= 0 && result.button !=# ''
 		echo 'Selected index: ' . result.lang .
 			\ ' (' . langs[result.lang] . ')'
 	else
