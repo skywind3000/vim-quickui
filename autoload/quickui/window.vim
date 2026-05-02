@@ -122,7 +122,7 @@ function! s:window.__prepare_opts(textlist, opts)
 		endif
 	endif
 	let info.cmd = cmd
-	let info.pending_cmd = []
+	let info.pending_cmd = get(info, 'pending_cmd', [])
 	let info.border_winid = -1
 	let info.border_bid = -1
 endfunc
@@ -303,7 +303,7 @@ function! s:window.__nvim_show()
 		call quickui#core#win_execute(winid, info.pending_cmd)
 		let info.pending_cmd = []
 	endif
-    call nvim_win_set_option(self.winid, 'winhl', 'Normal:'. color)
+	call nvim_win_set_option(self.winid, 'winhl', 'Normal:'. color)
 	if info.has_border
 		let bwid = nvim_open_win(info.border_bid, 0, info.border_opts)
 		let info.border_winid = bwid
@@ -325,11 +325,17 @@ function! s:window.__nvim_hide()
 	endif
 	let info = self.info
 	if info.border_winid >= 0
-		call nvim_win_close(info.border_winid, 1)
+		try
+			call nvim_win_close(info.border_winid, 1)
+		catch
+		endtry
 		let info.border_winid = -1
 	endif
 	if self.winid >= 0
-		call nvim_win_close(self.winid, 1)
+		try
+			call nvim_win_close(self.winid, 1)
+		catch
+		endtry
 		let self.winid = -1
 	endif
 	let self.hide = 1
@@ -358,11 +364,20 @@ endfunc
 function! s:window.close()
 	if self.winid >= 0
 		if s:has_nvim == 0
-			call popup_close(self.winid)
+			try
+				call popup_close(self.winid)
+			catch
+			endtry
 		else
-			call nvim_win_close(self.winid, 1)
+			try
+				call nvim_win_close(self.winid, 1)
+			catch
+			endtry
 			if self.info.border_winid >= 0
-				call nvim_win_close(self.info.border_winid, 1)
+				try
+					call nvim_win_close(self.info.border_winid, 1)
+				catch
+				endtry
 				let self.info.border_winid = -1
 			endif
 		endif
@@ -716,15 +731,21 @@ function! s:window.mouse_click()
 			let retval.y = pos.line - 2
 		endif
 	else
-		if v:mouse_winid != winid
-			return retval
-		endif
-		if self.info.has_border == 0
-			let retval.x = v:mouse_col - 1
-			let retval.y = v:mouse_lnum - 1
-		else
-			let retval.x = v:mouse_col - 2
-			let retval.y = v:mouse_lnum - 2
+		if v:mouse_winid == winid
+			if self.info.has_border == 0
+				let retval.x = v:mouse_col - 1
+				let retval.y = v:mouse_lnum - 1
+			else
+				let retval.x = v:mouse_col - 2
+				let retval.y = v:mouse_lnum - 2
+			endif
+		elseif self.info.border_winid >= 0 && v:mouse_winid == self.info.border_winid
+			" detect close button click on Neovim border window
+			if get(self.opts, 'button', 0) != 0
+				if v:mouse_lnum == 1 && v:mouse_col == self.info.tw
+					let self.quit = 1
+				endif
+			endif
 		endif
 	endif
 	return retval
