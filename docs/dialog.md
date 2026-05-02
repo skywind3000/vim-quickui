@@ -216,7 +216,8 @@ quickui#dialog#open(items, opts)
   +-- s:calc_width() -> hwnd.w
   +-- s:calc_layout() -> prompt alignment, alignment inflation width check, line_start, content_h
   +-- s:build_focus_list() -> focus_list
-  +-- opts.focus -> set initial focus
+  +-- control-level 'focus' field -> set initial focus + sub-index
+  +-- deprecated opts.focus -> warning message
   +-- initial focus is input -> s:input_select_all() to select all content
   +-- s:build_keymap() -> keymap (with conflict detection)
   +-- compute hwnd.sep_char (obtain horizontal line character from border style)

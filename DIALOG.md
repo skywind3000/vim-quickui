@@ -350,11 +350,17 @@ Hotkeys are globally active when focus is **not** on an input. When an input is 
 | `Up` | Move focus backward (vertical intuition); in vertical radio, moves cursor within items first |
 | `Down` | Move focus forward (vertical intuition); in vertical radio, moves cursor within items first |
 
-Initial focus defaults to the first focusable control. Use `opts.focus` to specify initial focus:
+Initial focus defaults to the first focusable control. Use the control-level `focus` field to specify initial focus:
 
 ```vim
-let result = quickui#dialog#open(items, {'focus': 'email'})
+let items = [
+    \ {'type': 'input', 'name': 'email', 'prompt': 'Email:'},
+    \ {'type': 'button', 'items': [' &OK ', ' &Cancel '], 'focus': 1},
+    \ ]
+let result = quickui#dialog#open(items)
 ```
+
+The `focus` field is an integer. For button/radio, it specifies the sub-item index (which button or radio item gets cursor). For other controls, the value is ignored — just having the field means "start focus here".
 
 ## Layout Rules
 

@@ -1771,18 +1771,30 @@ function! quickui#dialog#open(items, ...) abort
 	" -- build focus list --
 	call s:build_focus_list(hwnd)
 
-	" -- initial focus --
+	" -- deprecated opts.focus warning --
 	if has_key(opts, 'focus')
-		let focus_name = opts.focus
-		let fi = 0
-		for entry in hwnd.focus_list
-			if has_key(entry.control, 'name') && entry.control.name ==# focus_name
-				let hwnd.focus_index = fi
-				break
-			endif
-			let fi += 1
-		endfor
+		echohl WarningMsg
+		echomsg 'quickui#dialog: opts.focus is deprecated, use control-level "focus" field instead'
+		echohl None
 	endif
+
+	" -- initial focus from control-level 'focus' field --
+	let fi = 0
+	for entry in hwnd.focus_list
+		let item = a:items[entry.control.index]
+		if has_key(item, 'focus')
+			let hwnd.focus_index = fi
+			let ctrl = entry.control
+			let fv = item.focus
+			if ctrl.type ==# 'button' && fv >= 0 && fv < len(ctrl.parsed)
+				let ctrl.value = fv
+			elseif ctrl.type ==# 'radio' && fv >= 0 && fv < len(ctrl.items)
+				let ctrl.cursor = fv
+			endif
+			break
+		endif
+		let fi += 1
+	endfor
 
 	" -- select all for initially focused input --
 	if len(hwnd.focus_list) > 0

@@ -29,6 +29,22 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" focus test: control-level focus field
+"----------------------------------------------------------------------
+function! Test_dialog_focus()
+	let items = [
+		\ {'type': 'input', 'name': 'user', 'prompt': 'User:',
+		\  'value': 'admin'},
+		\ {'type': 'input', 'name': 'pass', 'prompt': 'Pass:'},
+		\ {'type': 'button', 'name': 'confirm',
+		\  'items': [' &Login ', ' &Cancel '], 'focus': 0},
+		\ ]
+	let result = quickui#dialog#open(items, {'title': 'Focus Test'})
+	echo result
+endfunc
+
+
+"----------------------------------------------------------------------
 " multi button rows test
 "----------------------------------------------------------------------
 function! Test_dialog_multi_button()
@@ -141,7 +157,7 @@ function! Test_dialog_project_form()
 	let items = [
 		\ {'type': 'label', 'text': 'Create New Project:'},
 		\ {'type': 'input', 'name': 'project_name', 'prompt': 'Project:',
-		\  'value': 'my-app'},
+		\  'value': 'my-app', 'focus': 0},
 		\ {'type': 'input', 'name': 'email', 'prompt': 'Email:',
 		\  'value': 'dev@example.com'},
 		\ {'type': 'dropdown', 'name': 'language', 'prompt': 'Language:',
@@ -158,8 +174,7 @@ function! Test_dialog_project_form()
 		\  'items': [' &Create ', '  Cancel  ']},
 		\ ]
 	let opts = {'title': 'New Project', 'w': 50,
-		\ 'validator': function('s:validate_project'),
-		\ 'focus': 'project_name'}
+		\ 'validator': function('s:validate_project')}
 	let result = quickui#dialog#open(items, opts)
 	if result.button_index >= 0
 		echo 'Project:  ' . result.project_name
