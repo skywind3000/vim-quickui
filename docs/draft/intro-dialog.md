@@ -8,42 +8,40 @@ cover_image:
 
 ![](https://skywind3000.github.io/images/p/quickui/dialog1.gif)
 
-Have you ever tried to build a form in Vim? Not just a single prompt — a real form, with text inputs, radio buttons, checkboxes, and buttons, all in one window?
+Vim is incredibly powerful. But that power comes with a tax: you have to *remember* it.
 
-If you have, you know the pain.
+## The Memory Tax
 
-## The Old Way Hurts
+Take the substitute command. "Find and replace" — one of the most common editing operations — has a dizzying number of variations in Vim:
 
-Vim gives you `input()` for single-line prompts and `inputlist()` for picking from a list. That's it.
+- Replace all occurrences, not just the first? Add `g`.
+- Confirm before each replacement? Add `c`.
+- Case-insensitive? Add `i`. Or put `\c` in the pattern.
+- Using regex? That's the default. But which flavor? `\v` for very-magic, `\V` for literal, or the default magic mode with its own escaping rules.
+- Match whole words only? Wrap the pattern with `\<` and `\>`. Easy to forget, easy to mistype.
+- Replace in the whole file? Prepend `%`. Visual selection only? Use `'<,'>`. A line range? Type the numbers.
 
-Want to ask the user for a project name? Easy:
-
-```vim
-let name = input('Project name: ')
-```
-
-Now add an email field:
-
-```vim
-let name = input('Project name: ')
-let email = input('Email: ')
-```
-
-Two blocking prompts. The user fills in the name, presses Enter, then fills in the email. They can't go back to fix the name. There is no visual layout. No way to see both fields at once.
-
-Now add a language choice:
+That gives you commands like:
 
 ```vim
-let name = input('Project name: ')
-let email = input('Email: ')
-let lang = inputlist(['1. Python', '2. Go', '3. Rust'])
+:%s/\v(foo|bar)/baz/gci
 ```
 
-Three separate interactions for three fields. This is not a form. This is an interrogation.
+Beginners struggle to memorize all the flags. Experienced users forget the ones they rarely need.
 
-What if the user wants to change the project name after picking a language? Start over.
+And substitute is just one built-in command. The real problem multiplies with plugins. Every plugin brings its own commands with its own flags and syntax. The ones you use daily become muscle memory. The ones you use once a month? Back to the docs, every time.
 
-What if you also need a checkbox for "Initialize git repo"? There is no `inputcheck()` in Vim. You would have to fake it with yet another `input()` call — `input('Init git? (y/n): ')` — and parse the answer yourself.
+This is the fundamental tension in Vim's interface. The command line is optimized for *speed*, not *discoverability*. If you already know the command, it's the fastest way. If you don't — or you've forgotten a flag — you're stuck.
+
+What if, instead of memorizing flags, the user could see all available options at once? Not buried in `:help`, but right there on screen:
+
+![](https://skywind3000.github.io/images/p/quickui/dialog6.gif)
+
+This is a search-and-replace dialog built with [vim-quickui](https://github.com/skywind3000/vim-quickui). Every option is visible: regex mode, case sensitivity, whole word matching, confirmation, replace scope. Whether it's your first time or you're coming back after months, there's zero memory burden. You see what's available, you pick what you need, you go.
+
+So how do you build something like this in Vim?
+
+The built-in tools won't get you far. Vim gives you `input()` for single-line prompts and `inputlist()` for simple list selection. That's it — no text fields, no checkboxes, no radio buttons, no way to show multiple controls in one window. If you need a multi-field form, you end up chaining blocking `input()` calls one after another, with no way to go back and fix a previous answer.
 
 This does not scale.
 
@@ -56,6 +54,8 @@ In version 1.5.0, it ships a **data-driven dialog system**. You declare your con
 No `+python`. No Lua. No external tools. Just VimScript.
 
 ![](https://skywind3000.github.io/images/p/quickui/dialog4.gif)
+
+For newcomers, this lowers the barrier to getting productive in Vim — you don't need to memorize every command and flag before you can use a feature. For experienced users, it cuts down the time spent re-reading docs for rarely-used commands and lets you stay in the flow.
 
 ## Install
 

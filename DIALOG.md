@@ -76,6 +76,7 @@ Focusable. Built-in readline editing (cursor movement, selection, clipboard, his
 | `prompt` | String | No | `''` | Label text on the left side |
 | `value` | String | No | `''` | Initial text |
 | `history` | String | No | `''` | History namespace (shared across calls) |
+| `focus` | Number | No | — | If present, this control receives initial focus (value ignored) |
 
 **Editing keybindings** (when input is focused):
 
@@ -112,6 +113,7 @@ Focusable. Use Left/Right to move the visual cursor between options, Space to co
 | `items` | List | Yes | — | Option text list; `&` marks the hotkey character |
 | `value` | Number | No | `0` | Default selected index (0-based) |
 | `vertical` | Number | No | auto | `0` forces horizontal, `1` forces vertical; auto if omitted |
+| `focus` | Number | No | — | If present, this control receives initial focus; value sets cursor position (0-based item index) |
 
 Horizontal layout: `Role:  (*) Dev  ( ) QA  ( ) PM`
 
@@ -146,6 +148,7 @@ Focusable. Space toggles the checked state.
 | `text` | String | Yes | — | Display text; `&` marks the hotkey character |
 | `prompt` | String | No | `''` | Label on the left side (participates in prompt alignment when set) |
 | `value` | Number | No | `0` | 0 = unchecked, 1 = checked |
+| `focus` | Number | No | — | If present, this control receives initial focus (value ignored) |
 
 Layout: `[x] Administrator` or `Admin:  [x] Administrator` (with prompt)
 
@@ -169,6 +172,7 @@ Focusable. Buttons are centered. Activating any button closes the dialog.
 | `name` | String | No | `'button'` | Control name |
 | `items` | List | Yes | — | Button text list; `&` marks the hotkey character |
 | `value` | Number | No | `0` | Default focused button index (0-based) |
+| `focus` | Number | No | — | If present, this control receives initial focus; value sets which button is highlighted (0-based) |
 
 Layout: `< OK >    < Cancel >`
 
@@ -215,6 +219,7 @@ Focusable. Displays a collapsed selection field that opens a self-drawn popup li
 | `prompt` | String | No | `''` | Label text on the left side (participates in prompt alignment) |
 | `items` | List | Yes | — | Option text list |
 | `value` | Number | No | `0` | Default selected index (0-based); clamped to valid range |
+| `focus` | Number | No | — | If present, this control receives initial focus (value ignored) |
 
 Collapsed layout:
 ```
@@ -271,7 +276,6 @@ Passed via the second parameter `opts`:
 | `bordercolor` | String | `'QuickBorder'` | Border highlight group |
 | `gap` | Number | `1` | Number of blank lines between different control types |
 | `button` | Number | `1` | Whether to show the close button |
-| `focus` | String | — | Name of the control to receive initial focus |
 | `validator` | Funcref | — | Validation function called before normal exit (see below) |
 
 ### Validator
