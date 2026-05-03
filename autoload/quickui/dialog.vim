@@ -1851,6 +1851,9 @@ function! quickui#dialog#open(items, ...) abort
 
 	" -- hide system cursor --
 	let hide_system_cursor = get(opts, 'hide_system_cursor', 1)
+	if has('nvim')
+		let hide_system_cursor = 0
+	endif
 	if hide_system_cursor != 0
 		call quickui#utils#hide_system_cursor(1)
 	endif
