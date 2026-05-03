@@ -935,6 +935,7 @@ function! quickui#utils#hide_system_cursor(hide) abort
 			let &t_ve = s:cursor_tve
 		endif
 		let s:cursor_current = 0
+		exec 'redraw'
 	else
 		if s:cursor_current == 0
 			let s:cursor_current = 1
