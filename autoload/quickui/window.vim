@@ -51,6 +51,7 @@ function! s:window.__prepare_opts(textlist, opts)
 	let opts.wrap = get(a:opts, 'wrap', 0)
 	let opts.color = get(a:opts, 'color', 'QuickBG')
 	let opts.border = get(a:opts, 'border', 0)
+	let opts.opacity = get(a:opts, 'opacity', 100)
 	let self.opts = opts
 	let self.bid = quickui#core#buffer_alloc()
 	let self.dirty = 1
@@ -170,6 +171,9 @@ function! s:window.__vim_create()
 	let opts.zindex = self.z + 1
 	if get(self.opts, 'button', 0) != 0
 		let opts.close = 'button'
+	endif
+	if has('patch-9.2.428') 
+		let opts.opacity = self.opts.opacity
 	endif
 	let self.winid = popup_create(self.bid, opts)
 	let winid = self.winid
