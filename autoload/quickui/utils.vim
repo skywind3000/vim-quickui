@@ -954,5 +954,38 @@ function! quickui#utils#hide_system_cursor(hide) abort
 endfunc
 
 
+"----------------------------------------------------------------------
+" backup variable
+"----------------------------------------------------------------------
+function! quickui#utils#backup_variable(name)
+	if !exists('s:backup_variables')
+		let s:backup_variables = {}
+	endif
+	if exists(a:name)
+		let s:backup_variables[a:name] = deepcopy(eval(a:name))
+	else
+		let s:backup_variables[a:name] = '__QUICKUI_UNDEFINED__'
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" restore variable
+"----------------------------------------------------------------------
+function! quickui#utils#restore_variable(name)
+	if !exists('s:backup_variables') || !has_key(s:backup_variables, a:name)
+		return
+	endif
+	let value = s:backup_variables[a:name]
+	if value == '__QUICKUI_UNDEFINED__'
+		if exists(a:name)
+			exec 'unlet ' . a:name
+		endif
+	else
+		exec 'let ' . a:name . ' = ' . string(value)
+	endif
+endfunc
+
+
 
 
