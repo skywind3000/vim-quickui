@@ -525,18 +525,26 @@ function! s:build_button_line(hwnd, ctrl, lines) abort
 	let ctrl = a:ctrl
 	let y = ctrl.line_start
 	let w = a:hwnd.w
+	let equal_width = a:hwnd.btn_equal_width
 	" compute button text with padding (similar to confirm.vim)
 	let max_bw = 4
-	for p in ctrl.parsed
-		let max_bw = (max_bw < p.text_width) ? p.text_width : max_bw
-	endfor
+	if equal_width
+		for p in ctrl.parsed
+			let max_bw = (max_bw < p.text_width) ? p.text_width : max_bw
+		endfor
+	endif
 	let final = ''
 	let positions = []
 	let start = 0
 	let bi = len(ctrl.parsed) - 1
 	for p in ctrl.parsed
-		let pad1 = (max_bw - p.text_width) / 2
-		let pad2 = max_bw - p.text_width - pad1
+		if equal_width
+			let pad1 = (max_bw - p.text_width) / 2
+			let pad2 = max_bw - p.text_width - pad1
+		else
+			let pad1 = 1
+			let pad2 = 1
+		endif
 		let btext = repeat(' ', pad1) . p.text . repeat(' ', pad2)
 		let btext_w = strwidth(btext)
 		let display = '<' . btext . '>'
@@ -1755,6 +1763,7 @@ function! quickui#dialog#open(items, ...) abort
 	let hwnd.exit_button = ''
 	let hwnd.exit_index = -1
 	let hwnd.validator = get(opts, 'validator', v:null)
+	let hwnd.btn_equal_width = get(opts, 'btn_equal_width', 1)
 
 	" -- calculate width --
 	if has_key(opts, 'w')

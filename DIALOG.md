@@ -276,6 +276,7 @@ Passed via the second parameter `opts`:
 | `bordercolor` | String | `'QuickBorder'` | Border highlight group |
 | `gap` | Number | `1` | Number of blank lines between different control types |
 | `button` | Number | `1` | Whether to show the close button |
+| `btn_equal_width` | Number | `1` | `1`: all buttons equal width (default); `0`: auto-width per button text |
 | `validator` | Funcref | — | Validation function called before normal exit (see below) |
 
 ### Validator
